@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:webapp/HomePage.dart';
-import 'package:webapp/Login.dart';
+// ignore_for_file: prefer_const_constructors
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
+import 'package:crypt/crypt.dart';
+import 'package:webapp/HomePage.dart';
+
+void main() async {
   runApp(const MyApp());
 }
 
@@ -29,6 +32,35 @@ class MyApp extends StatelessWidget {
       home: const MyHomePage(title: 'Flutter Demo'),
     );
   }
+}
+
+// These two variables hold the username and password, respectively
+final _userController = TextEditingController();
+final _passController = TextEditingController();
+final _errController = TextEditingController();
+
+void signIn(BuildContext context) {
+  // Admin login stored here ONLY UNTIL DATABASE IS FULLY FUNCTIONAL
+  const _adminUser = "JCTDev";
+  final passhash =
+      Crypt.sha256("JohnCage2022", rounds: 1000, salt: "chanceoperations");
+
+  final h = Crypt(passhash.toString());
+
+  if (_adminUser == _userController.text.trim() &&
+      h.match(_passController.text.trim())) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const HomePage(title: 'HomePage');
+    }));
+  } else
+    print('ERR: Incorrect username or password');
+}
+
+@override
+void dispose() {
+  // Clean up the controllers when the widget is removed from widget tree
+  _userController.dispose();
+  _passController.dispose();
 }
 
 class MyHomePage extends StatefulWidget {
@@ -72,62 +104,101 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 214, 214, 214),
       appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Home',
-                  style: TextStyle(fontSize: 15, color: Colors.white)),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const HomePage(title: 'Homepage');
-                }));
-              },
-            ),
-            TextButton(
-                child: const Text('Login',
-                    style: TextStyle(fontSize: 15, color: Colors.white)),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const Login(title: 'Login');
-                  }));
-                })
-          ]),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: TextButton(
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return const HomePage(title: 'HomePage');
-            }));
-          },
-          child: const Text('Next'),
-        ),
-        // Column is also a layout widget. It takes a list of children and
-        // arranges them vertically. By default, it sizes itself to fit its
-        // children horizontally, and tries to be as tall as its parent.
-        //
-        // Invoke "debug painting" (press "p" in the console, choose the
-        // "Toggle Debug Paint" action from the Flutter Inspector in Android
-        // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-        // to see the wireframe for each widget.
-        //
-        // Column has various properties to control how it sizes itself and
-        // how it positions its children. Here we use mainAxisAlignment to
-        // center the children vertically; the main axis here is the vertical
-        // axis because Columns are vertical (the cross axis would be
-        // horizontal).
+        title: Text('Admin Login'),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      body: SafeArea(
+        child: Center(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          SizedBox(height: 35),
 
-      // This trailing comma makes auto-formatting nicer for build methods.
+          Text(
+            'We\'re under construction. If you\'re an admin or developer, please login below:',
+            style: TextStyle(
+              fontWeight: FontWeight.w300,
+              fontSize: 30,
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Login: Username
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100.0),
+            child: Container(
+                height: 30,
+                width: 250,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
+                    child: TextField(
+                      controller: _userController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Username',
+                      ),
+                    ))),
+          ),
+          // End Login: Username
+
+          SizedBox(height: 10),
+
+          // Login: Password
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 100.0),
+              child: Container(
+                  height: 30,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Padding(
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: TextField(
+                          controller: _passController,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Password',
+                          ),
+                          obscureText: true)))),
+          // End Login: Password
+
+          SizedBox(height: 10),
+
+          // Sign in button
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 100.0),
+              child: Container(
+                  height: 30,
+                  width: 125,
+                  decoration: BoxDecoration(
+                    color: Colors.lightBlue,
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Padding(
+                      padding: EdgeInsets.only(left: 7.5),
+                      child: TextButton(
+                          onPressed: () {
+                            signIn(context);
+                          },
+                          child: const Text('Sign in',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)))))),
+
+          SizedBox(height: 30),
+
+          // TODO: Print if there's an error in the login
+        ])),
+      ),
     );
   }
 }
