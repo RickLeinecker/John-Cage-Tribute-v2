@@ -6,16 +6,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
       ),
-      body: Center(
-        child: TextButton(
-          onPressed: () {},
-          child: const Text('Go Back'),
-        ),
-      ),
+      home: HomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
