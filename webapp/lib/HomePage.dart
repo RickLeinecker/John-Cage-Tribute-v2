@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webapp/Recordings.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -12,9 +13,9 @@ class HomePage extends StatelessWidget {
       ),
       body: Container(
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               image: DecorationImage(
-            image: AssetImage("images/college_bg.jpg"),
+            image: AssetImage("images/BlackMountainCollege.jpg"),
             fit: BoxFit.cover,
           )),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -27,7 +28,7 @@ class HomePage extends StatelessWidget {
                         color: Colors.white.withOpacity(0.70),
                         border: Border.all(color: Colors.black, width: 2),
                         borderRadius: BorderRadius.circular(5)),
-                    child: Center(
+                    child: const Center(
                         child: Text(
                             'We\'re still a work in progress! Check back soon.',
                             style: TextStyle(
@@ -35,7 +36,7 @@ class HomePage extends StatelessWidget {
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center)))),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 100.0),
                 child: Container(
@@ -45,17 +46,31 @@ class HomePage extends StatelessWidget {
                         color: Colors.white.withOpacity(0.70),
                         border: Border.all(color: Colors.black, width: 2),
                         borderRadius: BorderRadius.circular(5)),
-                    child: Center(
+                    child: const Center(
                         child: Text(
                       'Pictured: Black Mountain College, where John Cage taught many of his students in avant-garde music. Here, he organized the first \'Happening\'.',
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w500,
-                        fontSize: 18,
+                        //fontSize: 18,
                         letterSpacing: 2,
                       ),
                       textAlign: TextAlign.center,
-                    ))))
+                    )))),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 100.0),
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                  return Recordings(title: 'Recordings');
+                })),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Colors.lightBlue[300]),
+                ),
+                child: const Text("Recordings"),
+              ),
+            ),
           ])),
     );
   }
