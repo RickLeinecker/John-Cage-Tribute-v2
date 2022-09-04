@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
       ),
       body: Container(
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               image: DecorationImage(
             image: AssetImage("images/college_bg.jpg"),
             fit: BoxFit.cover,
@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
                         color: Colors.white.withOpacity(0.70),
                         border: Border.all(color: Colors.black, width: 2),
                         borderRadius: BorderRadius.circular(5)),
-                    child: Center(
+                    child: const Center(
                         child: Text(
                             'We\'re still a work in progress! Check back soon.',
                             style: TextStyle(
@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center)))),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 100.0),
                 child: Container(
@@ -45,7 +45,7 @@ class HomePage extends StatelessWidget {
                         color: Colors.white.withOpacity(0.70),
                         border: Border.all(color: Colors.black, width: 2),
                         borderRadius: BorderRadius.circular(5)),
-                    child: Center(
+                    child: const Center(
                         child: Text(
                       'Pictured: Black Mountain College, where John Cage taught many of his students in avant-garde music. Here, he organized the first \'Happening\'.',
                       style: TextStyle(
