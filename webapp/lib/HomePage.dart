@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webapp/Recordings.dart';
+import 'package:webapp/SearchPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -62,13 +62,13 @@ class HomePage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => Navigator.push(context,
                     MaterialPageRoute(builder: (context) {
-                  return Recordings(title: 'Recordings');
+                  return SearchPage(title: 'SearchPage');
                 })),
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all(Colors.lightBlue[300]),
                 ),
-                child: const Text("Recordings"),
+                child: const Text("SearchPage"),
               ),
             ),
           ])),
