@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 
 class LiveStream extends StatelessWidget {
   const LiveStream({Key? key, required this.title}) : super(key: key);
@@ -10,15 +12,14 @@ class LiveStream extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
       ),
-      body: Center(
-        child: TextButton(
-          onPressed: () {},
-          child: const Text('Go Back'),
+      body: const Center(
+        child: Text(
+          'Hehehe',
+          style: TextStyle(backgroundColor: Colors.black, color: Colors.white),
         ),
       ),
     );
   }
-
 }
 
 /*

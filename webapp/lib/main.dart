@@ -1,11 +1,31 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:crypt/crypt.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:webapp/HomePage.dart';
 
+import 'DB.dart';
+
 void main() async {
+  final database = MyDatabase();
+
+  await database.into(database.recordings).insert(RecordingsCompanion.insert(
+      id: 0, name: 'Test Recording', location: 'test_audio.wav'));
+
+  await database.into(database.recordings).insert(RecordingsCompanion.insert(
+      id: 1, name: 'Test Recording 2', location: 'test_audio2.wav'));
+
+  final allRecordings = await database.select(database.recordings).get();
+
+  print(
+      'Here\'s my data: ${allRecordings.elementAt(0).id}, ${allRecordings.elementAt(0).name}, ${allRecordings.elementAt(0).location}');
+
+  print(
+      'Here\'s my data: ${allRecordings.elementAt(1).id}, ${allRecordings.elementAt(1).name}, ${allRecordings.elementAt(1).location}');
+
+  print(await getApplicationDocumentsDirectory());
+
   runApp(const MyApp());
 }
 
@@ -29,7 +49,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blueGrey,
       ),
-      home: const MyHomePage(title: 'Flutter Demo'),
+      home: const MyHomePage(title: 'Flutter JCT Test'),
     );
   }
 }
@@ -41,19 +61,21 @@ final _errController = TextEditingController();
 
 void signIn(BuildContext context) {
   // Admin login stored here ONLY UNTIL DATABASE IS FULLY FUNCTIONAL
-  const _adminUser = "JCTDev";
+  const adminUser = "JCTDev";
   final passhash =
       Crypt.sha256("JohnCage2022", rounds: 1000, salt: "chanceoperations");
 
   final h = Crypt(passhash.toString());
 
-  if (_adminUser == _userController.text.trim() &&
+  // Login passes
+  if (adminUser == _userController.text.trim() &&
       h.match(_passController.text.trim())) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const HomePage(title: 'HomePage');
     }));
-  } else
+  } else {
     print('ERR: Incorrect username or password');
+  }
 }
 
 @override
