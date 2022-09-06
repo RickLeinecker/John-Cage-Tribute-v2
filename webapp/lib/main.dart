@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:crypt/crypt.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webapp/HomePage.dart';
+import 'package:webapp/SearchPage.dart';
 
 import 'DB.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final database = MyDatabase();
 
   await database.into(database.recordings).insert(RecordingsCompanion.insert(
@@ -71,7 +74,7 @@ void signIn(BuildContext context) {
   if (adminUser == _userController.text.trim() &&
       h.match(_passController.text.trim())) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const HomePage(title: 'HomePage');
+      return SearchPage(title: 'HomePage');
     }));
   } else {
     print('ERR: Incorrect username or password');
