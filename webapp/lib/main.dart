@@ -13,21 +13,21 @@ void main() async {
 
   final database = MyDatabase();
 
-  await database.into(database.recordings).insert(RecordingsCompanion.insert(
-      id: 0, name: 'Test Recording', location: 'test_audio.wav'));
+  // await database.into(database.recordings).insert(RecordingsCompanion.insert(
+  //     id: 0, name: 'Test Recording', location: 'test_audio.wav'));
 
-  await database.into(database.recordings).insert(RecordingsCompanion.insert(
-      id: 1, name: 'Test Recording 2', location: 'test_audio2.wav'));
+  // await database.into(database.recordings).insert(RecordingsCompanion.insert(
+  //     id: 1, name: 'Test Recording 2', location: 'test_audio2.wav'));
 
-  final allRecordings = await database.select(database.recordings).get();
+  // final allRecordings = await database.select(database.recordings).get();
 
-  print(
-      'Here\'s my data: ${allRecordings.elementAt(0).id}, ${allRecordings.elementAt(0).name}, ${allRecordings.elementAt(0).location}');
+  // print(
+  //     'Here\'s my data: ${allRecordings.elementAt(0).id}, ${allRecordings.elementAt(0).name}, ${allRecordings.elementAt(0).location}');
 
-  print(
-      'Here\'s my data: ${allRecordings.elementAt(1).id}, ${allRecordings.elementAt(1).name}, ${allRecordings.elementAt(1).location}');
+  // print(
+  //     'Here\'s my data: ${allRecordings.elementAt(1).id}, ${allRecordings.elementAt(1).name}, ${allRecordings.elementAt(1).location}');
 
-  print(await getApplicationDocumentsDirectory());
+  // print(await getApplicationDocumentsDirectory());
 
   runApp(const MyApp());
 }
