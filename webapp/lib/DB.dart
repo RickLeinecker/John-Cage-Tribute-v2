@@ -7,24 +7,38 @@ import 'dart:io';
 part 'DB.g.dart';
 
 class Users extends Table {
-  IntColumn get userID => integer()();
-  TextColumn get userName => text()();
-  TextColumn get password => text()();
+  IntColumn get userId => integer().autoIncrement()();
+  TextColumn get userName => text().withLength(max:32).unique()();
+  TextColumn get password => text().withLength(min: 8, max:32)();
+  IntColumn get email => integer().unique()();
+  BoolColumn get accountType => boolean().clientDefault(() => false)();
+
+}
+
+class UserRecordings extends Table {
+  IntColumn get userId => integer().references(Users, #userId)();
+  IntColumn get recordingId => integer().references(Recordings, #recordingId)();
 }
 
 class Recordings extends Table {
-  IntColumn get id => integer()();
-  TextColumn get name => text().withLength(min: 1, max: 24)();
-  TextColumn get location => text()();
+  IntColumn get recordingId => integer().autoIncrement()();
+  IntColumn get maestroId => integer().references(Users, #userId)();
+  TextColumn get title => text().withLength(max:255).unique()();
+  IntColumn get lengthSeconds => integer()();
+  TextColumn get audioFile => text().withLength(max:255)();
+  IntColumn get recordingDate => integer()();
+  IntColumn get inContest => integer()();
+
 }
 
-@DataClassName('Category')
-class Categories extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get description => text()();
+class Contests extends Table {
+  IntColumn get contestId => integer()();
+  IntColumn get recordingIdFirst=> integer().references(Recordings, #recordingId)();
+  IntColumn get recordingIdSecond => integer().references(Recordings, #recordingId)();
+  IntColumn get recordingIdThird => integer().references(Recordings, #recordingId)();
 }
 
-@DriftDatabase(tables: [Users, Recordings, Categories])
+@DriftDatabase(tables: [Users, UserRecordings, Recordings, Contests])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(WebDatabase('db.sqlite'));
 
