@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+class SignUp extends StatelessWidget {
+  const SignUp({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
@@ -18,5 +18,4 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -70,6 +70,25 @@ final _userController = TextEditingController();
 final _passController = TextEditingController();
 final _errController = TextEditingController();
 
+void signIn(BuildContext context) {
+  // Admin login stored here ONLY UNTIL DATABASE IS FULLY FUNCTIONAL
+  const adminUser = "JCTDev";
+  final passhash =
+      Crypt.sha256("JohnCage2022", rounds: 1000, salt: "chanceoperations");
+
+  final h = Crypt(passhash.toString());
+
+  // Login passes
+  if (adminUser == _userController.text.trim() &&
+      h.match(_passController.text.trim())) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return HomePage(title: 'HomePage');
+    }));
+  } else {
+    print('ERR: Incorrect username or password');
+  }
+}
+
 @override
 void dispose() {
   // Clean up the controllers when the widget is removed from widget tree
