@@ -1,0 +1,7 @@
+webapp/pubspec.lock
+webapp/macos/firebase_app_id_file.json
+webapp/macos/Runner/GoogleService-Info.plist
+webapp/ios/firebase_app_id_file.json
+webapp/ios/Runner/GoogleService-Info.plist
+webapp/android/app/google-services.json
+webapp/firebase.exe
