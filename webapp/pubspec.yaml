@@ -38,9 +38,10 @@ dependencies:
   prisma: ^0.0.1
   async: ^2.8.2
   drift: ^2.1.0
-  sqlite3_flutter_libs: ^0.5.9
-  path_provider: ^2.0.11
   path: ^1.8.1
+  firebase_core: ^1.22.0
+  firebase_authentication: ^0.0.6
+  provider: ^6.0.3
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:drift/web.dart';
 import 'package:path/path.dart' as p;
 
 import 'dart:io';
@@ -27,7 +26,7 @@ class Categories extends Table {
 
 @DriftDatabase(tables: [Users, Recordings, Categories])
 class MyDatabase extends _$MyDatabase {
-  MyDatabase() : super(_openConnection());
+  MyDatabase() : super(WebDatabase('db.sqlite'));
 
   @override
   int get schemaVersion => 1;
@@ -42,8 +41,8 @@ class MyDatabase extends _$MyDatabase {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
-    return NativeDatabase(file);
+    final dbFolder = '../../db';
+    final file = File(p.join(dbFolder, 'db.sqlite'));
+    return WebDatabase('db.sqlite');
   });
 }

@@ -1,33 +1,38 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:crypt/crypt.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:webapp/HomePage.dart';
-import 'package:webapp/SearchPage.dart';
+import 'package:provider/provider.dart';
 
+import 'FireAPI.dart';
+
+// Firebase imports
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'firebase_options.dart';
+
+// Database
 import 'DB.dart';
+
+// Pages
+import 'HomePage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initializing Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   final database = MyDatabase();
 
-  await database.into(database.recordings).insert(RecordingsCompanion.insert(
-      id: 0, name: 'Test Recording', location: 'test_audio.wav'));
+  //final allRecordings = await database.select(database.recordings).get();
 
-  await database.into(database.recordings).insert(RecordingsCompanion.insert(
-      id: 1, name: 'Test Recording 2', location: 'test_audio2.wav'));
+  // print(
+  //     'Here\'s my data: ${allRecordings.elementAt(0).id}, ${allRecordings.elementAt(0).name}, ${allRecordings.elementAt(0).location}');
 
-  final allRecordings = await database.select(database.recordings).get();
-
-  print(
-      'Here\'s my data: ${allRecordings.elementAt(0).id}, ${allRecordings.elementAt(0).name}, ${allRecordings.elementAt(0).location}');
-
-  print(
-      'Here\'s my data: ${allRecordings.elementAt(1).id}, ${allRecordings.elementAt(1).name}, ${allRecordings.elementAt(1).location}');
-
-  print(await getApplicationDocumentsDirectory());
+  // print(
+  //     'Here\'s my data: ${allRecordings.elementAt(1).id}, ${allRecordings.elementAt(1).name}, ${allRecordings.elementAt(1).location}');
 
   runApp(const MyApp());
 }
@@ -38,22 +43,25 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: const MyHomePage(title: 'Flutter JCT Test'),
-    );
+    return MultiProvider(
+        providers: [
+          Provider<AuthenticationService>(
+            create: (_) => AuthenticationService(fb_auth.FirebaseAuth.instance),
+          ),
+          StreamProvider(
+            create: (context) =>
+                context.read<AuthenticationService>().authStateChanges,
+            initialData: null,
+          ),
+        ],
+        child: MaterialApp(
+          title: 'John Cage Tribute',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: AuthenticationWrapper(),
+        ));
   }
 }
 
@@ -61,25 +69,6 @@ class MyApp extends StatelessWidget {
 final _userController = TextEditingController();
 final _passController = TextEditingController();
 final _errController = TextEditingController();
-
-void signIn(BuildContext context) {
-  // Admin login stored here ONLY UNTIL DATABASE IS FULLY FUNCTIONAL
-  const adminUser = "JCTDev";
-  final passhash =
-      Crypt.sha256("JohnCage2022", rounds: 1000, salt: "chanceoperations");
-
-  final h = Crypt(passhash.toString());
-
-  // Login passes
-  if (adminUser == _userController.text.trim() &&
-      h.match(_passController.text.trim())) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SearchPage(title: 'HomePage');
-    }));
-  } else {
-    print('ERR: Incorrect username or password');
-  }
-}
 
 @override
 void dispose() {
@@ -107,19 +96,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -139,14 +115,37 @@ class _MyHomePageState extends State<MyHomePage> {
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           SizedBox(height: 35),
 
-          Text(
-            'We\'re under construction. If you\'re an admin or developer, please login below:',
-            style: TextStyle(
-              fontWeight: FontWeight.w300,
-              fontSize: 30,
+          Container(
+            height: 150,
+            width: 400,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                    blurRadius: 10,
+                    spreadRadius: 3,
+                    offset: const Offset(3, 3),
+                  ),
+                ]),
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                child: Text(
+                  'We\'re under construction. If you\'re an admin or developer, please login below:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ),
-          SizedBox(height: 20),
+
+          SizedBox(height: 50),
 
           // Login: Username
           Padding(
@@ -212,7 +211,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       padding: EdgeInsets.only(left: 7.5),
                       child: TextButton(
                           onPressed: () {
-                            signIn(context);
+                            context.read<AuthenticationService>().signIn(
+                                  email: _userController.text.trim(),
+                                  password: _passController.text.trim(),
+                                );
                           },
                           child: const Text('Sign in',
                               style: TextStyle(
@@ -225,5 +227,22 @@ class _MyHomePageState extends State<MyHomePage> {
         ])),
       ),
     );
+  }
+}
+
+// Authentication wrapper, handles user authentication
+// through Firebase's Authentication API
+class AuthenticationWrapper extends StatelessWidget {
+  const AuthenticationWrapper({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final firebaseUser = context.watch<fb_auth.User?>();
+
+    if (firebaseUser != null) {
+      return HomePage(title: 'John Cage Tribute');
+    }
+
+    return MyHomePage(title: 'Sign In');
   }
 }
