@@ -74,7 +74,7 @@ void signIn(BuildContext context) {
   if (adminUser == _userController.text.trim() &&
       h.match(_passController.text.trim())) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SearchPage(title: 'HomePage');
+      return HomePage(title: 'HomePage');
     }));
   } else {
     print('ERR: Incorrect username or password');
