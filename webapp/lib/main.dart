@@ -7,7 +7,7 @@ import 'FireAPI.dart';
 
 // Firebase imports
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
 // Database
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           Provider<AuthenticationService>(
-            create: (_) => AuthenticationService(fb_auth.FirebaseAuth.instance),
+            create: (_) => AuthenticationService(FirebaseAuth.instance),
           ),
           StreamProvider(
             create: (context) =>
@@ -237,7 +237,7 @@ class AuthenticationWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firebaseUser = context.watch<fb_auth.User?>();
+    final firebaseUser = context.watch<User?>();
 
     if (firebaseUser != null) {
       return HomePage(title: 'John Cage Tribute');
