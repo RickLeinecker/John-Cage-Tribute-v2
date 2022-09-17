@@ -1,0 +1,16 @@
+CompList.js:29 Promise
+CompList.js:29 Array(1)
+VM26 dashboard:1 Error while trying to use the following icon from the Manifest: https://johncagetribute.org/logo192.png (Download error or resource isn't a valid image)
+content.js:45 Uncaught TypeError: Cannot read property 'currentSrc' of undefined
+    at Object.find (content.js:45)
+    at m_over (content.js:116)
+content.js:45 Uncaught TypeError: Cannot read property 'currentSrc' of undefined
+    at Object.find (content.js:45)
+    at m_over (content.js:116)
+Rooms.js:21 Rooms: 
+Rooms.js:22 Object__proto__: Object
+DevTools failed to load SourceMap: Could not load content for chrome-extension://fmkadmapgofadopljbjfkapdkoienihi/build/injectGlobalHook.js.map: HTTP error: status code 404, net::ERR_UNKNOWN_URL_SCHEME
+DevTools failed to load SourceMap: Could not load content for chrome-extension://fmkadmapgofadopljbjfkapdkoienihi/build/contentScript.js.map: HTTP error: status code 404, net::ERR_UNKNOWN_URL_SCHEME
+DevTools failed to load SourceMap: Could not load content for chrome-extension://fmkadmapgofadopljbjfkapdkoienihi/build/react_devtools_backend.js.map: HTTP error: status code 404, net::ERR_UNKNOWN_URL_SCHEME
+Rooms.js:21 Rooms: 
+Rooms.js:22 {Jason Tan: {…}}Jason Tan: audioProcessor: {numPerformers: 1, performers: Array(1), audioInBuffers: Array(1), sessionAudio: Array(0), blockSize: 100000, …}currentListeners: 0currentPerformers: 1host: "Jason Tan"id: "Jason Tan"maxListeners: 3maxPerformers: 4members: {KC8UO8Vo8HFjL81jAAAH: {…}}pin: "1248"__proto__: Object__proto__: Object
