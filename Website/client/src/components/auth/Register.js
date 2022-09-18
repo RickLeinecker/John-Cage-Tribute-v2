@@ -4,26 +4,16 @@ import { Link, Redirect } from 'react-router-dom';
 import { setAlert } from '../../actions/alert';
 import { register } from '../../actions/auth';
 import PropTypes from 'prop-types';
+import axios from "axios";
 
 const Register = ({ setAlert, register, isAuthenticated }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    affiliation: '',
-    location: '',
-    password: '',
-    password2: ''
-  });
 
-  const { name, email, affiliation, location, password, password2 } = formData;
-
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const { username, email, password, password2 } = formData;
 
   const onSubmit = async (e) => {
     e.preventDefault();
 	var success = true;
-	if(!/^[a-zA-Z0-9]{3,}$/.test(name)) {
+	if(!/^[a-zA-Z0-9]{3,}$/.test(username)) {
 		setAlert("Username is not valid", "danger");
 		success = false;
 	}
@@ -36,7 +26,11 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	  success = false;
     } 
 	if(success) {
-      register({ name, email, affiliation, location, password });
+      axios.post('http://localhost:3000/create',  {
+        username: username,
+        email: email,
+        password: password
+      });
     }
   };
 
@@ -50,29 +44,6 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	</small>
   );
   grav = null;
-  var loc = (
-  <div>
-    <div className='form-group'>
-          <input
-            type='text'
-            placeholder='Affiliation'
-            name='affiliation'
-            value={affiliation}
-            onChange={onChange}
-          />
-        </div>
-        <div className='form-group'>
-          <input
-            type='text'
-            placeholder='Location'
-            name='location'
-            value={location}
-            onChange={onChange}
-          />
-        </div>
-		</div>
-  );
-  loc = null;
   return (
     <Fragment>
       <h1 className='large text-primary'>Sign Up</h1>
@@ -84,8 +55,8 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
           <input
             type='text'
             placeholder='Username'
-            name='name'
-            value={name}
+            name='username'
+            value={username}
             onChange={onChange}
           />
         </div>
@@ -99,7 +70,6 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
           />
           {grav}
         </div>
-        {loc}
         <div className='form-group'>
           <input
             type='password'
