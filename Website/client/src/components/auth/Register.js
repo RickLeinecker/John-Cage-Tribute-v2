@@ -4,11 +4,18 @@ import { Link, Redirect } from 'react-router-dom';
 import { setAlert } from '../../actions/alert';
 import { register } from '../../actions/auth';
 import PropTypes from 'prop-types';
-import axios from "axios";
+import Axios from "axios";
 
 const Register = ({ setAlert, register, isAuthenticated }) => {
 
-  const { username, email, password, password2 } = formData;
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+
+  const displayInfo = () => {
+    console.log(username + email + password + password2);
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -26,10 +33,12 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	  success = false;
     } 
 	if(success) {
-      axios.post('http://localhost:3000/create',  {
+      Axios.post('http://localhost:3000/create',  {
         username: username,
         email: email,
         password: password
+      }).then(() => {
+        console.log("success");
       });
     }
   };
@@ -57,7 +66,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             placeholder='Username'
             name='username'
             value={username}
-            onChange={onChange}
+            onChange={e => setUsername(e.target.value)}
           />
         </div>
         <div className='form-group'>
@@ -66,7 +75,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             placeholder='Email Address'
             name='email'
             value={email}
-            onChange={onChange}
+            onChange={e => setEmail(e.target.value)}
           />
           {grav}
         </div>
@@ -76,7 +85,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             placeholder='Password'
             name='password'
             value={password}
-            onChange={onChange}
+            onChange={e => setPassword(e.target.value)}
           />
         </div>
         <div className='form-group'>
@@ -85,10 +94,10 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             placeholder='Confirm Password'
             name='password2'
             value={password2}
-            onChange={onChange}
+            onChange={e => setPassword2(e.target.value)}
           />
         </div>
-        <input type='submit' className='btn btn-primary' value='Register' />
+        <input type='submit' onClick={displayInfo} className='btn btn-primary' value='Register' />
       </form>
       <p className='my-1'>
         Already have an account? <Link to='/login'>Sign In</Link>
