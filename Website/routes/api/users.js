@@ -12,7 +12,7 @@ const mysql = require("mysql");
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password:"mypassword112",
+  password:"MySQL!1996",
   database:"jctdatabase"
 });
 
@@ -24,7 +24,7 @@ router.post("/create", (res, req) => {
       const email = req.body.email;
       const password = req.body.password;
       
-      db.query("INSERT INTO users (userId, username, email, password, accountType) VALUES (?,?,?)", [username, email, password],
+      db.query("INSERT INTO users (username, email, password) VALUES (?,?,?)", [username, email, password],
       (err, res) => {
         if (err) {
           console.log(err);

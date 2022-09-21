@@ -3,7 +3,7 @@
 // Parameters to connect to a database
 $dbHostname = "localhost";
 $dbUser = "root";
-$dbPassword = "mypassword112";
+$dbPassword = "MySQL!1996";
 $dbName = "jctdatabase";
 $id = '';
 

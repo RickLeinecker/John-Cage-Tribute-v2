@@ -33,13 +33,15 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	  success = false;
     } 
 	if(success) {
-      Axios.post('http://localhost:3000/create',  {
+      Axios.post('http://localhost:3001/registration', {
         username: username,
         email: email,
         password: password
-      }).then(() => {
-        console.log("success");
-      });
+      })
+      .then(res => {
+        console.log("Getting from ::::", res.data)
+      })
+      .catch(err => console.log(err));
     }
   };
 
