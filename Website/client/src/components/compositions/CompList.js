@@ -25,10 +25,10 @@ class CompList extends React.Component {
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
-				if(item.runtime !== undefined)
+				if(item.lengthSeconds !== undefined)
 					return (<CompListItem 
 						info={item}
-						key={item._id}
+						key={item.recordingId}
 						user={this.props.user}
 					/>)
 				else return null
@@ -61,7 +61,8 @@ class CompListItem extends React.Component {
 			editing: false,
 			formdata: {
 				title: props.info.title,
-				tags: props.info.tags.join(","),
+				tags: props.info.tags,
+				//tags: props.info.tags.join(","),
 				description: props.info.description,
 				private: props.info.private
 			}
@@ -77,7 +78,8 @@ class CompListItem extends React.Component {
 	
 	render() {
 		var {info, formdata} = this.state;
-		var tags = info.tags.join(", ");
+		var tags = info.tags;
+		//var tags = info.tags.join(", ");
 		var {date, runtime} = this.parseDateTime(info.date, info.runtime);
 		
 		var sidebar = null;

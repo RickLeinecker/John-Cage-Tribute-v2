@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import api from '../../utils/api';
 import Spinner from '../layout/Spinner';
 import CompList from "./CompList";
+import recordings from "./test.json";
+import $ from "jquery";
 
 class Search extends React.Component {
 	constructor(props) {
@@ -11,20 +13,24 @@ class Search extends React.Component {
 		this.state = {
 			searchQuery: "",
 			searchParam: "title",
-			list: []
+			//list: [] UNCOMMENT THIS TO CONNECT TO API
+			list: recordings.recordings //ONLY FOR TESTING DELETE WHEN CONNECTING TO API
 		};
 		this.searchbarChange = this.searchbarChange.bind(this);
 		this.performSearch = this.performSearch.bind(this);
 		this.changeSearchParam = this.changeSearchParam.bind(this);
 	}
 	
-	componentDidMount() {
-		api.get("/compositions").then(r => {
-			this.setState({list: r.data})
-		})
-	}
+	//UNCOMMENT THIS TO CONNECT TO API
+
+	// componentDidMount() {
+	// 	api.get("/compositions").then(r => {
+	// 		this.setState({list: r.data})
+	// 	})
+	// }
 	
 	render() {
+		console.log(this.state.list);
 		const s = "search-params-button";
 		const chosenStyle = {
 			backgroundColor: "#adf"
@@ -50,7 +56,7 @@ class Search extends React.Component {
 				<input type="text" id="search-bar" placeholder="Search" 
 					value={this.state.searchQuery} onChange={this.searchbarChange} />
 				<input style={{padding:"8px 9px",fontWeight:"bold"}} 
-					onClick={this.performSearch} type="submit" value=">"/>
+					onClick={this.performSearch} type="submit" value="Search"/>
 			</form>
 			<div style={{
 				textAlign:"center",
