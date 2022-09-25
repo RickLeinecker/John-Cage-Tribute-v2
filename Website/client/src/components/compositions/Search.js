@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import api from '../../utils/api';
 import Spinner from '../layout/Spinner';
 import CompList from "./CompList";
+import Axios from "axios";
 
 class Search extends React.Component {
 	constructor(props) {
@@ -19,8 +20,9 @@ class Search extends React.Component {
 	}
 	
 	componentDidMount() {
-		api.get("/compositions").then(r => {
+		Axios.get("http://localhost:3001/recordings").then(r => {
 			this.setState({list: r.data})
+			console.log(r.data);
 		})
 	}
 	

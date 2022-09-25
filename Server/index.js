@@ -44,11 +44,13 @@ app.post("/registration", (req, res) => {
 app.get("/recordings", (req, res) => {
       
     db.query("SELECT * FROM Recordings",
-    (err, res) => {
+    (err, result) => {
     if (err) {
         console.log(err);
     } else {
         console.log("Listing All Recordings");
+        console.log(result);
+        res.send(result);
     }
     });
 });
