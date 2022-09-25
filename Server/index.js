@@ -6,9 +6,8 @@ const mysql = require("mysql");
 
 const db = mysql.createConnection({
     host: 'localhost',
-    port: '3306',
     user: 'root',
-    password: 'MySQL!1996',
+    password: 'mypassword112',
     database: 'jctdatabase'
 });
 
@@ -23,14 +22,13 @@ db.connect((err) => {
         console.log("Database connected!");
 });
 
+// Register new user
 app.post("/registration", (req, res) => {
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
 
     console.log("I am here in registration, holding onto the following: (?,?,?)", username, email, password);
-
-    const query = "INSERT INTO users (username, email, password) VALUES (?,?,?)";
       
     db.query("INSERT INTO Users (username, email, password) VALUES (?,?,?)", [username, email, password],
     (err, res) => {
@@ -41,6 +39,44 @@ app.post("/registration", (req, res) => {
     }
     });
 });
+
+// List Compositions
+app.get("/recordings", (req, res) => {
+      
+    db.query("SELECT * FROM Recordings",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("Listing All Recordings");
+    }
+    });
+});
+
+// List Contests
+app.get("/contests", (req, res) => {
+      
+    db.query("SELECT * FROM Contests",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("Listing All Contests");
+    }
+    });
+});
+
+// Delete Recording
+app.delete("/delete/:id", (req, res) => {
+    const id = req.params.id;
+    db.query("DELETE FROM Recordings WHERE recordingId = ?", id, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+  });
 
 app.listen(3001, () => {
     console.log("Running on port: 3001");
