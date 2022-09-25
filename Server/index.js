@@ -43,7 +43,7 @@ app.post("/registration", (req, res) => {
 // List Compositions
 app.get("/recordings", (req, res) => {
       
-    db.query("SELECT * FROM Recordings",
+    db.query("SELECT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.userId",
     (err, result) => {
     if (err) {
         console.log(err);

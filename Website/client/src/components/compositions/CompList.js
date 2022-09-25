@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Spinner from '../layout/Spinner';
 import api from '../../utils/api';
 import {setAlert} from "../../actions/alert"
+import Moment from 'moment';
 
 class CompList extends React.Component {
 	constructor(props) {
@@ -41,9 +42,8 @@ class CompList extends React.Component {
 		<div style={{textAlign:"center"}}>
 			<div id="comp-list-header">
 				<div style={{width:"30%",margin:"5px"}}>Title</div>
-				<div style={{width:"30%",margin:"5px"}}>Tags</div>
+				<div style={{width:"30%",margin:"5px"}}>Maestro</div>
 				<div style={{width:"20%",margin:"5px"}}>Date</div>
-				<div style={{width:"20%",margin:"5px"}}>Duration</div>
 			</div>
 			{list}
 		</div>
@@ -61,6 +61,8 @@ class CompListItem extends React.Component {
 			editing: false,
 			formdata: {
 				title: props.info.title,
+				length: props.info.lengthSeconds,
+				date: props.info.recordingDate
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -158,9 +160,8 @@ class CompListItem extends React.Component {
 			{sidebar}
 			<div className="comp-list-item" onClick={this.chosenState}>
 				<div style={{width:"30%",margin:"5px"}}>{info.title}</div>
-				{/* <div style={{width:"30%",margin:"5px"}}>{tags}</div>
-				<div style={{width:"20%",margin:"5px"}}>{date}</div> */}
-				{/* <div style={{width:"20%",margin:"5px"}}>{runtime}</div> */}
+				<div style={{width:"30%",margin:"5px"}}>{info.username}</div>
+				<div style={{width:"20%",margin:"5px"}}>{info.date}</div>
 			</div>
 		</Fragment>
 		);
