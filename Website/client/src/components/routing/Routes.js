@@ -22,7 +22,7 @@ const Routes = props => {
     <section className="container">
       <Alert />
       <Switch>
-        <Route exact path="/landing" component={Landing} />      // Route
+        <PrivateRoute exact path="/landing" component={Landing} />      // Route
         <PrivateRoute exact path="/register" component={Register} />   // Route
         <PrivateRoute exact path="/login" component={Login} />         // Route
         <PrivateRoute exact path="/search" component={Search} />       // Route
