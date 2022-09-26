@@ -73,6 +73,28 @@ export const login = (email, password) => async dispatch => {
   }
 };
 
+// Admin Login for testing
+export const admin_login = (username, password) => async dispatch => {
+  const body = { username, password };
+
+  if (username == process.env.REACT_APP_ADMIN_USR && password == process.env.REACT_APP_ADMIN_PSWRD)
+  {
+    console.log('Admin login success!');
+
+    dispatch({
+      type: LOGIN_SUCCESS
+    })
+
+    return;
+  }
+
+  console.log('Admin login was a failure.');
+
+  dispatch({
+    type: LOGIN_FAIL
+  })
+}
+
 // Logout
 export const logout = () => {
 	console.log("logout")

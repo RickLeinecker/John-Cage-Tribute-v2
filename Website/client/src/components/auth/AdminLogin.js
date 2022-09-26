@@ -2,26 +2,26 @@ import React, { Fragment, useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { login } from '../../actions/auth';
+import { admin_login } from '../../actions/auth';
 
-const Login = ({ login, isAuthenticated }) => {
+const AdminLogin = ({admin_login, isAuthenticated }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  const { email, password } = formData;
+  const { email: admin_user, password } = formData;
 
   const onChange = e =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const onSubmit = e => {
     e.preventDefault();
-    login(email, password);
+    admin_login(admin_user, password);
   };
 
   if (isAuthenticated) {
-    return <Redirect to="/dashboard" />;
+    return <Redirect to="/landing" />;
   }
 
   return (
@@ -33,10 +33,10 @@ const Login = ({ login, isAuthenticated }) => {
       <form className="form" onSubmit={onSubmit}>
         <div className="form-group">
           <input
-            type="email"
+            type="admin-user"
             placeholder="Email Address"
             name="email"
-            value={email}
+            value={admin_user}
             onChange={onChange}
             required
           />
@@ -53,11 +53,14 @@ const Login = ({ login, isAuthenticated }) => {
         </div>
         <input type="submit" className="btn btn-primary" value="Login" />
       </form>
+      <p className="my-1">
+        Don't have an account? <Link to="/register">Sign Up</Link>
+      </p>
     </Fragment>
   );
 };
 
-Login.propTypes = {
+AdminLogin.propTypes = {
   login: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.bool
 };
@@ -66,4 +69,4 @@ const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { admin_login })(AdminLogin);
