@@ -1,5 +1,5 @@
 const express = require('express');
-const connectDB = require('./config/db');
+//const connectDB = require('./config/db');
 const path = require('path');
 const fs = require('fs');
 const fetch = require('node-fetch');
@@ -22,7 +22,7 @@ const baseUrl = 'https://johncagetribute.org';
 // const baseUrl = `http://localhost:${PORT}`;
 
 // Connect Database
-connectDB();
+//connectDB();
 // Initialize Middleware
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true, parameterLimit: 50000 }));
