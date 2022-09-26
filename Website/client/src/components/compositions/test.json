@@ -1,0 +1,59 @@
+{
+    "recordings":
+    [
+        {
+            "recordingId": 0,
+            "maestroId": 0,
+            "title": "September",
+            "lengthSeconds": 180,
+            "audioFile": "",
+            "recordingsDate": "",
+            "inContest": true
+        },
+        {
+            "recordingId": 1,
+            "maestroId": 1,
+            "title": "Blinding Lights",
+            "lengthSeconds": 200,
+            "audioFile": "",
+            "recordingsDate": "",
+            "inContest": true
+        },
+        {
+            "recordingId": 2,
+            "maestroId": 0,
+            "title": "Let's Groove",
+            "lengthSeconds": 200,
+            "audioFile": "",
+            "recordingsDate": "",
+            "inContest": false
+        },
+        {
+            "recordingId": 3,
+            "maestroId": 2,
+            "title": "Let It Go",
+            "lengthSeconds": 200,
+            "audioFile": "",
+            "recordingsDate": "",
+            "inContest": true
+        },
+        {
+            "recordingId": 4,
+            "maestroId": 3,
+            "title": "Stacy's Mom",
+            "lengthSeconds": 200,
+            "audioFile": "",
+            "recordingsDate": "",
+            "inContest": true
+        },
+        {
+            "recordingId": 5,
+            "maestroId": 4,
+            "title": "4'33",
+            "lengthSeconds": 200,
+            "audioFile": "",
+            "recordingsDate": "",
+            "inContest": true
+        }
+    ]
+}

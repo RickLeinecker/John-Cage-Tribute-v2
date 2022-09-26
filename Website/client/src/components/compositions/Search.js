@@ -27,6 +27,7 @@ class Search extends React.Component {
 	}
 	
 	render() {
+		console.log(this.state.list);
 		const s = "search-params-button";
 		const chosenStyle = {
 			backgroundColor: "#adf"
@@ -38,7 +39,7 @@ class Search extends React.Component {
 				<input type="text" id="search-bar" placeholder="Search" 
 					value={this.state.searchQuery} onChange={this.searchbarChange} />
 				<input style={{padding:"8px 9px",fontWeight:"bold"}} 
-					onClick={this.performSearch} type="submit" value=">"/>
+					onClick={this.performSearch} type="submit" value="Search"/>
 			</form>
 			<div style={{
 				textAlign:"center",
