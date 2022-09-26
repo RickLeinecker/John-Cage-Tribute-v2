@@ -29,12 +29,12 @@ app.use(express.urlencoded({ limit: '20mb', extended: true, parameterLimit: 5000
 // The line of code should get commented out when deploying, bring it back if testing on local machine server.
 //app.get('/', (req, res) => res.send('API Running...'));
 // Define Routes
-app.use('/api/users', require('./routes/api/users'));
-app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/compositions', require('./routes/api/compositions'));
-app.use('/api/uploaddownload', require('./routes/api/uploaddownload'));
-app.use('/api/profile', require('./routes/api/profile'));
-app.use('/api/posts', require('./routes/api/posts'));
+// app.use('/api/users', require('./routes/api/users'));
+// app.use('/api/auth', require('./routes/api/auth'));
+// app.use('/api/compositions', require('./routes/api/compositions'));
+// app.use('/api/uploaddownload', require('./routes/api/uploaddownload'));
+// app.use('/api/profile', require('./routes/api/profile'));
+// app.use('/api/posts', require('./routes/api/posts'));
 
 // Socket Code
 const Role = {
