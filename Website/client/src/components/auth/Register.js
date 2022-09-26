@@ -4,26 +4,23 @@ import { Link, Redirect } from 'react-router-dom';
 import { setAlert } from '../../actions/alert';
 import { register } from '../../actions/auth';
 import PropTypes from 'prop-types';
+import Axios from "axios";
 
 const Register = ({ setAlert, register, isAuthenticated }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    affiliation: '',
-    location: '',
-    password: '',
-    password2: ''
-  });
 
-  const { name, email, affiliation, location, password, password2 } = formData;
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
 
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const displayInfo = () => {
+    console.log(username + email + password + password2);
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault();
 	var success = true;
-	if(!/^[a-zA-Z0-9]{3,}$/.test(name)) {
+	if(!/^[a-zA-Z0-9]{3,}$/.test(username)) {
 		setAlert("Username is not valid", "danger");
 		success = false;
 	}
@@ -36,7 +33,15 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	  success = false;
     } 
 	if(success) {
-      register({ name, email, affiliation, location, password });
+      Axios.post('http://localhost:3001/registration', {
+        username: username,
+        email: email,
+        password: password
+      })
+      .then(res => {
+        console.log("Getting from ::::", res.data)
+      })
+      .catch(err => console.log(err));
     }
   };
 
@@ -50,29 +55,6 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	</small>
   );
   grav = null;
-  var loc = (
-  <div>
-    <div className='form-group'>
-          <input
-            type='text'
-            placeholder='Affiliation'
-            name='affiliation'
-            value={affiliation}
-            onChange={onChange}
-          />
-        </div>
-        <div className='form-group'>
-          <input
-            type='text'
-            placeholder='Location'
-            name='location'
-            value={location}
-            onChange={onChange}
-          />
-        </div>
-		</div>
-  );
-  loc = null;
   return (
     <Fragment>
       <h1 className='large text-primary'>Sign Up</h1>
@@ -84,9 +66,9 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
           <input
             type='text'
             placeholder='Username'
-            name='name'
-            value={name}
-            onChange={onChange}
+            name='username'
+            value={username}
+            onChange={e => setUsername(e.target.value)}
           />
         </div>
         <div className='form-group'>
@@ -95,18 +77,17 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             placeholder='Email Address'
             name='email'
             value={email}
-            onChange={onChange}
+            onChange={e => setEmail(e.target.value)}
           />
           {grav}
         </div>
-        {loc}
         <div className='form-group'>
           <input
             type='password'
             placeholder='Password'
             name='password'
             value={password}
-            onChange={onChange}
+            onChange={e => setPassword(e.target.value)}
           />
         </div>
         <div className='form-group'>
@@ -115,10 +96,10 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             placeholder='Confirm Password'
             name='password2'
             value={password2}
-            onChange={onChange}
+            onChange={e => setPassword2(e.target.value)}
           />
         </div>
-        <input type='submit' className='btn btn-primary' value='Register' />
+        <input type='submit' onClick={displayInfo} className='btn btn-primary' value='Register' />
       </form>
       <p className='my-1'>
         Already have an account? <Link to='/login'>Sign In</Link>

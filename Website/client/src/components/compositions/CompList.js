@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Spinner from '../layout/Spinner';
 import api from '../../utils/api';
 import {setAlert} from "../../actions/alert"
+import Moment from 'moment';
 
 class CompList extends React.Component {
 	constructor(props) {
@@ -10,6 +11,7 @@ class CompList extends React.Component {
 		this.state = {
 			list: props.list
 		}
+		console.log("-_-",  props.list);
 	}
 	
 	componentDidUpdate(prevProps) {
@@ -22,16 +24,15 @@ class CompList extends React.Component {
 		
 	render() {
 		var list; 
+		console.log(this.state.list);
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
-				if(item.lengthSeconds !== undefined)
-					return (<CompListItem 
-						info={item}
-						key={item.recordingId}
-						user={this.props.user}
-					/>)
-				else return null
+				return (<CompListItem 
+					info={item}
+					key={item._id}
+					user={this.props.user}
+				/>)
 			})
 		}
 		else {
@@ -41,9 +42,8 @@ class CompList extends React.Component {
 		<div style={{textAlign:"center"}}>
 			<div id="comp-list-header">
 				<div style={{width:"30%",margin:"5px"}}>Title</div>
-				<div style={{width:"30%",margin:"5px"}}>Tags</div>
+				<div style={{width:"30%",margin:"5px"}}>Maestro</div>
 				<div style={{width:"20%",margin:"5px"}}>Date</div>
-				<div style={{width:"20%",margin:"5px"}}>Duration</div>
 			</div>
 			{list}
 		</div>
@@ -61,14 +61,15 @@ class CompListItem extends React.Component {
 			editing: false,
 			formdata: {
 				title: props.info.title,
-				tags: props.info.tags,
-				//tags: props.info.tags.join(","),
-				description: props.info.description,
-				private: props.info.private
+				length: props.info.lengthSeconds,
+				date: props.info.recordingDate
+				// tags: props.info.tags.join(","),
+				// description: props.info.description,
+				// private: props.info.private
 			}
 		}
-		this.chosenState = this.chosenState.bind(this);
-		this.parseDateTime = this.parseDateTime.bind(this);
+		// this.chosenState = this.chosenState.bind(this);
+		// this.parseDateTime = this.parseDateTime.bind(this);
 		this.deleteComp = this.deleteComp.bind(this);
 		this.changeForm = this.changeForm.bind(this);
 		this.submitEdit = this.submitEdit.bind(this);
@@ -78,9 +79,8 @@ class CompListItem extends React.Component {
 	
 	render() {
 		var {info, formdata} = this.state;
-		var tags = info.tags;
-		//var tags = info.tags.join(", ");
-		var {date, runtime} = this.parseDateTime(info.date, info.runtime);
+		// var tags = info.tags.join(", ");
+		// var {date, runtime} = this.parseDateTime(info.date, info.runtime);
 		
 		var sidebar = null;
 		if(this.state.chosen) {
@@ -98,13 +98,7 @@ class CompListItem extends React.Component {
 								<span className={c}>Title: </span>{info.title}
 							</p>
 							<p className={c1}>
-								<span className={c}>Tags: </span>{tags}
-							</p>
-							<p className={c1}>
-								<span className={c}>Date: </span>{date}
-								</p>
-							<p className={c1}>
-								<span className={c}>Duration: </span>{runtime}
+								<span className={c}>Date: </span>{info.date}
 							</p>
 							<p className={c1}>
 								<span className={c}>Composer: </span>{info.composer}
@@ -124,7 +118,7 @@ class CompListItem extends React.Component {
 							</div>
 							) : (null)}
 							<audio controls className="audio-elem">
-								<source src={"https://johncagetribute.org/api/compositions/view/" 
+								<source src={"http://localhost:3001/recordings" 
 								+ info._id} type={info.filetype} />
 							</audio>
 						</div>
@@ -166,9 +160,8 @@ class CompListItem extends React.Component {
 			{sidebar}
 			<div className="comp-list-item" onClick={this.chosenState}>
 				<div style={{width:"30%",margin:"5px"}}>{info.title}</div>
-				<div style={{width:"30%",margin:"5px"}}>{tags}</div>
-				<div style={{width:"20%",margin:"5px"}}>{date}</div>
-				<div style={{width:"20%",margin:"5px"}}>{runtime}</div>
+				<div style={{width:"30%",margin:"5px"}}>{info.username}</div>
+				<div style={{width:"20%",margin:"5px"}}>{info.date}</div>
 			</div>
 		</Fragment>
 		);
@@ -242,28 +235,12 @@ class CompListItem extends React.Component {
 		if(!window.confirm("Are you sure you want to delete this composition?"))
 			return
 			
-		api.delete("/compositions/remove/"+this.state.info._id)
+		api.delete("/delete"+this.state.info._id)
 		.then(res => {
 			this.props.update();
 		}, rej => {
 			console.log(rej.status)
 		})
-	}
-	
-	
-	parseDateTime(date, runtime) {
-		var res = Date.parse(date);
-		var time = `${Math.floor(runtime/60)}:${Number(runtime%60).toFixed(2)}`;
-		return {date: new Date(res).toDateString(), runtime: time}
-	}
-	
-	chosenState() {
-		var s = !this.state.chosen ? "open-sidebar" : "";
-		this.setState((state) => ({
-			chosen: !state.chosen,
-			sidebarClass: s,
-			editing: false
-		}))
 	}
 }
 
