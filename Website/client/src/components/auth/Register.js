@@ -1,17 +1,15 @@
 import React, { Fragment, useState } from 'react';
-import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
-import { setAlert } from '../../actions/alert';
-import { register } from '../../actions/auth';
-import PropTypes from 'prop-types';
+import { Link, useHistory } from 'react-router-dom';
 import Axios from "axios";
 
-const Register = ({ setAlert, register, isAuthenticated }) => {
+const Register = () => {
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const history = useHistory();
+  const [msg, setMsg] = useState('');
 
   const displayInfo = () => {
     console.log(username + email + password + password2);
@@ -21,33 +19,33 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
     e.preventDefault();
 	var success = true;
 	if(!/^[a-zA-Z0-9]{3,}$/.test(username)) {
-		setAlert("Username is not valid", "danger");
 		success = false;
 	}
 	if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
-		setAlert("Password is not valid", "danger");
 		success = false;
 	}
     if(password !== password2) {
-      setAlert('Passwords do not match', 'danger');
 	  success = false;
     } 
 	if(success) {
-      Axios.post('http://localhost:3001/registration', {
-        username: username,
-        email: email,
-        password: password
-      })
-      .then(res => {
-        console.log("Getting from ::::", res.data)
-      })
-      .catch(err => console.log(err));
+    console.log("Register has been called");
+    e.preventDefault();
+    try {
+        await Axios.post('http://localhost:3001/users', {
+            username: username,
+            email: email,
+            password: password,
+            confPassword: password2
+        });
+        history.push("/");
+    } catch (error) {
+        if (error.response) {
+            setMsg(error.response.data.msg);
+        }
+    }
     }
   };
 
-  if (isAuthenticated) {
-    return <Redirect to='/dashboard' />;
-  }
   var grav = (
 	<small className='form-text'>
 		This site uses Gravatar so if you want a profile image, use a
@@ -108,14 +106,4 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
   );
 };
 
-Register.propTypes = {
-  setAlert: PropTypes.func.isRequired,
-  register: PropTypes.func.isRequired,
-  isAuthenticated: PropTypes.bool
-};
-
-const mapStateToProps = (state) => ({
-  isAuthenticated: state.auth.isAuthenticated
-});
-
-export default connect(mapStateToProps, { setAlert, register })(Register);
+export default Register
