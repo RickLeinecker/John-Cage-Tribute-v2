@@ -56,55 +56,69 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
   );
   grav = null;
   return (
-    <Fragment>
-      <h1 className='large text-primary'>Sign Up</h1>
-      <p className='lead'>
-        <i className='fas fa-user' /> Create Your Account
-      </p>
-      <form className='form' onSubmit={onSubmit}>
-        <div className='form-group'>
-          <input
-            type='text'
-            placeholder='Username'
-            name='username'
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-          />
+    <div className='loginSignup'>
+      <div className='dark-overlay'>
+        <div className='loginSignup-inner'>
+          <div className='loginSignup-box'>
+            <Fragment>
+              <h1 className='large text-primary'>
+                Sign Up
+              </h1>
+              <br/>
+              <form className='form' onSubmit={onSubmit}>
+                <div className='form-group'>
+                  <input
+                    type='text'
+                    placeholder='Username'
+                    name='username'
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                  />
+                </div>
+                <div className='form-group'>
+                  <input
+                    type='email'
+                    placeholder='Email Address'
+                    name='email'
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                  />
+                  {grav}
+                </div>
+                <div className='form-group'>
+                  <input
+                    type='password'
+                    placeholder='Password'
+                    name='password'
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                  />
+                </div>
+                <div className='form-group'>
+                  <input
+                    type='password'
+                    placeholder='Confirm Password'
+                    name='password2'
+                    value={password2}
+                    onChange={e => setPassword2(e.target.value)}
+                  />
+                </div>
+                <input type='submit' onClick={displayInfo} className='btn btn-primary' value='Register' />
+              </form>
+              <br/>
+              <div className='loginSignup-bottom'>
+                <h1 className='medium'>
+                  Already have an account?
+                </h1>
+                <Link to='/login' className='btn btn-primary'>
+                  Log In
+                </Link>
+              </div>
+            </Fragment>
+          </div>
         </div>
-        <div className='form-group'>
-          <input
-            type='email'
-            placeholder='Email Address'
-            name='email'
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-          />
-          {grav}
-        </div>
-        <div className='form-group'>
-          <input
-            type='password'
-            placeholder='Password'
-            name='password'
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-        </div>
-        <div className='form-group'>
-          <input
-            type='password'
-            placeholder='Confirm Password'
-            name='password2'
-            value={password2}
-            onChange={e => setPassword2(e.target.value)}
-          />
-        </div>
-        <input type='submit' onClick={displayInfo} className='btn btn-primary' value='Register' />
-      </form>
-      <p className='my-1'>
-        Already have an account? <Link to='/login'>Sign In</Link>
-      </p>
-    </Fragment>
+      </div>
+    </div>
   );
 };
 
