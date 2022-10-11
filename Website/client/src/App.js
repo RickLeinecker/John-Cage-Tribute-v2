@@ -10,6 +10,7 @@ import store from './store';
 import { loadUser } from './actions/auth';
 import setAuthToken from './utils/setAuthToken';
 
+
 import './App.css';
 
 const App = () => {
@@ -18,16 +19,19 @@ const App = () => {
     store.dispatch(loadUser());
   }, []);
 
-  return (
-    <Provider store={store}>
+  return (  
+    <Provider store={store}> 
       <Router>
-        <Fragment>
+     
           <Switch>
             <Route exact path="/" component={Landing} />
             <Route component={Routes} />
-          </Switch>
-        </Fragment>
-      </Router>
+          </Switch> 
+
+ <Navbar>
+</Navbar>
+
+      </Router>   
     </Provider>
   );
 };
