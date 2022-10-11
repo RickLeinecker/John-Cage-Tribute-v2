@@ -1,5 +1,4 @@
 import api from '../utils/api';
-import Axios from "axios";
 import { setAlert } from './alert';
 import {
   REGISTER_SUCCESS,
@@ -14,7 +13,6 @@ import {
 // Load User
 export const loadUser = () => async dispatch => {
   try {
-    console.log("form data is: ", res.data);
     const res = await api.get('/auth');
     dispatch({
       type: USER_LOADED,
@@ -23,6 +21,29 @@ export const loadUser = () => async dispatch => {
   } catch (err) {
     dispatch({
       type: AUTH_ERROR
+    });
+  }
+};
+
+// Register User
+export const register = formData => async dispatch => {
+  try {
+    const res = await api.post('/users', formData);
+
+    dispatch({
+      type: REGISTER_SUCCESS,
+      payload: res.data
+    });
+    dispatch(loadUser());
+  } catch (err) {
+    const errors = err.response.data.errors;
+
+    if (errors) {
+      errors.forEach(error => dispatch(setAlert(error.msg, 'danger')));
+    }
+
+    dispatch({
+      type: REGISTER_FAIL
     });
   }
 };
@@ -51,28 +72,6 @@ export const login = (email, password) => async dispatch => {
     });
   }
 };
-
-// Admin Login for testing
-export const admin_login = (username, password) => async dispatch => {
-  const body = { username, password };
-
-  if (username == process.env.REACT_APP_ADMIN_USR && password == process.env.REACT_APP_ADMIN_PSWRD)
-  {
-    console.log('Admin login success!');
-
-    dispatch({
-      type: LOGIN_SUCCESS
-    })
-
-    return;
-  }
-
-  console.log('Admin login was a failure.');
-
-  dispatch({
-    type: LOGIN_FAIL
-  })
-}
 
 // Logout
 export const logout = () => {
