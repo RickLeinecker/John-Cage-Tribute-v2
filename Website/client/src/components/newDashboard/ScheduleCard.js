@@ -51,7 +51,7 @@ function ScheduleCardComponent({ className = '' }) {
     
     const handleClick = (e) => {
       e.preventDefault();
-      history.push("/search");
+      history.push("/schedule");
     }
     const composedClassName = `${css(styles.container)} ${className}`;
     return (
