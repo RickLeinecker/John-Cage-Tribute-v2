@@ -8,6 +8,7 @@ import ProfileForm from '../profile-forms/ProfileForm';
 import AddExperience from '../profile-forms/AddExperience';
 import AddEducation from '../profile-forms/AddEducation';
 import Search from '../compositions/Search';
+import Schedule from '../compositions/Schedule';
 import Rooms from '../compositions/Rooms';
 import Profile from '../profile/Profile';
 import Posts from '../posts/Posts';
@@ -24,6 +25,7 @@ const Routes = props => {
         <Route exact path="/login" component={Login} />
         <Route exact path="/search" component={Search} />
         <Route exact path="/rooms" component={Rooms} />
+        <Route exact path="/schedule" component={Schedule} />
         <Route exact path="/profile/:id" component={Profile} />
         <PrivateRoute exact path="/dashboard" component={Dashboard} />
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />

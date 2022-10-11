@@ -497,6 +497,40 @@ button {
   grid-auto-flow: column;
 }
 
+/* Schedule Page */
+.schedule {
+  position: relative;
+  background: url('./img/blackmountaincollege.jpg') no-repeat center center/cover;
+  height: 100vh;
+}
+
+.schedule-inner {
+  color: #fff;
+  height: 100%;
+  width: 70%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.schedule-box {
+  width: 100%;
+  padding-top: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  border-style: outset;
+  border-color: lightblue;
+  background-color: rgba(173, 216, 230, 0.2);
+}
+
+.schedule-times {
+  background-color: #fff;
+}
+
 /* Profiles Page */
 .profile {
   display: grid;
