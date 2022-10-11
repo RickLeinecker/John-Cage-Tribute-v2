@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
+import { ProSidebarProvider } from 'react-pro-sidebar';
 const Landing = ({ isAuthenticated }) => {
   if (isAuthenticated) {
     return (
@@ -18,6 +18,7 @@ const Landing = ({ isAuthenticated }) => {
   }
 
   return (
+    <ProSidebarProvider>
     <section className='landing'>
       <div className='dark-overlay'>
         <div className='landing-inner'>
@@ -61,6 +62,7 @@ const Landing = ({ isAuthenticated }) => {
         </div>
       </div>
     </section>
+    </ProSidebarProvider>
   );
 };
 

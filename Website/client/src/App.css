@@ -389,9 +389,8 @@ button {
   z-index: 1;
   width: 100%;
   top: 0;
-  opacity: 0.9;
   /*border-bottom: 4px solid #54b5f2*/
-  background-color: var(--primary-color)
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .navbar ul {
@@ -672,7 +671,9 @@ button {
 
 /* Search Page */
 .search {
-  position: relative;
+   display: flex;
+  align-items: center;
+  justify-content: center;
   background: url('./img/blackmountaincollege.jpg') no-repeat center center/cover;
   height: 100vh;
 }
@@ -843,20 +844,6 @@ input[type="submit"] {
     font-size: 1rem;
   }
 
-  /* Navbar */
-  .navbar {
-    display: block;
-    text-align: center;
-  }
-
-  .navbar ul {
-    text-align: center;
-    justify-content: center;
-  }
-
-  .navbar h1 {
-    margin-bottom: 1rem;
-  }
 
 /*  .navbar .welcome {
     display: none;
