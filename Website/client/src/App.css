@@ -326,6 +326,7 @@ textarea {
 }
 
 .form input[type='text'],
+.form input[type='admin-user'],
 .form input[type='email'],
 .form input[type='password'],
 .form input[type='date'],
