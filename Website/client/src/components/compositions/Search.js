@@ -34,31 +34,23 @@ class Search extends React.Component {
 		}
 		var res, tagsStyle=null, titleStyle=null, composerStyle=null, performerStyle=null; 
 		return (
-			<div className='search'>
-				<div className='dark-overlay'>
-					<div className='search-inner'>
-						<div className='search-box'>
-							<Fragment>
-								<form style={{textAlign:"center"}} onSubmit={this.performSearch}>
-									<input type="text" id="search-bar" placeholder="Search" 
-										value={this.state.searchQuery} onChange={this.searchbarChange} />
-									<input className='btn btn-search' 
-										onClick={this.performSearch} type="submit" value="Search"/>
-								</form>
-								<div style={{
-									textAlign:"center",
-									borderBottom:"2px solid #17a2b8",
-									padding:"10px 0px"
-								}}>
-								</div>
-								<div style={{padding:"10px"}}>
-									<CompList list={this.state.list} dash={false} />
-								</div>
-							</Fragment>
-						</div>
-					</div>
-				</div>
+		<Fragment>
+			<form style={{textAlign:"center"}} onSubmit={this.performSearch}>
+				<input type="text" id="search-bar" placeholder="Search" 
+					value={this.state.searchQuery} onChange={this.searchbarChange} />
+				<input style={{padding:"8px 9px",fontWeight:"bold"}} 
+					onClick={this.performSearch} type="submit" value="Search"/>
+			</form>
+			<div style={{
+				textAlign:"center",
+				borderBottom:"2px solid #17a2b8",
+				padding:"10px 0px"
+			}}>
 			</div>
+			<div style={{padding:"10px"}}>
+				<CompList list={this.state.list} dash={false} />
+			</div>
+		</Fragment>
 		);
 	}
 	
