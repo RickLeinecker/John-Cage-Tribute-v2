@@ -3,7 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import Register from '../auth/Register';
 import Login from '../auth/Login';
 import Alert from '../layout/Alert';
-import Dashboard from '../dashboard/Dashboard';
+import Dashboard from '../newDashboard/Dashboard';
 import ProfileForm from '../profile-forms/ProfileForm';
 import AddExperience from '../profile-forms/AddExperience';
 import AddEducation from '../profile-forms/AddEducation';
@@ -25,8 +25,8 @@ const Routes = props => {
         <Route exact path="/search" component={Search} />
         <Route exact path="/rooms" component={Rooms} />
         <Route exact path="/profile/:id" component={Profile} />
-        <PrivateRoute exact path="/dashboard" component={Dashboard} />
-        <PrivateRoute exact path="/create-profile" component={ProfileForm} />
+        <Route exact path="/dashboard" component={Dashboard} />
+        <Route exact path="/create-profile" component={ProfileForm} />
         <PrivateRoute exact path="/edit-profile" component={ProfileForm} />
         <PrivateRoute exact path="/add-experience" component={AddExperience} />
         <PrivateRoute exact path="/add-education" component={AddEducation} />

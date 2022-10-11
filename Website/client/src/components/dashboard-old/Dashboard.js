@@ -34,6 +34,7 @@ const Dashboard = ({
 	
 	return (
 		<Fragment>
+				<div className='search'>
 			<h1 className="large text-primary">Dashboard</h1>
 			<div style={{marginBottom:"35px"}}>
 				<p className="lead">Welcome, {user && user.name}</p>

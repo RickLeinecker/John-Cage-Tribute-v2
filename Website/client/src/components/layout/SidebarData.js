@@ -18,7 +18,7 @@ export const SidebarData = [
   },
   {
     title: 'Dashboard',
-    path: './Dashboard',
+    path: './dashboard',
     icon: <IoIcons.IoIosAnalytics />,
     cName: 'nav-text'
   },
