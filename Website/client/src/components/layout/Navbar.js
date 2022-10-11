@@ -1,65 +1,46 @@
-import React, { Fragment } from 'react';
+import React, { useState } from 'react';
+import * as FaIcons from 'react-icons/fa';
+import * as AiIcons from 'react-icons/ai';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { logout } from '../../actions/auth';
+import { SidebarData } from './SidebarData';
+import './Navbar.css';
+import { IconContext } from 'react-icons';
 
-const Navbar = ({ auth: { isAuthenticated, loading }, logout }) => {
-  
-  const authLinks = (
-	<ul>
-	  <li>
-        <Link to='/rooms'>Rooms</Link>
-      </li>
-	  <li>
-        <Link to='/search'>Search</Link>
-      </li>
-	  <li>
-		<Link to='/dashboard'>
-		  <i className='fas fa-user' />{' '}
-		  <span>Dashboard</span>
-		</Link>
-	  </li>
-	  <li>
-		<a onClick={logout} href='#!'>
-		  <span>Logout</span>
-		</a>
-	  </li>
-	</ul>
-  );
+function Navbar() {
+  const [sidebar, setSidebar] = useState(false);
 
-  const guestLinks = (
-	<ul>
-	  <li>
-        <Link to='/rooms'>Rooms</Link>
-      </li>
-	  <li>
-        <Link to='/search'>Search</Link>
-      </li>
-	</ul>
-  );
+  const showSidebar = () => setSidebar(!sidebar);
 
   return (
-	<nav className='navbar bg-dark'>
-	  <h1>
-		<Link to='/'>
-		  John Cage Tribute
-		</Link>
-	  </h1>
-	  {!loading && (
-		<Fragment>{isAuthenticated ? authLinks : guestLinks}</Fragment>
-	  )}
-	</nav>
+    <>
+      <IconContext.Provider value={{ color: '#fff' }}>
+        <div className={sidebar ? 'navbar-inactive' : 'navbar' }>
+          <Link to='#' className='menu-bars'>
+            <FaIcons.FaBars onClick={showSidebar} />
+          </Link>
+        </div>
+        <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
+          <ul className='nav-menu-items' onClick={showSidebar}>
+            <li className='navbar-toggle'>
+              <Link to='#' className='menu-bars'>
+                <AiIcons.AiOutlineClose />
+              </Link>
+            </li>
+            {SidebarData.map((item, index) => {
+              return (
+                <li key={index} className={item.cName}>
+                  <Link to={item.path}>
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </IconContext.Provider>
+    </>
   );
-};
+}
 
-Navbar.propTypes = {
-  logout: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
-};
-
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-export default connect(mapStateToProps, { logout })(Navbar);
+export default Navbar;
