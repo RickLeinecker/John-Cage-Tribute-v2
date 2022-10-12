@@ -4,6 +4,7 @@ import Landing from './components/layout/Landing';
 import AdminLogin from './components/auth/AdminLogin';
 import Login from './components/auth/Login';
 import Routes from './components/routing/Routes';
+import Navbar from './components/layout/Navbar';
 
 // Redux
 import { Provider } from 'react-redux';
