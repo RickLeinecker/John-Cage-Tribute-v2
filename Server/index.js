@@ -7,7 +7,7 @@ const mysql = require("mysql");
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: `MySQL!1996`,
+    password: `mypassword112`,
     database: 'jctdatabase'
 });
 
@@ -22,28 +22,10 @@ db.connect((err) => {
         console.log("Database connected!");
 });
 
-// Register new user
-app.post("/registration", (req, res) => {
-    const username = req.body.username;
-    const email = req.body.email;
-    const password = req.body.password;
-
-    console.log("I am here in registration, holding onto the following: (?,?,?)", username, email, password);
-      
-    db.query("INSERT INTO Users (username, email, password) VALUES (?,?,?)", [username, email, password],
-    (err, res) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("User registered.");
-    }
-    });
-});
-
 // List Compositions
 app.get("/recordings", (req, res) => {
-      
-    db.query("SELECT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.userId",
+    console.log("WE MADE IT HERE");
+    db.query("SELECT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
     (err, result) => {
     if (err) {
         console.log(err);
