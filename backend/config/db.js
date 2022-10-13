@@ -1,11 +1,12 @@
 import { Sequelize } from "sequelize";
  
-const db = new Sequelize('jctdatabase', 'root', 'mypassword112', {
+const db1 = new Sequelize('jctdatabase', 'root', 'mypassword112', {
     host: "localhost",
     dialect: "mysql"
 });
  
-export default db;
+// this instance of the db is being used for register/login
+export default db1;
 
 /* Might need these keys below for default.json
 {
