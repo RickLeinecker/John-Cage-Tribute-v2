@@ -36,6 +36,25 @@ app.get("/recordings", (req, res) => {
     });
 });
 
+// Search Composition by Title
+app.get("/title", (req, res) => {
+    const { query } = req.body;
+    console.log("Req: ", query)
+    const titlex = query;
+    console.log("TITLE:", titlex);
+    console.log("WE MADE IT Search");
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Recordings R WHERE 'titlex' LIKE R.title",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+
 // List Contests
 app.get("/contests", (req, res) => {
       
@@ -45,6 +64,7 @@ app.get("/contests", (req, res) => {
         console.log(err);
     } else {
         console.log("Listing All Contests");
+        res.send(result);
     }
     });
 });
