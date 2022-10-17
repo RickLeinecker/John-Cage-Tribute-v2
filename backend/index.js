@@ -35,6 +35,8 @@ app.get("/recordings", (req, res) => {
     });
 });
 
+// List user's recordings
+
 // Search Composition by Title, Maestro, or Date
 app.get("/title", (req, res) => {
     const s  = req.query.query;
