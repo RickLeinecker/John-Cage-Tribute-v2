@@ -69,9 +69,7 @@ class Search extends React.Component {
 	performSearch(e) {
 		var query = this.state.searchQuery;
 		console.log("Query: ", query);
-		Axios.get("http://localhost:3001/title", {
-			query: query
-		}).then(r => {
+		Axios.get("http://localhost:3001/title", {params: {query: query}}).then(r => {
 			this.setState({list: r.data})
 			console.log(r.data);
 		})

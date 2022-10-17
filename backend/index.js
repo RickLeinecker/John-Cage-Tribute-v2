@@ -38,12 +38,13 @@ app.get("/recordings", (req, res) => {
 
 // Search Composition by Title
 app.get("/title", (req, res) => {
-    const { query } = req.body;
-    console.log("Req: ", query)
-    const titlex = query;
+    const s  = req.query.query;
+    console.log("Req.body: ", s)
+    console.log("Req.body.query: ", req.body.query)
+    const titlex = s;
     console.log("TITLE:", titlex);
     console.log("WE MADE IT Search");
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Recordings R WHERE 'titlex' LIKE R.title",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id AND ((R.title LIKE '%" + s + "%') OR (U.username LIKE '%" + s + "%') OR (R.recordingDate LIKE '%" + s + "%'))",
     (err, result) => {
     if (err) {
         console.log(err);
