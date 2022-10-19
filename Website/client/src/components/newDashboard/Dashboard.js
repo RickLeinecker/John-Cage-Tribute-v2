@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
 //my recordings title
 //recordings component
 const Dashboard = () => {
+    // get userId from token, useEffect, then call API from index.js that passes userId to get list of user's recordings
+    
     return (
         <div className='search'>
             	<div className='search-inner'>
