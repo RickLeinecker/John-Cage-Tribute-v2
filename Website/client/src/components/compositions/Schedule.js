@@ -5,14 +5,8 @@ import { connect } from 'react-redux';
 import './Calendar.css';
 
 const Schedule = ({ isAuthenticated }) => {
-    // const [value, setValue] = useState();
-
-    // const onChange = useCallback(
-    //     (value) => {
-    //         setValue(value);
-    //     },
-    //     [setValue],
-    // );
+    //TEMPORARY REPLACE WITH REAL DATA
+    const temp_times = ["00:00", "2:00", "4:00", "6:00", "8:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00"];
 
     const [value, onChange] = useState(new Date());
 
@@ -33,6 +27,11 @@ const Schedule = ({ isAuthenticated }) => {
                             value={value}
                             onChange={onChange}
                         />
+                        <div className='schedule-times'>
+                            {temp_times.map((time) =>
+                                <button className='btn-times'>{time}</button>
+                            )}
+                        </div>
                         <input type="submit" className="btn btn-primary" value="Reserve" />
                     </div>
                 </div>

@@ -529,6 +529,21 @@ button {
 
 .schedule-times {
   background-color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.btn-times {
+  background: #6f48eb;
+  color: #fff;
+  height: 40px;
+  width: 70px;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-left: 100px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in;
 }
 
 /* Profiles Page */
