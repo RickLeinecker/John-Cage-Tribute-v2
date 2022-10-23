@@ -3,6 +3,7 @@ import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
+import CompList from "../compositions/CompList";
 
 const styles = StyleSheet.create({
     container: {
@@ -67,6 +68,68 @@ const Dashboard = () => {
             date: 'OCT 1',
           }];
 
+
+    const testRecording = [
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        }, {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        }
+    ]
     useEffect(() =>
     {
        
@@ -74,6 +137,7 @@ const Dashboard = () => {
   
     //function for calendar events
     getEvents();
+    getRecordings();
 
       //function for recordings
     },[]);
@@ -84,6 +148,11 @@ const Dashboard = () => {
          setEvents(testData);
   }
   
+  const getRecordings = async ()=>{
+    // return testData;
+          setRecordings(testRecording);
+   }
+
     return (
         <div className='search'>
             	<div className='search-inner'>
@@ -106,6 +175,9 @@ const Dashboard = () => {
             </Row>
             <span className={css(styles.title)}>{"My Recordings"}</span>
                 </div>
+                <div style={{padding:"10px"}}>
+					<CompList list={recordings} dash={false} />
+				</div>
                 </div>
 
         </div>
