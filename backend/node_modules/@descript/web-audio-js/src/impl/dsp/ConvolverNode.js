@@ -1,0 +1,12 @@
+'use strict';
+
+const ConvolverNodeDSP = {
+  dspProcess() {
+    const outputBus = this.outputs[0].bus;
+
+    outputBus.zeros();
+    outputBus.sumFrom(this.inputs[0].bus);
+  },
+};
+
+export default ConvolverNodeDSP;

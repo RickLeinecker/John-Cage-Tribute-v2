@@ -1,0 +1,67 @@
+'use strict';
+
+import BasePannerNode from './BasePannerNode';
+import SpatialPannerNodeDSP from './dsp/SpatialPannerNode';
+import { AUDIO_RATE } from '../constants/AudioParamRate';
+
+class SpatialPannerNode extends BasePannerNode {
+  /**
+   * @param {AudioContext}
+   */
+  constructor(context, opts) {
+    super(context, opts);
+
+    this._positionX = this.addParam(AUDIO_RATE, 0);
+    this._positionY = this.addParam(AUDIO_RATE, 0);
+    this._positionZ = this.addParam(AUDIO_RATE, 0);
+    this._orientationX = this.addParam(AUDIO_RATE, 0);
+    this._orientationY = this.addParam(AUDIO_RATE, 0);
+    this._orientationZ = this.addParam(AUDIO_RATE, 0);
+  }
+
+  /**
+   * @param {AudioParam}
+   */
+  getPositionX() {
+    return this._positionX;
+  }
+
+  /**
+   * @param {AudioParam}
+   */
+  getPositionY() {
+    return this._positionY;
+  }
+
+  /**
+   * @param {AudioParam}
+   */
+  getPositionZ() {
+    return this._positionZ;
+  }
+
+  /**
+   * @param {AudioParam}
+   */
+  getOrientationX() {
+    return this._positionX;
+  }
+
+  /**
+   * @param {AudioParam}
+   */
+  getOrientationY() {
+    return this._positionY;
+  }
+
+  /**
+   * @param {AudioParam}
+   */
+  getOrientationZ() {
+    return this._positionZ;
+  }
+}
+
+Object.assign(SpatialPannerNode.prototype, SpatialPannerNodeDSP);
+
+export default SpatialPannerNode;

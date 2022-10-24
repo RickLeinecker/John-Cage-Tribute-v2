@@ -19,19 +19,22 @@ const Register = () => {
     e.preventDefault();
 	var success = true;
 	if(!/^[a-zA-Z0-9]{3,}$/.test(username)) {
+    console.log("username failure");
 		success = false;
 	}
 	if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
 		success = false;
+    console.log("password failure");
 	}
     if(password !== password2) {
 	  success = false;
+    console.log("password match failure");
     } 
 	if(success) {
     console.log("Register has been called");
     e.preventDefault();
     try {
-        await Axios.post('http://localhost:3001/users', {
+        await Axios.post('http://localhost:3000/users', {
             username: username,
             email: email,
             password: password,
@@ -43,6 +46,10 @@ const Register = () => {
             setMsg(error.response.data.msg);
         }
     }
+    }
+    else
+    {
+      console.log("register failure");
     }
   };
 

@@ -20,7 +20,6 @@ const App = () => {
   return (  
     <Provider store={store}> 
       <Router>
-     
           <Switch>
             <Route exact path="/" component={AdminLogin} />
             <Route component={Routes} />
