@@ -52,7 +52,7 @@ app.get("/contests", (req, res) => {
 // Delete Recording
 app.delete("/delete/:id", (req, res) => {
     const id = req.params.id;
-    db2.query("DELETE FROM Recordings WHERE recordingId = ?", id, (err, result) => {
+    db2.query("DELETE FROM Recordings WHERE recordingId = '%" + id + "%'", (err, result) => {
       if (err) {
         console.log(err);
       } else {
@@ -60,3 +60,23 @@ app.delete("/delete/:id", (req, res) => {
       }
     });
   });
+
+// create recording
+app.post("/createRecording", (req, res) => {
+    // need to get maestroId, title, date scheduled, incontest
+    if (req.date < getCurrentDate()) // will need to change req.date
+    {
+        res.status(404).send("You must select a future date/time to record");
+    }
+    // if not maestro send error
+    db2.query("INSERT INTO Recordings (maestroId, title, recordingDate, inContest) VALUES (X, title, '%" + req.date + "%', bool);",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        res.send(result);
+    }
+    });
+});
+
+// update recording
