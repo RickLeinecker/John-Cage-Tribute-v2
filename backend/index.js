@@ -61,15 +61,23 @@ app.delete("/delete/:id", (req, res) => {
     });
   });
 
-// create recording
-app.post("/createRecording", (req, res) => {
-    // need to get maestroId, title, date scheduled, incontest
+// create schedule
+app.post("/schedule", (req, res) => {
+    // need to get date scheduled
     if (req.date < getCurrentDate()) // will need to change req.date
     {
         res.status(404).send("You must select a future date/time to record");
     }
+    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var charLength = chars.length;
+    var passListen = '';
+    var passPerform = '';
+    for ( var i = 0; i < 12; i++ ) {
+       passListen += chars.charAt(Math.floor(Math.random() * charLength));
+       passPerform += chars.charAt(Math.floor(Math.random() * charLength));
+    }
     // if not maestro send error
-    db2.query("INSERT INTO Recordings (maestroId, title, recordingDate, inContest) VALUES (X, title, '%" + req.date + "%', bool);",
+    db2.query("INSERT INTO Schedule (maestroId, scheduleDate, passcodeListen, passcodePerform) VALUES (X, '%" + req.date + "%',  '%" + passListen + "%', '%" +  passPerform + "%');",
     (err, res) => {
     if (err) {
         console.log(err);
