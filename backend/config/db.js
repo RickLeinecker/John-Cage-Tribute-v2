@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
  
-const db1 = new Sequelize('jctdatabase', 'root', 'mypassword112', {
+const db1 = new Sequelize('jctdatabase', 'root', 'MySQL!1996', {
     host: "localhost",
     dialect: "mysql"
 });
