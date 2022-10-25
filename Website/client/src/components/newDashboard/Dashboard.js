@@ -3,6 +3,7 @@ import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
+import CompList from "../compositions/CompList";
 
 const styles = StyleSheet.create({
     container: {
@@ -55,6 +56,103 @@ const styles = StyleSheet.create({
 const Dashboard = () => {
     // get userId from token, useEffect, then call API from index.js that passes userId to get list of user's recordings
     
+    const[events, setEvents] = useState([]);
+    const[recordings, setRecordings] = useState([]);
+    const testData = [
+        {
+          group: 'testgroup',
+          date: 'OCT 1',
+        },
+        {
+            group: 'testgroup',
+            date: 'OCT 1',
+          }];
+
+
+    const testRecording = [
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        }, {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        },
+        {
+            title: 'hello testing',
+			lengthSeconds: '22',
+			recordingDate: '02/06/1999'
+        }
+    ]
+    useEffect(() =>
+    {
+       
+      // function for token
+  
+    //function for calendar events
+    getEvents();
+    getRecordings();
+
+      //function for recordings
+    },[]);
+  
+  
+  const getEvents =  ()=>{
+   // return testData;
+         setEvents(testData);
+  }
+  
+  const getRecordings = async ()=>{
+    // return testData;
+          setRecordings(testRecording);
+   }
+
     return (
         <div className='search'>
             	<div className='search-inner'>
@@ -66,7 +164,10 @@ const Dashboard = () => {
 
                 <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
                 <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
-                    <ConcertCardComponent className={css(styles.miniCardContainer)} group="Group Name" date="Sep 15" />
+                    
+                   {events.map((event, index) => (
+                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.group} date= {event.group} />
+                   ))}
                     <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
                 </Row>
 
@@ -74,6 +175,9 @@ const Dashboard = () => {
             </Row>
             <span className={css(styles.title)}>{"My Recordings"}</span>
                 </div>
+                <div style={{padding:"10px"}}>
+					<CompList list={recordings} dash={false} />
+				</div>
                 </div>
 
         </div>

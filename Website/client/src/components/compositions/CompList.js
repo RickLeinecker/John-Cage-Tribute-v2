@@ -118,7 +118,7 @@ class CompListItem extends React.Component {
 							</div>
 							) : (null)}
 							<audio controls className="audio-elem">
-								<source src={"http://localhost:3001/recordings" 
+								<source src={"http://localhost:3000/recordings" 
 								+ info._id} type={info.filetype} />
 							</audio>
 						</div>
