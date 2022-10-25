@@ -52,7 +52,7 @@ app.get("/contests", (req, res) => {
 // Delete Recording
 app.delete("/delete/:id", (req, res) => {
     const id = req.params.id;
-    db2.query("DELETE FROM Recordings WHERE recordingId = ?", id, (err, result) => {
+    db2.query("DELETE FROM Recordings WHERE recordingId = '%" + id + "%'", (err, result) => {
       if (err) {
         console.log(err);
       } else {
@@ -60,3 +60,31 @@ app.delete("/delete/:id", (req, res) => {
       }
     });
   });
+
+// create schedule
+app.post("/schedule", (req, res) => {
+    // need to get date scheduled
+    if (req.date < getCurrentDate()) // will need to change req.date
+    {
+        res.status(404).send("You must select a future date/time to record");
+    }
+    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var charLength = chars.length;
+    var passListen = '';
+    var passPerform = '';
+    for ( var i = 0; i < 12; i++ ) {
+       passListen += chars.charAt(Math.floor(Math.random() * charLength));
+       passPerform += chars.charAt(Math.floor(Math.random() * charLength));
+    }
+    // if not maestro send error
+    db2.query("INSERT INTO Schedule (maestroId, scheduleDate, passcodeListen, passcodePerform) VALUES (X, '%" + req.date + "%',  '%" + passListen + "%', '%" +  passPerform + "%');",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        res.send(result);
+    }
+    });
+});
+
+// update recording
