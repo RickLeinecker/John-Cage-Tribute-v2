@@ -39,19 +39,29 @@ const Schedule = ({ isAuthenticated }) => {
     const [value, onChange] = useState(new Date());
 
     const handleSubmit = event => {
-        var date = value.getDate();
+        var day = value.getDate();
         var month = value.getMonth();
         var year = value.getFullYear();
 
         // Do stuff with that later
+        var fullTime = new Date(year, month, day);
     
         event.preventDefault();
         //Add handleSubmit here
     }
 
     const changeTime = time => {
-        console.log(`Let's do thisssss ${time}`);
-        //value.setTime()
+        console.log(`Let's do thisssss ${time.indexOf(":")}`);
+
+        var tempHour = time.substr(0, time.indexOf(":"));
+        var tempMinute = time.substr(time.indexOf(":")+1);
+        console.log("HERE: " + tempMinute);
+
+        //used to pass the time into value
+        var temp = new Date(2022, 10, 31, tempHour, tempMinute);
+        console.log("Temp: " + temp);
+        value.setTime(temp);
+        console.log("moment of truth: "+value);
     }
 
     return(
@@ -68,18 +78,18 @@ const Schedule = ({ isAuthenticated }) => {
                         </h1>
                         <br/>
                         <form onSubmit={handleSubmit}>
-                        <Calendar
-                            value={value}
-                            onChange={onChange}
-                            className="calendar"
-                            inputRef={calRef}
-                        />
-                        <div className='schedule-times'>
-                            {times.map((time) =>
-                                <button className='btn btn-times' ref={timeRef} onClick={() => changeTime(time)}>{time}</button>
-                            )}
-                        </div>
-                        <input type="submit" className="btn btn-primary" value="Reserve" />
+                            <Calendar
+                                value={value}
+                                onChange={onChange}
+                                className="calendar"
+                                inputRef={calRef}
+                            />
+                            <div className='schedule-times'>
+                                {times.map((time) =>
+                                    <button className='btn btn-times' ref={timeRef} onClick={() => changeTime(time)}>{time}</button>
+                                )}
+                            </div>
+                            <input type="submit" className="btn btn-primary" value="Reserve" />
                         </form>
                     </div>
                 </div>
