@@ -43,7 +43,6 @@ const Schedule = ({ isAuthenticated }) => {
         var month = value.getMonth();
         var year = value.getFullYear();
 
-        // Do stuff with that later
         var fullTime = new Date(year, month, day);
 
         console.log("In handleSubmit: " + value);
@@ -55,11 +54,14 @@ const Schedule = ({ isAuthenticated }) => {
     const changeTime = time => {
         console.log(`Let's do thisssss ${time.indexOf(":")}`);
 
-        var tempHour = time.substr(0, time.indexOf(":"));
-        var tempMinute = time.substr(time.indexOf(":")+1);
+        if(window.confirm("Schedule a Concert for " + (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear() + " at " + time + "?"))
+        {
+            var tempHour = time.substr(0, time.indexOf(":"));
+            var tempMinute = time.substr(time.indexOf(":")+1);
         
-        value.setHours(tempHour);
-        value.setMinutes(tempMinute);
+            value.setHours(tempHour);
+            value.setMinutes(tempMinute);
+        }
     }
 
     return(
@@ -81,13 +83,14 @@ const Schedule = ({ isAuthenticated }) => {
                                 onChange={onChange}
                                 className="calendar"
                                 inputRef={calRef}
+                                minDate={new Date()}
                             />
                             <div className='schedule-times'>
                                 {times.map((time) =>
                                     <button className='btn btn-times' ref={timeRef} onClick={() => changeTime(time)}>{time}</button>
                                 )}
                             </div>
-                            <input type="submit" className="btn btn-primary" value="Reserve" />
+                            {/* <input type="submit" className="btn btn-primary" value="Reserve" /> */}
                         </form>
                         {/* <button className='btn btn-times' onClick={joinExisting()}>Join An Existing Concert</button> */}
                     </div>
