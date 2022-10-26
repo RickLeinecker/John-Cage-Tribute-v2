@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'SignUp.dart';
 import 'Login.dart';
 import 'LiveStream.dart';
+import 'CreateRoom.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -112,7 +113,10 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: () => print("Audio test"),
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: ((context) {
+                      return CreateRoom(title: "Create Room");
+                    }))),
                     style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(Colors.lightBlue[300]),
