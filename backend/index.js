@@ -52,7 +52,7 @@ app.get("/contests", (req, res) => {
 // Delete Recording
 app.delete("/delete/:id", (req, res) => {
     const id = req.params.id;
-    db2.query("DELETE FROM Recordings WHERE recordingId = '%" + id + "%'", (err, result) => {
+    db2.query("DELETE FROM Recordings WHERE recordingId = '" + id + "'", (err, result) => {
       if (err) {
         console.log(err);
       } else {
@@ -63,8 +63,11 @@ app.delete("/delete/:id", (req, res) => {
 
 // create schedule
 app.post("/schedule", (req, res) => {
-    // need to get date scheduled
-    if (req.date < getCurrentDate()) // will need to change req.date
+    const s  = req.query.id;
+    const datex = new Date();
+    // need to get date scheduled, title, description, id
+    console.log("WE ARE HERE IN SCHEDULE :P");
+    if (req.date < datex) // will need to change req.date
     {
         res.status(404).send("You must select a future date/time to record");
     }
@@ -76,12 +79,106 @@ app.post("/schedule", (req, res) => {
        passListen += chars.charAt(Math.floor(Math.random() * charLength));
        passPerform += chars.charAt(Math.floor(Math.random() * charLength));
     }
-    // if not maestro send error
-    db2.query("INSERT INTO Schedule (maestroId, scheduleDate, passcodeListen, passcodePerform) VALUES (X, '%" + req.date + "%',  '%" + passListen + "%', '%" +  passPerform + "%');",
-    (err, res) => {
+    console.log("PassListen is ", passListen);
+    // CHECK if not maestro send error
+    // CHECK if date already exists
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.date + "'", (err, result) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log("Row Count is ", result.length);
+        }
+        if (result.length == 0)
+        {
+            db2.query("INSERT INTO Schedule (maestroId, scheduleDate, title, description, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + req.date + "',  '" + req.title + "', '" + req.description + "', '" + passListen + "', '" +  passPerform + "')",
+            (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("Schedule created");
+            }
+            });
+        }
+    })
+
+});
+
+// Enter users into already created schedule table
+app.post("/enterSchedule", (req, res) => {
+    // get passcode entered, get user Id
+    const s  = req.query.id;
+    const p = req.query.passcode;
+    // CHECK If userOne is not -1, userTwo is not -1, userThree is not -1
+    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne == -1)", (err, result) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log("Row Count is ", result.length);
+        }
+        if (result.length != 0)
+        {
+            db2.query("UPDATE Schedule SET Schedule.userOne = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.send(result);
+            }
+            });
+            return;
+        }
+    })
+    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userTwo = -2)", (err, result) => {
+        if (err) {
+          console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+        if (result.length != 0)
+        {
+            db2.query("UPDATE Schedule SET Schedule.userTwo = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.send(result);
+            }
+            });
+            return;
+        }
+    })
+    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userThree = -3)", (err, result) => {
+        if (err) {
+          console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+        if (result.length != 0)
+        {
+            db2.query("UPDATE Schedule SET Schedule.userThree = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.send(result);
+            }
+            });
+            return;
+        }
+    })
+});
+
+// List user's scheduled recordings
+app.get("/userScheduled", (req, res) => {
+    const s  = req.query.id; // going to switch this to user id that is passed through token
+    console.log("req: ", req);
+    console.log("req.id", req.id);
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
+    (err, result) => {
     if (err) {
         console.log(err);
     } else {
+        console.log(result);
         res.send(result);
     }
     });
