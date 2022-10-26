@@ -31,7 +31,7 @@ const Register = () => {
     console.log("Register has been called");
     e.preventDefault();
     try {
-        await Axios.post('http://localhost:3001/users', {
+        await Axios.post('http://localhost:8080/users', {
             username: username,
             email: email,
             password: password,

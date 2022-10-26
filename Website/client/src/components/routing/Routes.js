@@ -23,14 +23,12 @@ const Routes = props => {
     <section className="container">
       <Alert />
       <Switch>
-        <Route exact path="/register" component={Register} />
+      <Route exact path="/register" component={Register} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/search" component={Search} />
         <Route exact path="/rooms" component={Rooms} />
         <Route exact path="/profile/:id" component={Profile} />
-        <Route exact path="/dashboard" component={Dashboard} />
-        <Route exact path="/schedule" component={Schedule} />
-        <PrivateRoute exact path="/landing" component={Landing} />     
+        <PrivateRoute exact path="/dashboard" component={Dashboard} />
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />
         <PrivateRoute exact path="/edit-profile" component={ProfileForm} />
         <PrivateRoute exact path="/add-experience" component={AddExperience} />
