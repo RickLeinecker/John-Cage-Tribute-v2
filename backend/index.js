@@ -37,13 +37,15 @@ app.get("/recordings", (req, res) => {
 
 // List user's recordings
 app.get("/userRec", (req, res) => {
-    const s  = 1; // going to switch this to user id that is passed through token
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '%" + s + "%' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
+    const s  = req.query.id; // going to switch this to user id that is passed through token
+    console.log("req: !!", s);
+    console.log("req.id", req);
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
     (err, result) => {
     if (err) {
         console.log(err);
     } else {
-        console.log(result);
+        console.log("SUCCESS USER RES", result);
         res.send(result);
     }
     });
@@ -93,4 +95,3 @@ app.delete("/delete/:id", (req, res) => {
 // Create Recording
 
 // Create UserRecording
-

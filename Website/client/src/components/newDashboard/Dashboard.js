@@ -55,13 +55,15 @@ const styles = StyleSheet.create({
 //add the scheduling button component
 //my recordings title
 //recordings component
+
 const Dashboard = () => {
     // get userId from token, useEffect, then call API from index.js that passes userId to get list of user's recordings
     
     const[events, setEvents] = useState([]);
     const[recordings, setRecordings] = useState([]);
 
-    const [name, setName] = useState('');
+    const [userId, setId] = useState(0);
+    const [userName, setuserName] = useState('');
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [users, setUsers] = useState([]);
@@ -143,10 +145,8 @@ const Dashboard = () => {
       // function for token
   
     //function for calendar events
-    getEvents();
-    getRecordings();
-    refreshToken();
-
+        getEvents();
+        refreshToken();
 
       //function for recordings
     },[]);
@@ -156,30 +156,55 @@ const Dashboard = () => {
             const response = await axios.get('http://localhost:3001/token');
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
-            setName(decoded.name);
+            console.log("decoded id", decoded.userId);
+            setId(decoded.userId);
+            setuserName(decoded.username);
+            console.log("username after decoded", userName);
+            console.log("userid after decoded", userId);
             setExpire(decoded.exp);
             console.log("heres token", decoded);
+
+            getRecordings(decoded.userId)
         } catch (error) {
             if (error.response) {
                // history.push("/");
-               console.log("aut fail");
+               console.log("auth fail");
             }
         }
     }
   
+    const axiosJWT = axios.create();
+ 
+    axiosJWT.interceptors.request.use(async (config) => {
+        const currentDate = new Date();
+        if (expire * 1000 < currentDate.getTime()) {
+            const response = await axios.get('http://localhost:3001/token');
+            config.headers.Authorization = `Bearer ${response.data.accessToken}`;
+            setToken(response.data.accessToken);
+            const decoded = jwt_decode(response.data.accessToken);
+            setuserName(decoded.username);
+            setExpire(decoded.exp);
+
+            console.log("username after decoded", userName);
+            console.log("userid after decoded", userId);
+        }
+        return config;
+    }, (error) => {
+        return Promise.reject(error);
+    });
+
   const getEvents =  ()=>{
    // return testData;
          setEvents(testData);
   }
   
-  const getRecordings = async ()=>{
+  const getRecordings = async (id)=>{
     // return testData;
-    axios.get("http://localhost:3001/userRec").then(r => {
+    console.log("id is", id);
+    await axios.get("http://localhost:3001/userRec", {params: {id: id}}).then(r => {
         setRecordings(r.data);
-    console.log("recordings call", r.data);
-			
+        console.log("recordings call", r);	
 		})
-          
    }
 
     return (
@@ -187,7 +212,7 @@ const Dashboard = () => {
             	<div className='search-inner'>
 						<div className='search-box'>
 
-       
+                        <h1>Welcome Back: {userId}</h1>
                 <div className={css(styles.content)}>
                 <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
 
