@@ -43,7 +43,7 @@
     "randomstring": "^1.1.5",
     "sequelize": "^6.23.2",
     "socket.io": "^2.3.0",
-    "tunajs": "^1.0.13",
+    "tunajs": "^1.0.15",
     "wavefile": "^11.0.0"
   },
   "devDependencies": {

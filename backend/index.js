@@ -9,17 +9,17 @@ import socket from "socket.io";
 import path from "path";
 import { Login, Register } from "./controllers/Users.js";
 import childProcess from "child_process";
-import lame from "node-lame";
 import fs from "fs";
 import * as url from 'url';
 import randomstring from 'randomstring';
-import {Lame} from 'node-lame';
+import pkg2 from 'node-lame';
+import fetch from 'node-fetch';
 
 import wavpkg from 'wavefile';
-import formpkg from '@postman/form-data';
+import FormData from '@postman/form-data';
 
 const {WaveFile} = wavpkg;
-const {FormData} = formpkg;
+const {Lame} = pkg2;
 
 dotenv.config();
 
@@ -39,7 +39,7 @@ const http = httpControl.createServer(app);
 const io = socket(http);
 
 // Reused code
-const sampleRate = 22050;
+const sampleRate = 44100;
 var availableRooms = {}; // Currently active rooms
 var memberAttendance = {}; // Maps socketId to roomId
 var audioProcessorPool = childProcess.fork('../Website/audioProcessor/audioProcessorPool.js');
@@ -85,40 +85,6 @@ io.on("connection", function (socket) {
 
         // TODO: Authenticate that the user is both logged in AND
         // they are a contributor registered to the concert
-
-    });
-
-    // This is the stream
-    socket.on("audio", (audioData) => {
-        var buff = new ArrayBuffer(8);
-        buff = audioData;
-        var view = new Int8Array(buff);
-
-        //var aud = new AudioBuffer();
-
-        var context = new AudioContext();
-
-        context.decodeAudioData(view, (buffer) => {
-            var source = context.createBufferSource();
-            source.buffer = buffer;
-            source.connect(context.destination);
-            source.start(0);
-        });
-
-        console.log(`Number of channels: ${aud.numberOfChannels}`);
-
-        var leftChannel = [view.length / 4];
-        var rightChannel = [view.length / 4];
-
-        for (var i = 0, j = 0; i < view.length; i += 2, j++) {
-            leftChannel[j] = buff[i];
-            rightChannel[j] = buff[i + 1];
-        }
-
-        fs.writeFile("testaudio.wav", buff, (err) => {
-            console.log("Something happened!");
-            socket.emit("cancel", "hehe");
-        });
 
     });
 
@@ -476,6 +442,9 @@ io.on("connection", function (socket) {
         wav.fromScratch(1, sampleRate, '16', availableRooms[roomId]['sessionAudio']);
         // Save the WAV file buffer as a raw data buffer
         var audioFileBuffer = Buffer.from(wav.toBuffer());
+
+        console.log("AUDIO BUFFER:");
+        console.log(audioFileBuffer);
     
         console.log('Finished making the wav file');
     
@@ -484,25 +453,27 @@ io.on("connection", function (socket) {
         // Generate a random temporary filename for the MP3
         var mp3FileName = "./audioFiles/" + randomstring.generate() + ".mp3";
     
-        console.log(mp3FileName);
+        console.log(`It's a new name!! ${mp3FileName}`);
     
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
           "output": mp3FileName,
-          "bitrate": 96
+          "scale": 15,
+          "bitrate": 320,
+          "quality": 9
         }).setBuffer(audioFileBuffer);
     
         console.log("H??");
         // Encode the MP3 file
         //await encoder.encode();
         encoder
-        .encode()
-        .then(() => {
-            console.log(":)");
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+            .encode()
+            .then(() => {
+                console.log(":)");
+            })
+            .catch((error) => {
+                console.log(error);
+            });
         console.log('Finished encoding MP3');
     
         data.composition = {
@@ -510,8 +481,8 @@ io.on("connection", function (socket) {
           ...data.composition
         };
     
-        console.log(`Data composition:`);
-        console.log(data);
+        // console.log(`Data composition:`);
+        // console.log(data);
     
         // Open the MP3 file as a read stream
         var mp3FileStream = fs.createReadStream(mp3FileName);
@@ -524,13 +495,12 @@ io.on("connection", function (socket) {
         formData.append('file', mp3FileStream);
         formData.append('data', JSON.stringify(data)); // Composition metadata here
     
-        console.log("formData:");
-        console.log(formData);
-    
-        console.log('Uploading MP3 to database...')
+        // console.log("formData:");
         // console.log(formData);
     
-        //const response = await fetch(`${baseUrl}/api/compositions/upload`, { method: 'POST', body: formData });
+        console.log('Uploading MP3 to database...')
+    
+        //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
         console.log('uploaddownload call complete!');
     
@@ -539,7 +509,7 @@ io.on("connection", function (socket) {
         mp3FileStream.close()
         console.log("This worked idk");
         fs.unlink(mp3FileName, (err) => {
-          if (err) console.log('Error deleting temporary file!');
+          if (err) console.log("??");
         });
       });
 
@@ -750,11 +720,14 @@ app.delete("/delete/:id", (req, res) => {
 
 // Create UserRecording
 
+const dir = __dirname.replace("/backend","/Website");
+console.log(dir);
+
 
 // Serve static assets in production
 // Set static folder (Comment out next 4 lines if running locally)
 app.use(express.static('../Website/client/build'));
 app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    res.sendFile(path.resolve(dir, 'client', 'build', 'index.html'));
 });
 http.listen(PORT, () => console.log(`Server Started on port ${PORT}`));
