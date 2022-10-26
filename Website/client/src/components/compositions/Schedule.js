@@ -45,6 +45,8 @@ const Schedule = ({ isAuthenticated }) => {
 
         // Do stuff with that later
         var fullTime = new Date(year, month, day);
+
+        console.log("In handleSubmit: " + value);
     
         event.preventDefault();
         //Add handleSubmit here
@@ -55,13 +57,9 @@ const Schedule = ({ isAuthenticated }) => {
 
         var tempHour = time.substr(0, time.indexOf(":"));
         var tempMinute = time.substr(time.indexOf(":")+1);
-        console.log("HERE: " + tempMinute);
-
-        //used to pass the time into value
-        var temp = new Date(2022, 10, 31, tempHour, tempMinute);
-        console.log("Temp: " + temp);
-        value.setTime(temp);
-        console.log("moment of truth: "+value);
+        
+        value.setHours(tempHour);
+        value.setMinutes(tempMinute);
     }
 
     return(
@@ -91,6 +89,7 @@ const Schedule = ({ isAuthenticated }) => {
                             </div>
                             <input type="submit" className="btn btn-primary" value="Reserve" />
                         </form>
+                        {/* <button className='btn btn-times' onClick={joinExisting()}>Join An Existing Concert</button> */}
                     </div>
                 </div>
             </div>
@@ -102,5 +101,9 @@ const Schedule = ({ isAuthenticated }) => {
 const mapStateToProps = (state) => ({
     isAuthenticated: state.auth.isAuthenticated
 });
+
+// const joinExisting = () => {
+//     let code = prompt("Enter Concert Code:");
+// }
 
 export default connect(mapStateToProps)(Schedule);
