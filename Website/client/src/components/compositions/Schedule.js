@@ -33,7 +33,26 @@ const Schedule = ({ isAuthenticated }) => {
         "23:00", "23:20", "23:40"
     ];
 
+    const timeRef = React.useRef(null);
+    const calRef = React.useRef(null);
+
     const [value, onChange] = useState(new Date());
+
+    const handleSubmit = event => {
+        var date = value.getDate();
+        var month = value.getMonth();
+        var year = value.getFullYear();
+
+        // Do stuff with that later
+    
+        event.preventDefault();
+        //Add handleSubmit here
+    }
+
+    const changeTime = time => {
+        console.log(`Let's do thisssss ${time}`);
+        //value.setTime()
+    }
 
     return(
         <div className='schedule'>
@@ -52,10 +71,12 @@ const Schedule = ({ isAuthenticated }) => {
                         <Calendar
                             value={value}
                             onChange={onChange}
+                            className="calendar"
+                            inputRef={calRef}
                         />
                         <div className='schedule-times'>
                             {times.map((time) =>
-                                <button className=' btn btn-times'>{time}</button>
+                                <button className='btn btn-times' ref={timeRef} onClick={() => changeTime(time)}>{time}</button>
                             )}
                         </div>
                         <input type="submit" className="btn btn-primary" value="Reserve" />
@@ -71,10 +92,5 @@ const Schedule = ({ isAuthenticated }) => {
 const mapStateToProps = (state) => ({
     isAuthenticated: state.auth.isAuthenticated
 });
-
-const handleSubmit = event => {
-    event.preventDefault();
-    //Add handleSubmit here
-}
 
 export default connect(mapStateToProps)(Schedule);
