@@ -33,7 +33,36 @@ const Schedule = ({ isAuthenticated }) => {
         "23:00", "23:20", "23:40"
     ];
 
+    const timeRef = React.useRef(null);
+    const calRef = React.useRef(null);
+
     const [value, onChange] = useState(new Date());
+
+    const handleSubmit = event => {
+        var day = value.getDate();
+        var month = value.getMonth();
+        var year = value.getFullYear();
+
+        // Do stuff with that later
+        var fullTime = new Date(year, month, day);
+    
+        event.preventDefault();
+        //Add handleSubmit here
+    }
+
+    const changeTime = time => {
+        console.log(`Let's do thisssss ${time.indexOf(":")}`);
+
+        var tempHour = time.substr(0, time.indexOf(":"));
+        var tempMinute = time.substr(time.indexOf(":")+1);
+        console.log("HERE: " + tempMinute);
+
+        //used to pass the time into value
+        var temp = new Date(2022, 10, 31, tempHour, tempMinute);
+        console.log("Temp: " + temp);
+        value.setTime(temp);
+        console.log("moment of truth: "+value);
+    }
 
     return(
         <div className='schedule'>
@@ -49,16 +78,18 @@ const Schedule = ({ isAuthenticated }) => {
                         </h1>
                         <br/>
                         <form onSubmit={handleSubmit}>
-                        <Calendar
-                            value={value}
-                            onChange={onChange}
-                        />
-                        <div className='schedule-times'>
-                            {times.map((time) =>
-                                <button className=' btn btn-times'>{time}</button>
-                            )}
-                        </div>
-                        <input type="submit" className="btn btn-primary" value="Reserve" />
+                            <Calendar
+                                value={value}
+                                onChange={onChange}
+                                className="calendar"
+                                inputRef={calRef}
+                            />
+                            <div className='schedule-times'>
+                                {times.map((time) =>
+                                    <button className='btn btn-times' ref={timeRef} onClick={() => changeTime(time)}>{time}</button>
+                                )}
+                            </div>
+                            <input type="submit" className="btn btn-primary" value="Reserve" />
                         </form>
                     </div>
                 </div>
@@ -71,10 +102,5 @@ const Schedule = ({ isAuthenticated }) => {
 const mapStateToProps = (state) => ({
     isAuthenticated: state.auth.isAuthenticated
 });
-
-const handleSubmit = event => {
-    event.preventDefault();
-    //Add handleSubmit here
-}
 
 export default connect(mapStateToProps)(Schedule);
