@@ -4,6 +4,8 @@ import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
 import CompList from "../compositions/CompList";
+import axios from 'axios';
+import jwt_decode from "jwt-decode";
 
 const styles = StyleSheet.create({
     container: {
@@ -58,6 +60,11 @@ const Dashboard = () => {
     
     const[events, setEvents] = useState([]);
     const[recordings, setRecordings] = useState([]);
+
+    const [name, setName] = useState('');
+    const [token, setToken] = useState('');
+    const [expire, setExpire] = useState('');
+    const [users, setUsers] = useState([]);
     const testData = [
         {
           group: 'testgroup',
@@ -138,10 +145,27 @@ const Dashboard = () => {
     //function for calendar events
     getEvents();
     getRecordings();
+    refreshToken();
+
 
       //function for recordings
     },[]);
   
+    const refreshToken = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/token');
+            setToken(response.data.accessToken);
+            const decoded = jwt_decode(response.data.accessToken);
+            setName(decoded.name);
+            setExpire(decoded.exp);
+            console.log("heres token", decoded);
+        } catch (error) {
+            if (error.response) {
+               // history.push("/");
+               console.log("aut fail");
+            }
+        }
+    }
   
   const getEvents =  ()=>{
    // return testData;
@@ -150,7 +174,12 @@ const Dashboard = () => {
   
   const getRecordings = async ()=>{
     // return testData;
-          setRecordings(testRecording);
+    axios.get("http://localhost:3001/userRec").then(r => {
+        setRecordings(r.data);
+    console.log("recordings call", r.data);
+			
+		})
+          
    }
 
     return (

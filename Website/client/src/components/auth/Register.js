@@ -34,13 +34,13 @@ const Register = () => {
     console.log("Register has been called");
     e.preventDefault();
     try {
-        await Axios.post('http://localhost:3000/users', {
+        await Axios.post('http://localhost:3001/users', {
             username: username,
             email: email,
             password: password,
             confPassword: password2
         });
-        history.push("/");
+        history.push("/login");
     } catch (error) {
         if (error.response) {
             setMsg(error.response.data.msg);
