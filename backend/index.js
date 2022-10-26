@@ -205,13 +205,12 @@ app.post("/enterSchedule", (req, res) => {
 // List user's scheduled recordings
 app.get("/userScheduled", (req, res) => {
     const s  = req.query.id; // going to switch this to user id that is passed through token
-    console.log("req: ", req);
-    console.log("req.id", req.id);
     db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
     (err, result) => {
     if (err) {
         console.log(err);
     } else {
+        console.log("SUCCESS USER event RES", result);
         console.log(result);
         res.send(result);
     }

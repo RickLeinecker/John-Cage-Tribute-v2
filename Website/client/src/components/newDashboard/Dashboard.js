@@ -141,14 +141,7 @@ const Dashboard = () => {
     ]
     useEffect(() =>
     {
-       
-      // function for token
-  
-    //function for calendar events
-        getEvents();
         refreshToken();
-
-      //function for recordings
     },[]);
   
     const refreshToken = async () => {
@@ -164,7 +157,8 @@ const Dashboard = () => {
             setExpire(decoded.exp);
             console.log("heres token", decoded);
 
-            getRecordings(decoded.userId)
+            getRecordings(decoded.userId);
+            getEvents(decoded.userId);
         } catch (error) {
             if (error.response) {
                // history.push("/");
@@ -185,6 +179,8 @@ const Dashboard = () => {
             setuserName(decoded.username);
             setExpire(decoded.exp);
 
+            getRecordings(decoded.userId);
+            getEvents(decoded.userId);
             console.log("username after decoded", userName);
             console.log("userid after decoded", userId);
         }
@@ -192,11 +188,6 @@ const Dashboard = () => {
     }, (error) => {
         return Promise.reject(error);
     });
-
-  const getEvents =  ()=>{
-   // return testData;
-         setEvents(testData);
-  }
   
   const getRecordings = async (id)=>{
     // return testData;
@@ -204,6 +195,15 @@ const Dashboard = () => {
     await axios.get("http://localhost:3001/userRec", {params: {id: id}}).then(r => {
         setRecordings(r.data);
         console.log("recordings call", r);	
+		})
+   }
+
+   const getEvents = async (id)=>{
+    // return testData;
+    console.log("id is", id);
+    await axios.get("http://localhost:3001/userScheduled", {params: {id: id}}).then(r => {
+        setEvents(r.data);
+        console.log("events call", r);	
 		})
    }
 
