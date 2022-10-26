@@ -11,10 +11,15 @@ import { Login, Register } from "./controllers/Users.js";
 import childProcess from "child_process";
 import lame from "node-lame";
 import fs from "fs";
-import pkg from 'wavefile';
 import * as url from 'url';
+import randomstring from 'randomstring';
+import {Lame} from 'node-lame';
 
-const {WaveFile} = pkg;
+import wavpkg from 'wavefile';
+import formpkg from '@postman/form-data';
+
+const {WaveFile} = wavpkg;
+const {FormData} = formpkg;
 
 dotenv.config();
 
