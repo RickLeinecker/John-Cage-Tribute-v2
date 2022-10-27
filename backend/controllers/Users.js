@@ -31,6 +31,8 @@ export const Register = async(req, res) => {
 }
  
 export const Login = async(req, res) => {
+    console.log("Hello???????????");
+    
     try {
         const user = await Users.findAll({
             where:{

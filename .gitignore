@@ -1,6 +1,5 @@
-
-Website/client/package-lock.json
-Website/client/package-lock.json
-Website/client/package-lock.json
-Website/client/package-lock.json
-Website/client/package-lock.json
+Website/client/build
+Website/client/node_modules
+Website/node_modules
+backend/node_modules
+node_modules

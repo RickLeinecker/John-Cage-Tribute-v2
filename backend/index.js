@@ -17,6 +17,7 @@ import fetch from 'node-fetch';
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
+import Axios from "axios";
 
 const {WaveFile} = wavpkg;
 const {Lame} = pkg2;
@@ -633,13 +634,19 @@ audioProcessorPool.on('message', (data) => {
     }
 })
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+// Serve static assets in production
+// Set static folder (Comment out next 4 lines if running locally)
+app.use(express.static('../Website/client/build'));
+app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(router);
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(dir, 'client', 'build', 'index.html'));
+});
+app.listen(3001, ()=> console.log(`Server running at port ${3001}`));
 
-//app.listen(PORT, ()=> console.log(`Server running at port ${PORT}`));
-
+http.listen(PORT, () => console.log(`Server Started on port ${PORT}`));
 
 const db2 = mysql.createConnection({
     host: 'localhost',
@@ -851,10 +858,4 @@ const dir = __dirname.replace("/backend","/Website");
 console.log(dir);
 
 
-// Serve static assets in production
-// Set static folder (Comment out next 4 lines if running locally)
-app.use(express.static('../Website/client/build'));
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(dir, 'client', 'build', 'index.html'));
-});
-http.listen(PORT, () => console.log(`Server Started on port ${PORT}`));
+
