@@ -18,7 +18,7 @@ app.listen(3001, ()=> console.log('Server running at port 3001'));
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'mypassword112',
     database: 'jctdatabase'
 });
 
@@ -97,11 +97,13 @@ app.delete("/delete/:id", (req, res) => {
 // Create UserRecording
 // create schedule
 app.post("/schedule", (req, res) => {
-    const s  = req.query.id;
+    const s  = req.body.id;
+    console.log("req.query.id -----", s);
+    console.log("req.body.date -----", req.body.date);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
-    if (req.date < datex) // will need to change req.date
+    if (req.body.date < datex) // will need to change req.date
     {
         res.status(404).send("You must select a future date/time to record");
     }
@@ -116,7 +118,7 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.body.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
@@ -124,7 +126,7 @@ app.post("/schedule", (req, res) => {
         }
         if (result.length == 0)
         {
-            db2.query("INSERT INTO Schedule (maestroId, scheduleDate, title, description, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + req.date + "',  '" + req.title + "', '" + req.description + "', '" + passListen + "', '" +  passPerform + "')",
+            db2.query("INSERT INTO Schedule (maestroId, title, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + passListen + "12', '" + req.body.date + "', '" + passListen + "', '" +  passPerform + "')",
             (err, res) => {
             if (err) {
                 console.log(err);

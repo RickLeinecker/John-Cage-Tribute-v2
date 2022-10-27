@@ -107,7 +107,7 @@ const Schedule = ({ isAuthenticated }) => {
     
         event.preventDefault();
         //Add handleSubmit here
-        trySchedule(userId, value.toISOString());
+        trySchedule(userId, temp);
     }
 
     const trySchedule = async (id, date)=>{
