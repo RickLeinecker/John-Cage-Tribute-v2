@@ -1,7 +1,10 @@
-import React, {Fragment, useCallback, useState} from 'react';
+import React, {Fragment, useCallback, useState, useEffect} from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import { connect } from 'react-redux';
+import axios from 'axios';
+import jwt_decode from "jwt-decode";
+
 import './Calendar.css';
 
 const Schedule = ({ isAuthenticated }) => {
@@ -37,20 +40,89 @@ const Schedule = ({ isAuthenticated }) => {
     const calRef = React.useRef(null);
 
     const [value, onChange] = useState(new Date());
+    const [userId, setId] = useState(0);
+    const [userName, setuserName] = useState('');
+    const [token, setToken] = useState('');
+    const [expire, setExpire] = useState('');
+    const [users, setUsers] = useState([]);
+
+    useEffect(() =>
+    {
+        refreshToken();
+    },[]);
+  
+    const refreshToken = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/token');
+            setToken(response.data.accessToken);
+            const decoded = jwt_decode(response.data.accessToken);
+            console.log("decoded id", decoded.userId);
+            setId(decoded.userId);
+            setuserName(decoded.username);
+            console.log("username after decoded", userName);
+            console.log("userid after decoded", userId);
+            setExpire(decoded.exp);
+            console.log("heres token", decoded);
+
+        } catch (error) {
+            if (error.response) {
+               // history.push("/");
+               console.log("auth fail");
+            }
+        }
+    }
+
+    const axiosJWT = axios.create();
+ 
+    axiosJWT.interceptors.request.use(async (config) => {
+        const currentDate = new Date();
+        if (expire * 1000 < currentDate.getTime()) {
+            const response = await axios.get('http://localhost:3001/token');
+            config.headers.Authorization = `Bearer ${response.data.accessToken}`;
+            setToken(response.data.accessToken);
+            const decoded = jwt_decode(response.data.accessToken);
+            setuserName(decoded.username);
+            setExpire(decoded.exp);
+            console.log("username after decoded", userName);
+            console.log("userid after decoded", userId);
+        }
+        return config;
+    }, (error) => {
+        return Promise.reject(error);
+    });
 
     const handleSubmit = event => {
         var day = value.getDate();
         var month = value.getMonth();
         var year = value.getFullYear();
 
+        console.log("Date", day, month);
         var fullTime = new Date(year, month, day);
+        console.log(fullTime);
 
         console.log("In handleSubmit: " + value);
     
         event.preventDefault();
         //Add handleSubmit here
+        trySchedule(userId, value);
     }
 
+    const trySchedule = async (id, date)=>{
+        // return testData;
+        console.log("id is", id);
+        try{
+        await axios.post("http://localhost:3001/schedule", {id: 6, date: date}).then(r => {
+            console.log("schedule call", r);	
+            })
+       
+        } catch (error) {
+      if (error.response) {
+        console.log(error.response);
+    }
+}
+    }
+    
+    
     const changeTime = time => {
         console.log(`Let's do thisssss ${time.indexOf(":")}`);
 
