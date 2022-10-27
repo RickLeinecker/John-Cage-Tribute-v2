@@ -1,6 +1,6 @@
 import Users from "../models/User.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"
  
 // export const getUsers = async(req, res) => {
 //     try {
@@ -38,29 +38,36 @@ export const Login = async(req, res) => {
             }
         });
         console.log("Testing Login: ")
-        const match = await bcrypt.compare(req.body.password, user[0].password);
+        
+        const match = await bcrypt.compare(req.body.password, user[0].dataValues.password);
+
         if(!match) return res.status(400).json({msg: "Wrong Password"});
-        const userId = user[0].id;
-        const username = user[0].username;
-        const email = user[0].email;
+
+        const userId = user[0].dataValues.id;
+        const username = user[0].dataValues.username;
+        const email = user[0].dataValues.email;
+
         const accessToken = jwt.sign({userId, username, email}, process.env.ACCESS_TOKEN_SECRET,{
             expiresIn: '15s'
         });
         const refreshToken = jwt.sign({userId, username, email}, process.env.REFRESH_TOKEN_SECRET,{
             expiresIn: '1d'
         });
+        console.log("Heehehe");
         await Users.update({refresh_token: refreshToken},{
             where:{
                 id: userId
             }
         });
+        console.log("Checking res here");
         res.cookie('refreshToken', refreshToken,{
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000
         });
+        console.log("Res is working here");
         res.json({ accessToken });
     } catch (error) {
-        res.status(404).json({msg:"Email not found"});
+        console.log(error);
     }
 }
  

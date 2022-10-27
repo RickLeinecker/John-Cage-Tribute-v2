@@ -13,15 +13,25 @@ class Rooms extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			socket: io("https://johncagetribute.org/"),
+			socket: io(),
 			roomsList: []
 		};
 		this.refresh = this.refresh.bind(this);
+		this.serverSocket = io();
 	}
 	
 	componentDidMount() {
 		// Socket code
 		const socket = this.state.socket;
+
+		socket.on("connect", _ => {
+			console.log("I'm connected!");
+		})
+		socket.on('event', (data) => console.log(data));
+		socket.on('error', (err) => console.log(err));
+		socket.on('timeout', (time) => console.log(time));
+		socket.on('fromServer', (_) => console.log(_));
+
 		socket.on("updaterooms", rooms => {
 			var pn = Object.getOwnPropertyNames(rooms);
 			this.setState({roomsList: pn.map(name => rooms[name])})
@@ -100,7 +110,15 @@ class Rooms extends React.Component {
 	}
 	
 	refresh() {
-		this.state.socket.emit("updaterooms");
+		console.log("WHAT?????");
+		
+		this.serverSocket.on("connect", _ => {
+			console.log("I'm connected!");
+		})
+		this.serverSocket.on('event', (data) => console.log(data));
+		this.serverSocket.on('error', (err) => console.log(err));
+		this.serverSocket.on('timeout', (time) => console.log(time));
+		this.serverSocket.on('fromServer', (_) => console.log(_));
 	}
 }
 

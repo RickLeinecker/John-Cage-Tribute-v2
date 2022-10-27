@@ -1,10 +1,10 @@
 import { Sequelize } from "sequelize";
- 
-const db1 = new Sequelize('jctdatabase', 'root', '', {
+
+const db1 = new Sequelize('jctdatabase', 'root', 'MySQL!1996', {
     host: "localhost",
     dialect: "mysql"
 });
- 
+
 // this instance of the db is being used for register/login
 export default db1;
 
