@@ -100,7 +100,7 @@ const Schedule = ({ isAuthenticated }) => {
         // var fullTime = new Date(year, month, day);
         // console.log(fullTime);
 
-        var temp = value.toISOString();
+        var temp = value.toISOString().replace("Z", "");
 
         console.log("In handleSubmit: " + value);
         console.log("Temp: " + temp);
@@ -122,16 +122,27 @@ const Schedule = ({ isAuthenticated }) => {
       if (error.response) {
         console.log(error.response);
     }
-}
     }
-    
+    }
+
+    function addbits(s) {
+        var total = 0,
+            s = s.match(/[+\-]*(\.\d+|\d+(\.\d+)?)/g) || [];
+            
+        while (s.length) {
+          total += parseFloat(s.shift());
+        }
+        return total;
+      }   
     
     const changeTime = time => {
         console.log(`Let's do thisssss ${time.indexOf(":")}`);
 
         if(window.confirm("Schedule a Concert for " + (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear() + " at " + time + "?"))
         {
-            var tempHour = time.substr(0, time.indexOf(":"));
+            //hour is always 4 ahead, so we subtract here to fix that
+            var tempHour = time.substr(0, time.indexOf(":")) + "-4";
+            tempHour = addbits(tempHour);
             var tempMinute = time.substr(time.indexOf(":")+1);
         
             value.setHours(tempHour);
