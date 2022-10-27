@@ -92,19 +92,22 @@ const Schedule = ({ isAuthenticated }) => {
     });
 
     const handleSubmit = event => {
-        var day = value.getDate();
-        var month = value.getMonth();
-        var year = value.getFullYear();
+        // var day = value.getDate();
+        // var month = value.getMonth();
+        // var year = value.getFullYear();
 
-        console.log("Date", day, month);
-        var fullTime = new Date(year, month, day);
-        console.log(fullTime);
+        // console.log("Date", day, month);
+        // var fullTime = new Date(year, month, day);
+        // console.log(fullTime);
+
+        var temp = value.toISOString();
 
         console.log("In handleSubmit: " + value);
+        console.log("Temp: " + temp);
     
         event.preventDefault();
         //Add handleSubmit here
-        trySchedule(userId, value);
+        trySchedule(userId, value.toISOString());
     }
 
     const trySchedule = async (id, date)=>{
