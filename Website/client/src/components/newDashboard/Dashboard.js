@@ -212,7 +212,7 @@ const Dashboard = () => {
             	<div className='search-inner'>
 						<div className='search-box'>
 
-                        <h1>Welcome Back: {userId}</h1>
+                        <h1>Welcome Back: {userName}</h1>
                 <div className={css(styles.content)}>
                 <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
 
@@ -220,7 +220,7 @@ const Dashboard = () => {
                 <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                     
                    {events.map((event, index) => (
-                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.group} date= {event.group} />
+                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
                    ))}
                     <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
                 </Row>

@@ -60,11 +60,12 @@ const styles = StyleSheet.create({
 
 function ConcertCardComponent({ className = '', group, date }) { //date , time , groupname
     const composedClassName = `${css(styles.container)} ${className}`;
+
     return (
         <Column flexGrow={1} className={composedClassName} onClick={handleClick} horizontal="center" vertical="center">
             <div className={css(styles.title)} >{group}</div>
             <ThemeProvider theme={calendarTheme}>
-            <div> <CalendarIcon date={new Date()} /></div>
+            <div> <CalendarIcon date={new Date(date)} /></div>
             </ThemeProvider>
         </Column>
     );

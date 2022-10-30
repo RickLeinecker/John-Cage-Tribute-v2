@@ -110,11 +110,11 @@ const Schedule = ({ isAuthenticated }) => {
         trySchedule(userId, temp);
     }
 
-    const trySchedule = async (id, date)=>{
+    const trySchedule = async (userId, date)=>{
         // return testData;
-        console.log("id is", id);
+        console.log("id is", userId);
         try{
-        await axios.post("http://localhost:3001/schedule", {id: 6, date: date}).then(r => {
+        await axios.post("http://localhost:3001/schedule", {id: userId, date: date}).then(r => {
             console.log("schedule call", r);	
             })
        
