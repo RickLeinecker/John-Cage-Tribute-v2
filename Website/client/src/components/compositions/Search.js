@@ -35,7 +35,7 @@ class Search extends React.Component {
 		}
 		var res, tagsStyle=null, titleStyle=null, composerStyle=null, performerStyle=null; 
 		return (
-			<div className='search'>
+			<div className='schedule'>
 				<div className='dark-overlay'>
 					<div className='search-inner'>
 						<div className='search-box'>
