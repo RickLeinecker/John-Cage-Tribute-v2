@@ -13,6 +13,19 @@ const Users = db.define('users',{
     password:{
         type: DataTypes.STRING
     },
+    bio:{
+        type: DataTypes.STRING
+    },
+    isMaestro:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    isRequested:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
     refresh_token:{
         type: DataTypes.TEXT
     }
