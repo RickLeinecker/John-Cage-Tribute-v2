@@ -230,7 +230,7 @@ const Dashboard = () => {
             <span className={css(styles.title)}>{"My Recordings"}</span>
                 </div>
                 <div style={{padding:"10px"}}>
-					<CompList list={recordings} dash={false} />
+					<CompList list={recordings} userId = {userId} dash={false} />
 				</div>
                 </div>
 
