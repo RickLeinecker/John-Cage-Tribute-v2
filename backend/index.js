@@ -5,6 +5,7 @@ import cors from "cors";
 import router from "./routes/index.js";
 import mysql from "mysql2"
 import socket from "socket.io";
+import httpControl from "http";
 import path from "path";
 import { Login, Register } from "./controllers/Users.js";
 import childProcess from "child_process";
@@ -25,7 +26,7 @@ dotenv.config();
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-const PORT = 3000;
+const PORT = 8080;
 
 const app = express();
  
@@ -333,6 +334,7 @@ app.post("/changeismaestro", (req, res) => {
 
 // Socket.IO Code
 // A lot of which is reused from old code but there are new functionalities added
+const http = httpControl.createServer(app);
 const io = socket(http);
 
 const Role = {
@@ -930,3 +932,5 @@ audioProcessorPool.on('message', (data) => {
         availableRooms[roomId]['sessionAudio'].push.apply(availableRooms[roomId]['sessionAudio'], silence);
     }
 })
+
+http.listen(PORT, () => console.log(`Server Started on port ${PORT}`));
