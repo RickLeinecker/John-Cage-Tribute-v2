@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import router from "./routes/index.js";
 import mysql from "mysql2"
+import { startSession } from "mongoose";
 dotenv.config();
 
 const app = express();
@@ -22,6 +23,8 @@ const db2 = mysql.createConnection({
     database: 'jctdatabase'
 });
 
+// Recording API Calls
+// -----------------------------------------------------------------------------------
 // List Compositions
 app.get("/recordings", (req, res) => {
     db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
@@ -137,6 +140,9 @@ app.post("/editrecording", (req, res) => {
 // Create Recording
 
 // Create UserRecording
+
+// Schedule API Calls
+// -----------------------------------------------------------------------------------
 // create schedule
 app.post("/schedule", (req, res) => {
     const s  = req.body.id;
@@ -263,3 +269,43 @@ app.get("/userScheduled", (req, res) => {
 
 // REQUEST/APPROVAL maestro accounts api calls
 // -------------------------------------------------------------------------------
+
+// 	List all users who are requested to become maestro
+app.get("/listrequested", (req, res) => {
+    db2.query("SELECT DISTINCT U.id, U.username, U.email, U.bio, U.isRequested FROM Users U WHERE U.isRequested = 1",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+//  Change isrequested to 1 
+app.post("/changerequested", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    db2.query("UPDATE Users SET isRequested = 1 WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    });
+
+});
+
+// api call to change ismaestro to 1
+app.post("/changeismaestro", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    db2.query("UPDATE Users SET isMaestro = 1 WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    });
+});
