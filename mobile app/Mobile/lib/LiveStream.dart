@@ -7,8 +7,13 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
-Socket serverSocket = io("http://192.168.12.117:3000/",
+// Testing
+Socket serverSocket = io("http://192.168.12.116:3000/",
     OptionBuilder().setTransports(["websocket"]).build());
+
+// Live
+// Socket serverSocket = io("https://johncagetribute.org/",
+//     OptionBuilder().setTransports(["websocket"]).build());
 
 var _pinController = new TextEditingController();
 var _roomController = new TextEditingController();

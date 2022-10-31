@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
             onPressed: () =>
                 Navigator.push(context, MaterialPageRoute(builder: ((context) {
-              return new LoginPage(title: "John Cage Tribute Signup");
+              return new LoginPage(title: "John Cage Tribute Login");
             }))),
             child: const Text("Login"),
           ),
@@ -42,7 +42,7 @@ class HomePage extends StatelessWidget {
           )),
           child: Column(children: [
             const Padding(
-                padding: EdgeInsets.fromLTRB(100.0, 20.0, 100.0, 300.0),
+                padding: EdgeInsets.fromLTRB(100.0, 75.0, 100.0, 150.0),
                 child: Text('John Cage Tribute',
                     style: TextStyle(
                         color: Colors.black,
@@ -50,13 +50,26 @@ class HomePage extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center)),
             const SizedBox(height: 20),
-
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 10.0, horizontal: 75.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: ((context) {
+                      return CreateRoom(title: "Create Room");
+                    }))),
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.lightBlue[300]),
+                    ),
+                    child: const Text(
+                      "Start Concert",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
                   ElevatedButton(
                     onPressed: () => Navigator.push(context,
                         MaterialPageRoute(builder: ((context) {
@@ -68,17 +81,6 @@ class HomePage extends StatelessWidget {
                     ),
                     child: const Text(
                       "Join Concert",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => print("View live recording."),
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.lightBlue[300]),
-                    ),
-                    child: const Text(
-                      "Listen to Concert",
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
@@ -105,41 +107,6 @@ class HomePage extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     )))),
-            //FOR ADMIN USE ONLY DELETE BEFORE DEPLOYING
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 75.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.push(context,
-                        MaterialPageRoute(builder: ((context) {
-                      return CreateRoom(title: "Create Room");
-                    }))),
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.lightBlue[300]),
-                    ),
-                    child: const Text(
-                      "AudioTest.dart",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => print("Main profile"),
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.lightBlue[300]),
-                    ),
-                    child: const Text(
-                      "Dashboard.dart",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ])),
     );
   }
