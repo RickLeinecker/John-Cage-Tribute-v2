@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import Spinner from '../layout/Spinner';
 import CompList from "./CompList";
 import Axios from "axios";
+import Pager from './Pager.js';
 
 class Search extends React.Component {
 	constructor(props) {
@@ -52,9 +53,20 @@ class Search extends React.Component {
 									padding:"10px 0px"
 								}}>
 								</div>
-								<div style={{padding:"10px"}}>
+								{/* <div style={{padding:"10px"}}>
 									<CompList list={this.state.list} dash={false} />
-								</div>
+								</div> */}
+								<Pager
+									items={this.state.list}
+									// Might need to change this if it doesnt work
+									pageCount={3}
+									render={
+										pagerState => (
+											<div>
+												<CompList list={this.state.list} dash={false} />
+											</div>
+										)}
+									/>
 							</Fragment>
 						</div>
 					</div>
@@ -82,6 +94,13 @@ class Search extends React.Component {
 			searchParam: str
 		})
 	}
+
+	static getDerivedStateFromProps(props, state) {
+		let newState = {
+		   items: props.items
+		}
+		return newState;
+	 }
 }
 
 export default Search;
