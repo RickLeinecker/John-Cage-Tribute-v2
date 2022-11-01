@@ -66,7 +66,7 @@ class CompListItem extends React.Component {
 		console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
-			chosen: true,
+			chosen: false,
 			sidebarClass: "",
 			editing: false,
 			formdata: {
