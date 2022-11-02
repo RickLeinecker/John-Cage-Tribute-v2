@@ -13,6 +13,7 @@ import * as url from 'url';
 import randomstring from 'randomstring';
 import pkg2 from 'node-lame';
 import fetch from 'node-fetch';
+import { createServer } from "http";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
@@ -25,7 +26,7 @@ dotenv.config();
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-const PORT = 3000;
+const PORT = 8080;
 
 const app = express();
  
@@ -35,6 +36,9 @@ app.use(express.json());
 app.use(router);
  
 app.listen(3001, ()=> console.log('Server running at port 3001'));
+
+const http = createServer(app);
+http.listen(PORT, () => console.log(`Websocket server started on port ${PORT}`));
 
 const db2 = mysql.createConnection({
     host: 'localhost',
@@ -343,7 +347,7 @@ const Role = {
 const sampleRate = 44100;
 var availableRooms = {}; // Currently active rooms
 var memberAttendance = {}; // Maps socketId to roomId
-var audioProcessorPool = childProcess.fork('../Website/audioProcessor/audioProcessorPool.js');
+var audioProcessorPool = childProcess.fork('./audioProcessor/audioProcessorPool.js');
 
 io.on("connection", function (socket) {
     // Register from mobile app
