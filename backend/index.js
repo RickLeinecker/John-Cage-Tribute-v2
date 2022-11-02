@@ -6,8 +6,7 @@ import router from "./routes/index.js";
 import mysql from "mysql2"
 dotenv.config();
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+
 
 const PORT = 8080;
 
