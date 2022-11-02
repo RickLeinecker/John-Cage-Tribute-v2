@@ -1,4 +1,4 @@
-import React, {Fragment, useState, useEffect} from "react";
+import React, {Fragment, useState, useEffect, Component} from "react";
 import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
@@ -6,6 +6,8 @@ import ScheduleCardComponent from "./ScheduleCard";
 import CompList from "../compositions/CompList";
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
+import { IconContext } from 'react-icons';
+import * as AiIcons from 'react-icons/ai';
 
 const styles = StyleSheet.create({
     container: {
@@ -55,6 +57,45 @@ const styles = StyleSheet.create({
 //add the scheduling button component
 //my recordings title
 //recordings component
+
+class DEF extends Component {
+
+    render() {
+     return (
+        <IconContext.Provider value={{ color: '#fff' }}>
+        <div className="dark-overlay" style={{zIndex:"2", position:"fixed"}}>
+            
+            <div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}>
+                <div id= "close" className = 'close' >
+                         <AiIcons.AiOutlineClose />
+                </div>
+                    <div className="sb-ref" style={{padding:"10px"}}>
+                        <h2 id="info-title">Composition Information</h2>
+                        <br />
+                        <p className= "info-title">
+                            <span className="info-title">Title: </span>{}
+                        </p>
+                        <p className="info-title">
+                            <span className="info-title">Date: </span>{}
+                        </p>
+                        <p className="info-title">
+                            <span className="info-title">Composer: </span>{}
+                        </p>
+                        <p className="info-title">
+                            <span className="info-title">Performers: </span>{}
+                        </p>
+                        <p className="info-title">
+                            <span className="info-title">Description: </span>{}
+                        </p><br />
+                    </div>
+                    </div>
+                    </div>
+
+                    </IconContext.Provider>
+                )
+
+            };
+}
 
 const Dashboard = () => {
     // get userId from token, useEffect, then call API from index.js that passes userId to get list of user's recordings
@@ -207,7 +248,11 @@ const Dashboard = () => {
 		})
    }
 
+
     return (
+        <Fragment>
+  <DEF></DEF>
+
         <div className='search'>
             	<div className='search-inner'>
 						<div className='search-box'>
@@ -236,8 +281,9 @@ const Dashboard = () => {
 
         </div>
         </div>
-
+ </Fragment>
     );
+  
 };
 
 export default Dashboard;
