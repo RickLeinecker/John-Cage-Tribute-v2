@@ -1,5 +1,5 @@
-var AudioContext = require('@descript/web-audio-js')
-var Tuna = require('tunajs')
+import AudioContext from '@descript/web-audio-js';
+import Tuna from 'tunajs'
 
 class AudioProcessor {
 

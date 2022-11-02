@@ -3,7 +3,7 @@
 // as a seperate thread from the main server thread.  Incoming commands
 // along with data are passed along to the audio processor instance.
 
-const AudioProcessor = require('./audioProcessor.js');
+import AudioProcessor from './audioProcessor.js';
 
 // The single underlying audio processor instance
 var audioProcessor = new AudioProcessor();

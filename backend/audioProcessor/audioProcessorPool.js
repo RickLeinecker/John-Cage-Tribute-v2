@@ -5,9 +5,10 @@
 // Audio data recived from the audio processors is sent back
 // to server.js along with the roomId.
 
-const cp = require('child_process');
+import cp from 'child_process';
+
 console.log('AudioProcessorPool running...');
-audioProcessors = {}; // Currently active audio processors
+var audioProcessors = {}; // Currently active audio processors
 
 // We got a message from the server, handle the messages
 // based on the 'command' member of the data object
