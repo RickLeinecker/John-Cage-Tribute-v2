@@ -8,7 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
 // Testing
-Socket serverSocket = io("http://192.168.12.116:3000/",
+Socket serverSocket = io("http://192.168.12.116:8080/",
     OptionBuilder().setTransports(["websocket"]).build());
 
 // Live
@@ -119,12 +119,12 @@ class _LiveStreamState extends State<LiveStream> {
       micListener?.cancel();
     });
 
-    // // Start listening to microphone
-    // micStream = await MicStream.microphone(sampleRate: 8000);
-    // micListener = micStream?.listen((data) {
-    //   serverSocket.emit("audio", data);
-    //   print(data);
-    // });
+    // Start listening to microphone
+    micStream = await MicStream.microphone(sampleRate: 8000);
+    micListener = micStream?.listen((data) {
+      serverSocket.emit("audio", data);
+      print(data);
+    });
   }
 
   void leaveStream() {

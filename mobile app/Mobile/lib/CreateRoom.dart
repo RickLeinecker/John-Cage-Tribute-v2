@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
 // Testing
-Socket serverSocket = io("http://192.168.12.116:3000/",
+Socket serverSocket = io("http://192.168.12.116:8080/",
     OptionBuilder().setTransports(["websocket"]).build());
 
 // Live
@@ -128,7 +128,7 @@ class _CreateRoomState extends State<CreateRoom> {
       // Start constructing the room
       var room = {
         "members": {},
-        "id": 3,
+        "id": 0,
         "pin": "abcdefg",
         "currentListeners": 0,
         "maxListeners": 1,
@@ -161,7 +161,7 @@ class _CreateRoomState extends State<CreateRoom> {
   }
 
   void leave() async {
-    serverSocket.emit("leaveroom", 3);
+    serverSocket.emit("leaveroom", 0);
 
     print("I'm leaving! Bye!");
 
@@ -171,7 +171,7 @@ class _CreateRoomState extends State<CreateRoom> {
   }
 
   void startConcert() async {
-    serverSocket.emit("startsession", 3);
+    serverSocket.emit("startsession", 0);
 
     serverSocket.on("audiostart", (message) async {
       print(message);
@@ -192,7 +192,7 @@ class _CreateRoomState extends State<CreateRoom> {
   void stopConcert() async {
     micListener?.cancel();
 
-    var package = {"roomId": 3, "composition": {}};
+    var package = {"roomId": 0, "composition": {}};
 
     serverSocket.emit("endsession", package);
 
