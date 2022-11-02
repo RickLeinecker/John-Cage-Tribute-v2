@@ -13,6 +13,10 @@ const Users = db.define('users',{
     password:{
         type: DataTypes.STRING
     },
+    confirmed:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     bio:{
         type: DataTypes.STRING
     },

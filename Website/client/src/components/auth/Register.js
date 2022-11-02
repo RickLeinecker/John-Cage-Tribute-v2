@@ -40,7 +40,6 @@ const Register = () => {
             password: password,
             confPassword: password2
         });
-        console.log("login error");
         history.push("/login");
     } catch (error) {
         if (error.response) {

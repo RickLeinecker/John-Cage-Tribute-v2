@@ -4,9 +4,13 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import router from "./routes/index.js";
 import mysql from "mysql2"
+import Users from "./models/User.js";
+import bcrypt from "bcrypt";
+import bodyParser from 'body-parser';
+import nodemailer from 'nodemailer';
+import jwt from "jsonwebtoken";
+
 dotenv.config();
-
-
 
 const PORT = 8080;
 
@@ -22,8 +26,22 @@ app.listen(3001, ()=> console.log('Server running at port 3001'));
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'mypassword112',
     database: 'jctdatabase'
+});
+
+// email confirmation api
+app.get('/confirmation/:token', async (req, res) => {
+    console.log("we made it to confirmation");
+    const id = 1;
+    try {
+        const { user: { id } } = jwt.verify(req.params.token, process.env.EMAIL_SECRET);
+        await Users.update({ confirmed: true}, { where: { id }});
+    }   catch (e) {
+        console.log("THERE HAS BEEN SUM ERROR");
+        res.send('error');
+    }
+    return res.redirect('http://localhost:3000/login');
 });
 
 // Recording API Calls
