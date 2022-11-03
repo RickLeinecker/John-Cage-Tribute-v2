@@ -1,7 +1,7 @@
 import AudioContext from '@descript/web-audio-js';
 import Tuna from 'tunajs'
 
-class AudioProcessor {
+export default class AudioProcessor {
 
     constructor() {
         console.log('Creating an audio processer')
@@ -75,6 +75,8 @@ class AudioProcessor {
 
     // This function adds a new performer to the recording session.
     addPerformer(performerID) {
+        console.log(`I should be adding performer ID: ${performerID}`);
+        
         // Increase the total number of performers by 1
         this.numActivePerformers += 1;
 
@@ -150,6 +152,8 @@ class AudioProcessor {
     // adds the raw audio to the buffer for the performer specified by the socket ID,
     // and if there is enough audio data, mixes and returns the mixed audio.
     buffer(performerID, audioIn) {
+        console.log("Performers:");
+        console.log(this.performers);
         if (!this.performers[performerID]) {
             console.log('buffer() cannot find a performer with socketID ' + performerID)
             return
@@ -249,4 +253,4 @@ class AudioProcessor {
     }
 }
 
-module.exports = AudioProcessor
+// module.exports = AudioProcessor

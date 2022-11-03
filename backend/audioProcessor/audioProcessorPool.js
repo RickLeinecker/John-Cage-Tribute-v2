@@ -20,15 +20,20 @@ process.on('message', (data) => {
         // pass it back to the server
         audioProcessors[data.roomId].on('message', (data) => {
             if (data.message == 'finishedProcessing') {
+                console.log("RUNNER FINISHED PROCESSING");
                 process.send({message: 'finishedProcessing', processedAudio: data.processedAudio, socketId: data.socketId});
             }
             else if (data.message == 'addSilence') {
+                console.log("RUNNER DID NOT FINISH PROCESSING");
                 process.send({message: 'addSilence', numSamples: data.numSamples, socketId: data.socketId});
             }
         })
     }
     // Add a new performer to the audio processor for roomId
     else if (data.command == 'addPerformer') {
+        console.log(`I'm here in processor pool, addPerformer: Socket ID: ${data.socketId}`);
+        console.log(data.roomId);
+        console.log("I should have put this here long before tbh");
         audioProcessors[data.roomId].send({command: 'addPerformer', socketId: data.socketId});
     }
     // Remove a performer from the audio processsor for roomId

@@ -8,19 +8,25 @@ import AudioProcessor from './audioProcessor.js';
 // The single underlying audio processor instance
 var audioProcessor = new AudioProcessor();
 
+console.log("Testing audioProcessor:");
+console.log(audioProcessor);
+
 // Messages are recived from the parent thread and passed on to the
 // audio processor based on the 'command' member of the data object
 process.on('message', (data) => {
     // Add a new performer to the audio processor
     if (data.command == 'addPerformer') {
+        console.log("I'm in Runner, addPerformer");
         audioProcessor.addPerformer(data.socketId);
     }
     // Remove a performer from the audio processor
     else if (data.command == 'removePerformer') {
+        console.log("I'm in Runner, removePerformer");
         audioProcessor.removePerformer(data.socketId);
     }
     // Toggle the isActive flag for a performer
     else if(data.command == 'toggleActive') {
+        console.log("I'm in Runner, toggleActive");
         var numSilenceSamples = audioProcessor.toggleActive(data.socketId);
         // If we just made the first performer active after all were inactive,
         // return the number of silence samples to be added to the session audio

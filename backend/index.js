@@ -43,7 +43,7 @@ http.listen(PORT, () => console.log(`Websocket server started on port ${PORT}`))
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'MySQL!1996',
     database: 'jctdatabase'
 });
 
@@ -415,6 +415,7 @@ io.on("connection", function (socket) {
 
         if (member.role == Role.PERFORMER) {
             audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
+            console.log("I'm in INDEX, addPerformer");
             availableRooms[roomId]['currentPerformers'] = 1;
             availableRooms[roomId]['currentListeners'] = 0;
         }
@@ -675,6 +676,8 @@ io.on("connection", function (socket) {
     // AFTER STARTSESSION
     socket.on('sendaudio', function (data) {
         const roomId = memberAttendance[socket.id];
+
+        console.log(data);
 
         if (!roomId) {
             return;
