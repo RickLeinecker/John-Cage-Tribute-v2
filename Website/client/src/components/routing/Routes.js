@@ -16,7 +16,8 @@ import Post from '../post/Post';
 import NotFound from '../layout/NotFound';
 import PrivateRoute from '../routing/PrivateRoute';
 import Landing from '../layout/Landing';
-import AdminDashboard from '../newDashboard/AdminDashboard'
+import AdminDashboard from '../newDashboard/AdminDashboard';
+import MaestroRequests from '../compositions/MaestroRequests';
 import AdminLogin from '../auth/AdminLogin';
 
 const Routes = props => {
@@ -31,6 +32,7 @@ const Routes = props => {
         <Route exact path="/profile/:id" component={Profile} />
         <Route exact path="/dashboard" component={Dashboard} />
         <Route exact path="/admindashboard" component={AdminDashboard} />
+        <Route exact path="/maestrorequests" component={MaestroRequests} />
         <Route exact path="/schedule" component={Schedule} />
         <PrivateRoute exact path="/landing" component={Landing} />     
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />

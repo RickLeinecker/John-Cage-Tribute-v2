@@ -802,6 +802,7 @@ button {
 	padding: 10px;
 	margin: 5px 0px;
 	text-align: left;
+  color: black;
 	border-radius: 5px;
 	border: 1px solid gray;
 	cursor: default;

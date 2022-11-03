@@ -6,6 +6,7 @@ import ScheduleCardComponent from "./ScheduleCard";
 import CompList from "../compositions/CompList";
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
+import { Link, Redirect } from 'react-router-dom';
 
 const styles = StyleSheet.create({
     container: {
@@ -215,6 +216,7 @@ const AdminDashboard = () => {
                         <h1>Welcome Back Admin: {userName}</h1>
                         <button className="btn btn-primary" onClick={handleDeleteUser}>Delete User</button>
                         <button className="btn btn-primary" onClick={handleDeleteRecording}>Delete Recording</button>
+                        <Link to='/maestrorequests' className='btn btn-primary'>Maestro Requests</Link>
                 <div className={css(styles.content)}>
                 <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
 
