@@ -208,38 +208,42 @@ const Dashboard = () => {
 		})
    }
 
+   function requestMaestro() {
+    console.log("User wants to be Maestro");
+    //ADD API CONNECTION HERE
+   }
+
     return (
         <div className='schedule'>
-            	<div className='search-inner'>
-						<div className='search-box'>
-                            {/* TEMPORARY REMOVE LATER */}
-                            <Link to="/admindashboard" className='btn btn-primary'>TEMP LINK TO ADMIN DASH</Link>
+            <div className='search-inner'>
+				<div className='search-box'>
+                    {/* TEMPORARY REMOVE LATER */}
+                    <Link to="/admindashboard" className='btn btn-primary'>TEMP LINK TO ADMIN DASH</Link>
 
-                        <h1>Welcome Back: {userName}</h1>
-                <div className={css(styles.content)}>
-                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
+                    <h1>Welcome Back: {userName}</h1>
+                    <br />
+                    <p className="dash">Want to schedule your own concert?</p>
+                    <button  onclick={requestMaestro()} className="btn btn-primary">Become a Maestro!</button>
+                    <div className={css(styles.content)}>
+                        <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
 
-                <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
-                <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
+                        <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
+                            <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                     
-                   {events.map((event, index) => (
-                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
-                   ))}
-                    <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
-                </Row>
-
-
-            </Row>
-            <span className={css(styles.title)}>{"My Recordings"}</span>
+                            {events.map((event, index) => (
+                                <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
+                            ))}
+                            <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                            </Row>
+                        </Row>
+                        <span className={css(styles.title)}>{"My Recordings"}</span>
+                    </div>
+                    <div style={{padding:"10px"}}>
+					    <CompList list={recordings} userId = {userId} dash={false} />
+				    </div>
                 </div>
-                <div style={{padding:"10px"}}>
-					<CompList list={recordings} userId = {userId} dash={false} />
-				</div>
-                </div>
-
+            </div>
         </div>
-        </div>
-
     );
 };
 
