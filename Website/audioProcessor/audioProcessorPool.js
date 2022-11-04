@@ -5,35 +5,29 @@
 // Audio data recived from the audio processors is sent back
 // to server.js along with the roomId.
 
-import cp from 'child_process';
-
+const cp = require('child_process');
 console.log('AudioProcessorPool running...');
-var audioProcessors = {}; // Currently active audio processors
+audioProcessors = {}; // Currently active audio processors
 
 // We got a message from the server, handle the messages
 // based on the 'command' member of the data object
 process.on('message', (data) => {
     // Create a new audio processor in a seperate thread
     if (data.command == 'createAudioProcessor') {
-        audioProcessors[data.roomId] = cp.fork('./audioProcessor/audioProcessorRunner.js');
+        audioProcessors[data.roomId] = cp.fork('../Website/audioProcessor/audioProcessorRunner.js');
         // If the audio processor sent data back, 
         // pass it back to the server
         audioProcessors[data.roomId].on('message', (data) => {
             if (data.message == 'finishedProcessing') {
-                console.log("RUNNER FINISHED PROCESSING");
                 process.send({message: 'finishedProcessing', processedAudio: data.processedAudio, socketId: data.socketId});
             }
             else if (data.message == 'addSilence') {
-                console.log("RUNNER DID NOT FINISH PROCESSING");
                 process.send({message: 'addSilence', numSamples: data.numSamples, socketId: data.socketId});
             }
         })
     }
     // Add a new performer to the audio processor for roomId
     else if (data.command == 'addPerformer') {
-        console.log(`I'm here in processor pool, addPerformer: Socket ID: ${data.socketId}`);
-        console.log(data.roomId);
-        console.log("I should have put this here long before tbh");
         audioProcessors[data.roomId].send({command: 'addPerformer', socketId: data.socketId});
     }
     // Remove a performer from the audio processsor for roomId

@@ -1,7 +1,7 @@
-import AudioContext from '@descript/web-audio-js';
-import Tuna from 'tunajs'
+var AudioContext = require('@descript/web-audio-js')
+var Tuna = require('tunajs')
 
-export default class AudioProcessor {
+class AudioProcessor {
 
     constructor() {
         console.log('Creating an audio processer')
@@ -33,7 +33,6 @@ export default class AudioProcessor {
             delay: 0.0045,     //0 to 1
             bypass: 0          //the value 1 starts the effect as bypassed, 0 or 1
         });
-
         this.overdrive = new this.tuna.Overdrive({
             outputGain: 0,           //-42 to 0 in dB
             drive: 1,                //0 to 1
@@ -41,7 +40,6 @@ export default class AudioProcessor {
             algorithmIndex: 0,       //0 to 5, selects one of the drive algorithms
             bypass: 0
         });
-
         this.filter = new this.tuna.Filter({
             frequency: 800,         //20 to 22050
             Q: 1,                   //0.001 to 100
@@ -49,7 +47,6 @@ export default class AudioProcessor {
             filterType: "lowpass",  //lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass
             bypass: 0
         });
-
         this.delay = new this.tuna.Delay({
             feedback: 0.45,    //0 to 1+
             delayTime: 100,    //1 to 10000 milliseconds
@@ -58,25 +55,20 @@ export default class AudioProcessor {
             cutoff: 20000,      //cutoff frequency of the built in lowpass-filter. 20 to 22050
             bypass: 0
         });
-
         this.overdrive.connect(this.audioContext.destination)
         
         this.bitcrusher.connect(this.audioContext.destination)
         this.moog.connect(this.bitcrusher)
         this.chorus.connect(this.moog)
-
         this.chorus.connect(this.audioContext.destination)
         
         this.delay.connect(this.filter)
         this.filter.connect(this.audioContext.destination)
-
         */
     }
 
     // This function adds a new performer to the recording session.
     addPerformer(performerID) {
-        console.log(`I should be adding performer ID: ${performerID}`);
-        
         // Increase the total number of performers by 1
         this.numActivePerformers += 1;
 
@@ -152,8 +144,6 @@ export default class AudioProcessor {
     // adds the raw audio to the buffer for the performer specified by the socket ID,
     // and if there is enough audio data, mixes and returns the mixed audio.
     buffer(performerID, audioIn) {
-        console.log("Performers:");
-        console.log(this.performers);
         if (!this.performers[performerID]) {
             console.log('buffer() cannot find a performer with socketID ' + performerID)
             return
@@ -253,4 +243,4 @@ export default class AudioProcessor {
     }
 }
 
-// module.exports = AudioProcessor
+module.exports = AudioProcessor

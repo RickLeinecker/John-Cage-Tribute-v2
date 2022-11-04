@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Practice John Cage Website",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index",
     "server": "nodemon index",

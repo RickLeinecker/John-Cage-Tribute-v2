@@ -23,9 +23,6 @@ const {Lame} = pkg2;
 
 dotenv.config();
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-
 const PORT = 8080;
 
 const app = express();
@@ -347,7 +344,7 @@ const Role = {
 const sampleRate = 44100;
 var availableRooms = {}; // Currently active rooms
 var memberAttendance = {}; // Maps socketId to roomId
-var audioProcessorPool = childProcess.fork('./audioProcessor/audioProcessorPool.js');
+var audioProcessorPool = childProcess.fork('../Website/audioProcessor/audioProcessorPool.js');
 
 io.on("connection", function (socket) {
     // Register from mobile app
@@ -763,7 +760,7 @@ io.on("connection", function (socket) {
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
           "output": mp3FileName,
-          "scale": 15,
+          "scale": 45,
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
