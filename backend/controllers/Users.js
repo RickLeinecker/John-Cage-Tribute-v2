@@ -1,6 +1,11 @@
 import Users from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
+import bodyParser from 'body-parser';
+import nodemailer from 'nodemailer';
+import dotenv from "dotenv";
+dotenv.config();
  
 // export const getUsers = async(req, res) => {
 //     try {
@@ -18,13 +23,39 @@ export const Register = async(req, res) => {
     if(password !== confPassword) return res.status(400).json({msg: "Password and Confirm Password do not match"});
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(password, salt);
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: process.env.EM_USER,
+          pass: process.env.EM_PASS,
+        },
+    });
     try {
-        await Users.create({
+        const user = await Users.create({
             username: username,
             email: email,
             password: hashPassword
         });
         res.json({msg: "Registration Successful"});
+        console.log("userid is", user.id);
+        jwt.sign(
+            {
+              user: user,
+            },
+            process.env.EMAIL_SECRET,
+            {
+              expiresIn: '1d',
+            },
+            (err, emailToken) => {
+              const url = `http://localhost:3001/confirmation/${emailToken}`;
+              transporter.sendMail({
+                from: 'JohnCageTributeOrg@gmail.com',
+                to: email,
+                subject: 'Confirm Email',
+                html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
+              });
+            },
+          );
     } catch (error) {
         console.log(error);
     }
@@ -37,6 +68,10 @@ export const Login = async(req, res) => {
                 email: req.body.email
             }
         });
+
+        if (!user.confirmed) {
+            throw new Error('Please confirm your email to login');
+        }
         console.log("Testing Login: ")
         const match = await bcrypt.compare(req.body.password, user[0].password);
         if(!match) return res.status(400).json({msg: "Wrong Password"});

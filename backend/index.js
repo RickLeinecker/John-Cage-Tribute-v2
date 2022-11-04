@@ -32,8 +32,6 @@ const db2 = mysql.createConnection({
 
 // email confirmation api
 app.get('/confirmation/:token', async (req, res) => {
-    console.log("we made it to confirmation");
-    const id = 1;
     try {
         const { user: { id } } = jwt.verify(req.params.token, process.env.EMAIL_SECRET);
         await Users.update({ confirmed: true}, { where: { id }});
