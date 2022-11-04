@@ -279,7 +279,7 @@ textarea {
 	top: 0px;
 	right: 50px;
   transition : right 2000ms;
-	text-align: left;
+
 	overflow: scroll
 }
 
@@ -293,8 +293,11 @@ textarea {
 }
 
 #info-title {
-	text-align: center;
-	border-bottom: 2px solid gray;
+	text-align: left;
+	border-bottom: 2px solid rgb(245, 245, 245);
+}
+ul li {
+padding-bottom: 20px;
 }
 
 .info-field-title {

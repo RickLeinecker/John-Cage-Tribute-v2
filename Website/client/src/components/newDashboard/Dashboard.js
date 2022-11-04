@@ -3,6 +3,7 @@ import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
+import EventDetailsSidebarComponent from "./EventDetailsSidebar";
 import CompList from "../compositions/CompList";
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
@@ -58,45 +59,6 @@ const styles = StyleSheet.create({
 //my recordings title
 //recordings component
 
-class DEF extends Component {
-
-    render() {
-     return (
-        <IconContext.Provider value={{ color: '#fff' }}>
-        <div className="dark-overlay" style={{zIndex:"2", position:"fixed"}}>
-            
-            <div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}>
-                <div id= "close" className = 'close' >
-                         <AiIcons.AiOutlineClose />
-                </div>
-                    <div className="sb-ref" style={{padding:"10px"}}>
-                        <h2 id="info-title">Composition Information</h2>
-                        <br />
-                        <p className= "info-title">
-                            <span className="info-title">Title: </span>{}
-                        </p>
-                        <p className="info-title">
-                            <span className="info-title">Date: </span>{}
-                        </p>
-                        <p className="info-title">
-                            <span className="info-title">Composer: </span>{}
-                        </p>
-                        <p className="info-title">
-                            <span className="info-title">Performers: </span>{}
-                        </p>
-                        <p className="info-title">
-                            <span className="info-title">Description: </span>{}
-                        </p><br />
-                    </div>
-                    </div>
-                    </div>
-
-                    </IconContext.Provider>
-                )
-
-            };
-}
-
 const Dashboard = () => {
     // get userId from token, useEffect, then call API from index.js that passes userId to get list of user's recordings
     
@@ -108,6 +70,7 @@ const Dashboard = () => {
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [users, setUsers] = useState([]);
+    const [selectedEvent, setSelectedEvent] = useState([]);
     const testData = [
         {
           group: 'testgroup',
@@ -247,13 +210,23 @@ const Dashboard = () => {
         console.log("events call", r);	
 		})
    }
+ var evd;
 
+   const handleClick= (event) => {
+    setSelectedEvent(event);
+    evd = selectedEvent != null ? <div>HELLO HI TESt</div> : <div>WHYY</div>;
+    console.log( selectedEvent, evd, 'Push the concert details page for this concert 2');
+  }
 
+ 
+
+if ( selectedEvent.length < 1)
+{
+    {console.log(selectedEvent)}
     return (
         <Fragment>
-  <DEF></DEF>
+        <div className='search'> 
 
-        <div className='search'>
             	<div className='search-inner'>
 						<div className='search-box'>
 
@@ -265,8 +238,9 @@ const Dashboard = () => {
                 <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                     
                    {events.map((event, index) => (
+                       <div onClick={() => handleClick (event)} > 
                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
-                   ))}
+               </div>    ))}
                     <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
                 </Row>
 
@@ -283,7 +257,46 @@ const Dashboard = () => {
         </div>
  </Fragment>
     );
-  
+    }
+      else
+            {
+            return(
+                        <Fragment>
+                            <EventDetailsSidebarComponent event = {selectedEvent} clickHandler ={() => handleClick ([])}></EventDetailsSidebarComponent>
+                        <div className='search'> 
+                        
+                                <div className='search-inner'>
+                                        <div className='search-box'>
+                
+                                        <h1>Welcome Back: {userName}</h1>
+                                <div className={css(styles.content)}>
+                                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
+                
+                                <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
+                                <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
+                                    
+                                   {events.map((event, index) => (
+                                       <div onClick={() => handleClick (event)} > 
+                                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
+                               </div>    ))}
+                                    <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                </Row>
+                
+                
+                            </Row>
+                            <span className={css(styles.title)}>{"My Recordings"}</span>
+                                </div>
+                                <div style={{padding:"10px"}}>
+                                    <CompList list={recordings} userId = {userId} dash={false} />
+                                </div>
+                                </div>
+                
+                        </div>
+                        </div>
+                 </Fragment>
+                   
+                    );
+                   } 
 };
 
 export default Dashboard;
