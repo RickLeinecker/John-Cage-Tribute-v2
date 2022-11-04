@@ -68,11 +68,9 @@ export const Login = async(req, res) => {
                 email: req.body.email
             }
         });
-
-        if (!user.confirmed) {
+        if (!user[0].confirmed) {
             throw new Error('Please confirm your email to login');
         }
-        console.log("Testing Login: ")
         const match = await bcrypt.compare(req.body.password, user[0].password);
         if(!match) return res.status(400).json({msg: "Wrong Password"});
         const userId = user[0].id;
