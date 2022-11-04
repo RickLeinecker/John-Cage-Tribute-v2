@@ -3,19 +3,31 @@ import './Pager.css';
 
 class Pager extends React.Component {
     constructor(props) { 
-       super(props);
+        super(props);
 
-       this.state = { 
-        items: this.props.items, 
-        pageCount: this.props.pageCount,
+        this.state = { 
+            items: this.props.items, 
+            pageCount: this.props.pageCount,
         }
 
+        console.log('Nowhere');
         this.state = this.calculate(this.state, 1);
     }
 
+    componentDidUpdate(prevProps) {
+        //this.state = this.calculate(this.state, 1);
+    }
+
     calculate(state, pageNo) {
+        console.log("Calculating...");
+        // console.log(this.state.items);
+
         let currentPage = pageNo;
+        console.log(`Page: ${currentPage} ${pageNo}`);
         let totalPages = Math.ceil(state.items.length / state.pageCount);
+
+        // console.log(state);
+        // console.log(pageNo);
 
         if(currentPage > totalPages) {
             currentPage = totalPages;
@@ -27,6 +39,11 @@ class Pager extends React.Component {
         let last = first + state.pageCount;
         let filteredItems = state.items.slice(first, last);
 
+        console.log(`${first} ${last}`);
+
+        // console.log("Filtered items...");
+        // console.log(filteredItems);
+
         let newState = {
             items: state.items,
             filteredItems: filteredItems,
@@ -35,10 +52,13 @@ class Pager extends React.Component {
             pageCount: state.pageCount
         }
 
+        console.log(`Current page!!!!! ${currentPage}`);
+
         return newState;
     }
 
     handleClick(pageNo, e) {
+        console.log('handleclick');
         e.preventDefault();
         this.setState((state, props) => {
             return this.calculate(state, pageNo);

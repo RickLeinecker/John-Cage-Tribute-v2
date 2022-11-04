@@ -18,18 +18,33 @@ class Search extends React.Component {
 		this.searchbarChange = this.searchbarChange.bind(this);
 		this.performSearch = this.performSearch.bind(this);
 		this.changeSearchParam = this.changeSearchParam.bind(this);
+		this.pageRef = React.createRef();
+		this.listRef = React.createRef();
 	}
 	
 	componentDidMount() {
+		console.log("API");
 		Axios.get("http://localhost:3001/recordings").then(r => {
-			this.setState({list: r.data})
-			console.log(r.data);
+			this.setState({list: r.data});
 		})
+	}
+
+	componentDidUpdate() {
+		// console.log("Update:");
+		// console.log(this.pageRef.current.state);
+
+		this.pageRef.current.setState({items: this.state.list});
+		//this.pageRef.current.calculate(this.pageRef.current.state, 1);
+		// this.pageRef.current.render();
+
+		// console.log("Updating pager?");
+		// console.log(this.pageRef.current.state);
+
+		console.log("update........");
 	}
 	
 	render() {
-		console.log(this.state.list);
-		console.log("GELLO");
+		console.log("rendering!");
 		const s = "search-params-button";
 		const chosenStyle = {
 			backgroundColor: "#adf"
@@ -57,13 +72,20 @@ class Search extends React.Component {
 									<CompList list={this.state.list} dash={false} />
 								</div> */}
 								<Pager
+									ref={this.pageRef}
 									items={this.state.list}
+									// {...console.log("Printing out the current list:")}
+									// {...console.log(this.state.list)}
 									// Might need to change this if it doesnt work
-									pageCount={3}
+									pageCount={10}
 									render={
 										pagerState => (
 											<div>
-												<CompList list={this.state.list} dash={false} />
+												<CompList ref={this.listRef} list={pagerState.items} dash={false} />
+												{/* {console.log("Here we go:")}
+												{console.log(pagerState.items)}
+												{console.log(this.state.list)}
+												{console.log("Stopping.")} */}
 											</div>
 										)}
 									/>
@@ -81,12 +103,20 @@ class Search extends React.Component {
 	
 	performSearch(e) {
 		var query = this.state.searchQuery;
-		console.log("Query: ", query);
 		Axios.get("http://localhost:3001/title", {params: {query: query}}).then(r => {
 			this.setState({list: r.data})
-			console.log(r.data);
 		})
 		e.preventDefault();
+
+		const pageRef = this.pageRef;
+		
+		// pageRef.current.setState({items: this.state.list});
+
+		// console.log("Current pageref state:");
+		// console.log(pageRef.current.state);
+
+		// pageRef.current.calculate(pageRef.current.state, 1);
+		// pageRef.current.render();
 	}
 	
 	changeSearchParam(str) {
@@ -94,13 +124,6 @@ class Search extends React.Component {
 			searchParam: str
 		})
 	}
-
-	static getDerivedStateFromProps(props, state) {
-		let newState = {
-		   items: props.items
-		}
-		return newState;
-	 }
 }
 
 export default Search;
