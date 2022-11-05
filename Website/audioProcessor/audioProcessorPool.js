@@ -14,7 +14,7 @@ audioProcessors = {}; // Currently active audio processors
 process.on('message', (data) => {
     // Create a new audio processor in a seperate thread
     if (data.command == 'createAudioProcessor') {
-        audioProcessors[data.roomId] = cp.fork('./audioProcessor/audioProcessorRunner.js');
+        audioProcessors[data.roomId] = cp.fork('../Website/audioProcessor/audioProcessorRunner.js');
         // If the audio processor sent data back, 
         // pass it back to the server
         audioProcessors[data.roomId].on('message', (data) => {

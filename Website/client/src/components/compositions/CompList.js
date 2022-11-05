@@ -9,7 +9,8 @@ class CompList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			list: props.list
+			list: props.list,
+			userId: props.userId
 		}
 		console.log("-_-",  props.list);
 	}
@@ -20,18 +21,26 @@ class CompList extends React.Component {
 				list: this.props.list
 			})
 		}
+
+		if(prevProps.userId !== this.props.userId) {
+			this.setState({
+				userId: this.props.userId
+			})
+		}
 	}
 		
 	render() {
 		var list; 
-		console.log(this.state.list);
+		console.log("RECORDINGS LIST",this.state.list, this.state.userId);
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
+				console.log("ITEM", item)
 				return (<CompListItem 
 					info={item}
 					key={item._id}
-					user={this.props.user}
+					user={this.props.userId}
+					maestro = {item.maestroId}
 				/>)
 			})
 		}
@@ -41,9 +50,9 @@ class CompList extends React.Component {
 		return (
 		<div style={{textAlign:"center"}}>
 			<div id="comp-list-header">
-				<div style={{width:"30%",margin:"5px"}}>Title</div>
-				<div style={{width:"30%",margin:"5px"}}>Maestro</div>
-				<div style={{width:"20%",margin:"5px"}}>Date</div>
+				<div style={{width:"100%",margin:"5px"}}>Title</div>
+				<div style={{width:"100%",margin:"5px"}}>Maestro</div>
+				<div style={{width:"100%",margin:"5px"}}>Date</div>
 			</div>
 			{list}
 		</div>
@@ -54,6 +63,7 @@ class CompList extends React.Component {
 class CompListItem extends React.Component {
 	constructor(props) {
 		super(props);
+		console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
 			chosen: false,
@@ -84,6 +94,7 @@ class CompListItem extends React.Component {
 		
 		var sidebar = null;
 		if(this.state.chosen) {
+			console.log("chosen")
 			var c = "info-field-title";
 			var c1 = "info-p";
 			sidebar = (
@@ -104,7 +115,7 @@ class CompListItem extends React.Component {
 								<span className={c}>Composer: </span>{info.composer}
 							</p>
 							<p className={c1}>
-								<span className={c}>Performers: </span>{info.performers.join(", ")}
+								<span className={c}>Performers: </span>{info.performers}
 							</p>
 							<p className={c1}>
 								<span className={c}>Description: </span>{info.description}
@@ -118,7 +129,7 @@ class CompListItem extends React.Component {
 							</div>
 							) : (null)}
 							<audio controls className="audio-elem">
-								<source src={"http://localhost:3001/recordings" 
+								<source src={"http://localhost:3000/recordings" 
 								+ info._id} type={info.filetype} />
 							</audio>
 						</div>
@@ -159,9 +170,9 @@ class CompListItem extends React.Component {
 		<Fragment>
 			{sidebar}
 			<div className="comp-list-item" onClick={this.chosenState}>
-				<div style={{width:"30%",margin:"5px"}}>{info.title}</div>
-				<div style={{width:"30%",margin:"5px"}}>{info.username}</div>
-				<div style={{width:"20%",margin:"5px"}}>{info.date}</div>
+				<div style={{width:"100%",margin:"5px"}}>{info.title}</div>
+				<div style={{width:"100%",margin:"5px"}}>{info.username}</div>
+				<div style={{width:"100%",margin:"5px"}}>{info.date}</div>
 			</div>
 		</Fragment>
 		);

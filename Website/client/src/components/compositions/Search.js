@@ -28,13 +28,14 @@ class Search extends React.Component {
 	
 	render() {
 		console.log(this.state.list);
+		console.log("GELLO");
 		const s = "search-params-button";
 		const chosenStyle = {
 			backgroundColor: "#adf"
 		}
 		var res, tagsStyle=null, titleStyle=null, composerStyle=null, performerStyle=null; 
 		return (
-			<div className='search'>
+			<div className='schedule'>
 				<div className='dark-overlay'>
 					<div className='search-inner'>
 						<div className='search-box'>
@@ -68,9 +69,10 @@ class Search extends React.Component {
 	
 	performSearch(e) {
 		var query = this.state.searchQuery;
-		var res = api.post("/compositions/"+this.state.searchParam, {query})
-		res.then(r => {
+		console.log("Query: ", query);
+		Axios.get("http://localhost:3001/title", {params: {query: query}}).then(r => {
 			this.setState({list: r.data})
+			console.log(r.data);
 		})
 		e.preventDefault();
 	}

@@ -19,13 +19,16 @@ const Register = () => {
     e.preventDefault();
 	var success = true;
 	if(!/^[a-zA-Z0-9]{3,}$/.test(username)) {
+    console.log("username failure");
 		success = false;
 	}
 	if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
 		success = false;
+    console.log("password failure");
 	}
     if(password !== password2) {
 	  success = false;
+    console.log("password match failure");
     } 
 	if(success) {
     console.log("Register has been called");
@@ -37,12 +40,16 @@ const Register = () => {
             password: password,
             confPassword: password2
         });
-        history.push("/");
+        history.push("/login");
     } catch (error) {
         if (error.response) {
             setMsg(error.response.data.msg);
         }
     }
+    }
+    else
+    {
+      console.log("register failure");
     }
   };
 

@@ -34,4 +34,10 @@ export const SidebarData = [
     icon: <IoIcons.IoMdCalendar />,
     cName: 'nav-text'
   },
+  {
+    title: 'Rooms',
+    path: '/Rooms',
+    icon: <IoIcons.IoMdCalendar />,
+    cName: 'nav-text'
+  },
 ];

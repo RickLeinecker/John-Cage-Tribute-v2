@@ -33,7 +33,6 @@ class AudioProcessor {
             delay: 0.0045,     //0 to 1
             bypass: 0          //the value 1 starts the effect as bypassed, 0 or 1
         });
-
         this.overdrive = new this.tuna.Overdrive({
             outputGain: 0,           //-42 to 0 in dB
             drive: 1,                //0 to 1
@@ -41,7 +40,6 @@ class AudioProcessor {
             algorithmIndex: 0,       //0 to 5, selects one of the drive algorithms
             bypass: 0
         });
-
         this.filter = new this.tuna.Filter({
             frequency: 800,         //20 to 22050
             Q: 1,                   //0.001 to 100
@@ -49,7 +47,6 @@ class AudioProcessor {
             filterType: "lowpass",  //lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass
             bypass: 0
         });
-
         this.delay = new this.tuna.Delay({
             feedback: 0.45,    //0 to 1+
             delayTime: 100,    //1 to 10000 milliseconds
@@ -58,18 +55,15 @@ class AudioProcessor {
             cutoff: 20000,      //cutoff frequency of the built in lowpass-filter. 20 to 22050
             bypass: 0
         });
-
         this.overdrive.connect(this.audioContext.destination)
         
         this.bitcrusher.connect(this.audioContext.destination)
         this.moog.connect(this.bitcrusher)
         this.chorus.connect(this.moog)
-
         this.chorus.connect(this.audioContext.destination)
         
         this.delay.connect(this.filter)
         this.filter.connect(this.audioContext.destination)
-
         */
     }
 
