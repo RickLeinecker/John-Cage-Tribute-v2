@@ -27,15 +27,6 @@ const Landing = ({ isAuthenticated }) => {
             </div>
             <br/>
             <div className='buttons'>
-              <h1 className='medium'>Sign Up to Create Your Own Concert!</h1>
-              <Link to='/register' className='btn btn-primary'>
-                Sign Up
-              </Link>
-              <Link to='/login' className='btn btn-primary'>
-                Login
-              </Link>
-            </div>
-            <div className='buttons'>
               <h1 className='medium'>Want to learn more about John Cage?</h1>
               <Link className='btn btn-primary'>
                 Learn More
@@ -93,9 +84,6 @@ const Landing = ({ isAuthenticated }) => {
                 </Link>
               </div>
             </div>
-            <Link to='/schedule' className='btn btn-primary'>
-              TEMP LINK TO SCHEDULE
-            </Link>
           </div>
         </div>
       </div>

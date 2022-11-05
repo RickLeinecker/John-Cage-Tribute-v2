@@ -26,7 +26,7 @@ app.listen(3001, ()=> console.log('Server running at port 3001'));
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'mypassword112',
+    password: 'MySQL!1996',
     database: 'jctdatabase'
 });
 
