@@ -809,6 +809,7 @@ button {
 	padding: 10px;
 	margin: 5px 0px;
 	text-align: left;
+  color: black;
 	border-radius: 5px;
 	border: 1px solid gray;
 	cursor: default;
@@ -921,6 +922,12 @@ input[type="submit"] {
 
   .lead {
     font-size: 1rem;
+  }
+
+  .dash {
+    text-align: center;
+    font-size: 1.2em;
+    color: white;
   }
 
 

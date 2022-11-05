@@ -15,7 +15,6 @@ class CompList extends React.Component {
 			list: props.list,
 			userId: props.userId
 		}
-		console.log("-_-",  props.list);
 	}
 	
 	componentDidUpdate(prevProps) {
@@ -34,7 +33,6 @@ class CompList extends React.Component {
 		
 	render() {
 		var list; 
-		console.log("RECORDINGS LIST",this.state.list, this.state.userId);
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
