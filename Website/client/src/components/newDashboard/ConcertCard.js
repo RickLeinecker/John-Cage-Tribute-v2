@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
         height: 140,
         maxWidth: 140,
         padding: '10px 10px 10px 10px',
+       
         ':hover': {
             borderColor: 'var(--primary-color)',
             ':nth-child(n) > div': {
@@ -58,11 +59,12 @@ const styles = StyleSheet.create({
 
 
 
-function ConcertCardComponent({ className = '', group, date }) { //date , time , groupname
-    const composedClassName = `${css(styles.container)} ${className}`;
+function ConcertCardComponent({ className = '', group, date , styleSt}) { //date , time , groupname
+    const composedClassName = `${css(styleSt? styleSt : styles.container)} ${className}`;
+    console.log('chosen style', composedClassName)
 
     return (
-        <Column flexGrow={1} className={composedClassName} onClick={handleClick} horizontal="center" vertical="center">
+        <Column flexGrow={1} className={composedClassName} horizontal="center" vertical="center">
             <div className={css(styles.title)} >{group}</div>
             <ThemeProvider theme={calendarTheme}>
             <div> <CalendarIcon date={new Date(date)} /></div>

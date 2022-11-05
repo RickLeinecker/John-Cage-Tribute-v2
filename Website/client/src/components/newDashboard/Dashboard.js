@@ -1,12 +1,15 @@
-import React, {Fragment, useState, useEffect} from "react";
+import React, {Fragment, useState, useEffect, Component} from "react";
 import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
+import EventDetailsSidebarComponent from "./EventDetailsSidebar";
 import CompList from "../compositions/CompList";
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
 import { Link, Redirect } from 'react-router-dom';
+import { IconContext } from 'react-icons';
+import * as AiIcons from 'react-icons/ai';
 
 const styles = StyleSheet.create({
     container: {
@@ -68,6 +71,7 @@ const Dashboard = () => {
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [users, setUsers] = useState([]);
+    const [selectedEvent, setSelectedEvent] = useState([]);
     const testData = [
         {
           group: 'testgroup',
@@ -207,11 +211,36 @@ const Dashboard = () => {
         console.log("events call", r);	
 		})
    }
+ var evd;
+
 
    function requestMaestro() {
     console.log("User wants to be Maestro");
     //ADD API CONNECTION HERE
    }
+
+   const handleClick= (event) => {
+    setSelectedEvent(event);
+    evd = selectedEvent != null ? <div>HELLO HI TESt</div> : <div>WHYY</div>;
+    console.log( selectedEvent, evd, 'Push the concert details page for this concert 2');
+  }
+
+ 
+
+if ( selectedEvent.length < 1)
+{
+    {console.log(selectedEvent)}
+    return (
+        <Fragment>
+        <div className='search'> 
+
+            	<div className='search-inner'>
+						<div className='search-box'>
+
+                        <h1>Welcome Back: {userName}</h1>
+                <div className={css(styles.content)}>
+                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
+
 
     return (
         <div className='schedule'>
@@ -230,21 +259,69 @@ const Dashboard = () => {
                         <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
                             <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                     
-                            {events.map((event, index) => (
-                                <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
-                            ))}
-                            <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
-                            </Row>
-                        </Row>
-                        <span className={css(styles.title)}>{"My Recordings"}</span>
-                    </div>
-                    <div style={{padding:"10px"}}>
-					    <CompList list={recordings} userId = {userId} dash={false} />
-				    </div>
+
+                   {events.map((event, index) => (
+                       <div onClick={() => handleClick (event)} > 
+                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
+               </div>    ))}
+                    <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                </Row>
+
+
+            </Row>
+            <span className={css(styles.title)}>{"My Recordings"}</span>
+                </div>
+                <div style={{padding:"10px"}}>
+					<CompList list={recordings} userId = {userId} dash={false} />
+				</div>
+
                 </div>
             </div>
         </div>
+        </div>
+ </Fragment>
+
     );
+    }
+      else
+            {
+            return(
+                        <Fragment>
+                            <EventDetailsSidebarComponent event = {selectedEvent} clickHandler ={() => handleClick ([])}></EventDetailsSidebarComponent>
+                        <div className='search'> 
+                        
+                                <div className='search-inner'>
+                                        <div className='search-box'>
+                
+                                        <h1>Welcome Back: {userName}</h1>
+                                <div className={css(styles.content)}>
+                                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
+                
+                                <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
+                                <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
+                                    
+                                   {events.map((event, index) => (
+                                       <div onClick={() => handleClick (event)} > 
+                                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
+                               </div>    ))}
+                                    <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                </Row>
+                
+                
+                            </Row>
+                            <span className={css(styles.title)}>{"My Recordings"}</span>
+                                </div>
+                                <div style={{padding:"10px"}}>
+                                    <CompList list={recordings} userId = {userId} dash={false} />
+                                </div>
+                                </div>
+                
+                        </div>
+                        </div>
+                 </Fragment>
+                   
+                    );
+                   } 
 };
 
 export default Dashboard;
