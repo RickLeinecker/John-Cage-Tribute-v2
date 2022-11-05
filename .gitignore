@@ -1,3 +1,12 @@
-
-Website/client/package-lock.json
+# Ignore stuff from root
 node_modules
+
+# Ignore stuff from backend
+backend/node_modules
+backend/audioFiles
+backend/test.txt
+
+# Ignore stuff from Website
+Website/node_modules
+Website/client/node_modules
+Website/client/build

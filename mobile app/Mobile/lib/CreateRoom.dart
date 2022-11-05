@@ -7,7 +7,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
 // Testing
-Socket serverSocket = io("http://192.168.12.116:8080/",
+// Socket serverSocket = io("http://192.168.12.116:8080/",
+//     OptionBuilder().setTransports(["websocket"]).build());
+
+// Socket serverSocket = io("http://192.168.12.11:8080/",
+//     OptionBuilder().setTransports(["websocket"]).build());
+Socket serverSocket = io("http://172.26.94.38:8080/",
     OptionBuilder().setTransports(["websocket"]).build());
 
 // Live
@@ -17,6 +22,8 @@ Socket serverSocket = io("http://192.168.12.116:8080/",
 Stream<Uint8List>? micStream;
 
 StreamSubscription<Uint8List>? micListener;
+
+const roomId = 33;
 
 class CreateRoom extends StatefulWidget {
   CreateRoom({Key? key, required this.title}) : super(key: key);
@@ -128,7 +135,7 @@ class _CreateRoomState extends State<CreateRoom> {
       // Start constructing the room
       var room = {
         "members": {},
-        "id": 0,
+        "id": roomId,
         "pin": "abcdefg",
         "currentListeners": 0,
         "maxListeners": 1,
@@ -161,9 +168,7 @@ class _CreateRoomState extends State<CreateRoom> {
   }
 
   void leave() async {
-    serverSocket.emit("leaveroom", 0);
-
-    print("I'm leaving! Bye!");
+    serverSocket.emit("leaveroom", roomId);
 
     setState(() {
       print("State has been set!");
@@ -171,7 +176,7 @@ class _CreateRoomState extends State<CreateRoom> {
   }
 
   void startConcert() async {
-    serverSocket.emit("startsession", 0);
+    serverSocket.emit("startsession", roomId);
 
     serverSocket.on("audiostart", (message) async {
       print(message);
@@ -182,7 +187,6 @@ class _CreateRoomState extends State<CreateRoom> {
       );
       micListener = micStream?.listen((data) {
         serverSocket.emit("sendaudio", data);
-        print(data);
       });
     });
 
@@ -192,7 +196,7 @@ class _CreateRoomState extends State<CreateRoom> {
   void stopConcert() async {
     micListener?.cancel();
 
-    var package = {"roomId": 0, "composition": {}};
+    var package = {"roomId": roomId, "composition": {}};
 
     serverSocket.emit("endsession", package);
 
