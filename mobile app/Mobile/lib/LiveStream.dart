@@ -8,15 +8,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
 // Testing
-Socket serverSocket = io("http://192.168.12.116:8080/",
-    OptionBuilder().setTransports(["websocket"]).build());
-
-// Live
-// Socket serverSocket = io("https://johncagetribute.org/",
+// Socket serverSocket = io("http://192.168.12.116:8080/",
 //     OptionBuilder().setTransports(["websocket"]).build());
 
-var _pinController = new TextEditingController();
-var _roomController = new TextEditingController();
+// Live
+Socket serverSocket = io("https://johncagetribute.org/",
+    OptionBuilder().setTransports(["websocket"]).build());
+
+Stream<Uint8List>? micStream;
+StreamSubscription<Uint8List>? micListener;
 
 class LiveStream extends StatefulWidget {
   const LiveStream({Key? key, required this.title}) : super(key: key);
@@ -27,19 +27,7 @@ class LiveStream extends StatefulWidget {
 }
 
 class _LiveStreamState extends State<LiveStream> {
-  Stream<Uint8List>? micStream;
-
-  StreamSubscription<Uint8List>? micListener;
-
-  Stream<int> numberStream(Duration interval, [int? maxCount]) async* {
-    int i = 0;
-
-    while (true) {
-      await Future.delayed(interval);
-      yield i++;
-      if (i == maxCount) break;
-    }
-  }
+  bool created = false, started = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,51 +35,77 @@ class _LiveStreamState extends State<LiveStream> {
       print("Connected to server!");
     });
 
-    serverSocket.on("updaterooms", (rooms) => {});
+    serverSocket.on("updaterooms", (rooms) {
+      print("Updated rooms: ${rooms}");
+    });
 
-    serverSocket.emitBuffered();
-
-    // Microphone initialization:
-    // Ensure user gives mic permissions and that stream is set up
-    initMic();
-
-    bool isPressed = false;
+    serverSocket.on("roomerror", (socket) {
+      micListener?.cancel();
+      print("Stopping!!");
+    });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-          child: Column(children: [
-        TextField(
-          controller: _roomController,
-          decoration: const InputDecoration(labelText: "Enter room number:"),
-          keyboardType: TextInputType.number,
-          inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly
-          ],
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-        TextField(
-          controller: _pinController,
-          decoration: const InputDecoration(labelText: "Passcode:"),
-        ),
-        TextButton(
-            onPressed: () {
-              isPressed ? leaveStream() : joinStream();
-              isPressed = !isPressed;
-            },
-            child: isPressed ? Text('Leave') : Text('Join')),
-      ])),
-    );
+        body: Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+            image: AssetImage('images/college_bg.jpg'),
+            fit: BoxFit.cover,
+          )),
+          child: Center(
+              child: Column(
+                  children: !created
+                      ? [
+                          const Padding(padding: EdgeInsets.only(bottom: 350)),
+                          ElevatedButton(
+                            onPressed: () {
+                              joinStream();
+                              created = !created;
+                            },
+                            child: const Text('Join a Stream'),
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(150, 80),
+                                backgroundColor: Colors.blue),
+                          )
+                        ]
+                      : !started
+                          ? [
+                              const Padding(
+                                  padding: EdgeInsets.only(bottom: 350)),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: const [
+                                    Text("Waiting for host to start...")
+                                  ]),
+                            ]
+                          : [
+                              const Padding(
+                                  padding: EdgeInsets.only(bottom: 350)),
+                              ElevatedButton(
+                                onPressed: () {
+                                  leaveStream();
+                                  started = !started;
+                                  created = !created;
+                                },
+                                child: const Text("Leave Concert"),
+                                style: ElevatedButton.styleFrom(
+                                    fixedSize: const Size(150, 80),
+                                    backgroundColor: Colors.redAccent),
+                              ),
+                            ])),
+        ));
   }
 
   void joinStream() async {
-    var pin = _pinController.text.trim();
-    var room = int.parse(_roomController.text.trim());
+    var room = 33;
 
     print("ROOM NUMBER: ${room}");
 
-    var pinPackage = {"roomId": room, "enteredPin": pin};
+    var pinPackage = {"roomId": room, "enteredPin": "abcdefg"};
 
     serverSocket.emit("verifypin", pinPackage);
 
@@ -100,11 +114,15 @@ class _LiveStreamState extends State<LiveStream> {
       return;
     });
 
+    print('We should be joining the room now...');
+
     serverSocket.on("pinsuccess", (_) {
       var member = {"role": 1, "userId": 7, "isHost": false};
       var package = {"member": member, "roomId": room};
 
       serverSocket.emit("joinroom", package);
+
+      print("Successful pin!");
 
       serverSocket.on("joinerror", (err) => print(err));
       serverSocket.on("roomerror", (err) => print(err));
@@ -119,16 +137,21 @@ class _LiveStreamState extends State<LiveStream> {
       micListener?.cancel();
     });
 
-    // Start listening to microphone
-    micStream = await MicStream.microphone(sampleRate: 8000);
-    micListener = micStream?.listen((data) {
-      serverSocket.emit("audio", data);
-      print(data);
+    serverSocket.on("audiostart", (message) async {
+      print(message);
+
+      // Start listening to microphone
+      micStream = await MicStream.microphone(
+        sampleRate: 44100,
+      );
+      micListener = micStream?.listen((data) {
+        serverSocket.emit("sendaudio", data);
+      });
     });
   }
 
   void leaveStream() {
-    serverSocket.emit("leaveroom", 3);
+    serverSocket.emit("leaveroom", 33);
 
     micListener?.cancel();
   }
@@ -143,7 +166,6 @@ void initMic() async {
   } else
     print("Permissions already granted!");
 }
-
 
 /*
 websocket setup

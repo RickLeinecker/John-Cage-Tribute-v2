@@ -21,7 +21,6 @@ Socket serverSocket = io("https://johncagetribute.org/",
     OptionBuilder().setTransports(["websocket"]).build());
 
 Stream<Uint8List>? micStream;
-
 StreamSubscription<Uint8List>? micListener;
 
 const roomId = 33;
