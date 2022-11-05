@@ -60,6 +60,13 @@ textarea {
   margin-bottom: 1rem;
 }
 
+.x-large-contest {
+  font-size: 4rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
 .large {
   font-size: 3rem;
   line-height: 1.2;
@@ -805,10 +812,12 @@ button {
 	padding: 10px;
 	margin: 5px 0px;
 	text-align: left;
+  color: black;
 	border-radius: 5px;
 	border: 1px solid gray;
 	cursor: default;
-	background-color: #ddd
+	background-color: #ddd;
+  color: black;
 }
 
 .comp-list-item:hover {
@@ -905,12 +914,23 @@ input[type="submit"] {
     font-size: 3rem;
   }
 
+  .contest {
+    font-size: 3rem;
+    color: #17a2b8;
+  }
+
   .large {
     font-size: 2rem;
   }
 
   .lead {
     font-size: 1rem;
+  }
+
+  .dash {
+    text-align: center;
+    font-size: 1.2em;
+    color: white;
   }
 
 

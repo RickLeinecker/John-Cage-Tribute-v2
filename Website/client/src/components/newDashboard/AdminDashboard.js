@@ -1,15 +1,12 @@
-import React, {Fragment, useState, useEffect, Component} from "react";
+import React, {Fragment, useState, useEffect} from "react";
 import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
-import EventDetailsSidebarComponent from "./EventDetailsSidebar";
 import CompList from "../compositions/CompList";
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
 import { Link, Redirect } from 'react-router-dom';
-import { IconContext } from 'react-icons';
-import * as AiIcons from 'react-icons/ai';
 
 const styles = StyleSheet.create({
     container: {
@@ -60,7 +57,7 @@ const styles = StyleSheet.create({
 //my recordings title
 //recordings component
 
-const Dashboard = () => {
+const AdminDashboard = () => {
     // get userId from token, useEffect, then call API from index.js that passes userId to get list of user's recordings
     
     const[events, setEvents] = useState([]);
@@ -71,7 +68,6 @@ const Dashboard = () => {
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [users, setUsers] = useState([]);
-    const [selectedEvent, setSelectedEvent] = useState([]);
     const testData = [
         {
           group: 'testgroup',
@@ -211,59 +207,25 @@ const Dashboard = () => {
         console.log("events call", r);	
 		})
    }
- var evd;
-
-
-   function requestMaestro() {
-    console.log("User wants to be Maestro");
-    //ADD API CONNECTION HERE
-   }
-
-   const handleClick= (event) => {
-    setSelectedEvent(event);
-    evd = selectedEvent != null ? <div>HELLO HI TESt</div> : <div>WHYY</div>;
-    console.log( selectedEvent, evd, 'Push the concert details page for this concert 2');
-  }
-
- 
-
-if ( selectedEvent.length < 1)
-{
-    {console.log(selectedEvent)}
-    return (
-        <Fragment>
-        <div className='search'> 
-
-            	<div className='search-inner'>
-						<div className='search-box'>
-
-                        <h1>Welcome Back: {userName}</h1>
-                <div className={css(styles.content)}>
-                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
-
 
     return (
         <div className='schedule'>
-            <div className='search-inner'>
-				<div className='search-box'>
-                    {/* TEMPORARY REMOVE LATER */}
-                    <Link to="/admindashboard" className='btn btn-primary'>TEMP LINK TO ADMIN DASH</Link>
+            	<div className='search-inner'>
+						<div className='search-box'>
 
-                    <h1>Welcome Back: {userName}</h1>
-                    <br />
-                    <p className="dash">Want to schedule your own concert?</p>
-                    <button  onclick={requestMaestro()} className="btn btn-primary">Become a Maestro!</button>
-                    <div className={css(styles.content)}>
-                        <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
+                        <h1>Welcome Back Admin: {userName}</h1>
+                        <button className="btn btn-primary" onClick={handleDeleteUser}>Delete User</button>
+                        <button className="btn btn-primary" onClick={handleDeleteRecording}>Delete Recording</button>
+                        <Link to='/maestrorequests' className='btn btn-primary'>Maestro Requests</Link>
+                <div className={css(styles.content)}>
+                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
 
-                        <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
-                            <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
+                <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
+                <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                     
-
                    {events.map((event, index) => (
-                       <div onClick={() => handleClick (event)} > 
                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
-               </div>    ))}
+                   ))}
                     <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
                 </Row>
 
@@ -274,54 +236,52 @@ if ( selectedEvent.length < 1)
                 <div style={{padding:"10px"}}>
 					<CompList list={recordings} userId = {userId} dash={false} />
 				</div>
-
                 </div>
-            </div>
+
         </div>
         </div>
- </Fragment>
 
     );
+
+    //Allows admin to select a user to delete
+    function handleDeleteUser() {
+        let target = prompt("Please enter the userID of the user you wish to delete:");
+        //If the admin did not input any userID
+        if(target == null || target == "") {
+            console.log("Admin did not input a userID");
+        }
+        //If the admin did input a userID
+        else {
+            console.log("Admin wants to delete user " + target);
+            //Confirm you want to delete this user
+            if(window.confirm("Are you sure you want to delete user " + target + "?")) {
+                //ADD DELETE USER FUNCTIONALITY HERE
+                console.log("Admin confirmed deleting user " + target);
+            } else {
+                console.log("Admin cancelled delete on user " + target);
+            }
+        }
     }
-      else
-            {
-            return(
-                        <Fragment>
-                            <EventDetailsSidebarComponent event = {selectedEvent} clickHandler ={() => handleClick ([])}></EventDetailsSidebarComponent>
-                        <div className='search'> 
-                        
-                                <div className='search-inner'>
-                                        <div className='search-box'>
-                
-                                        <h1>Welcome Back: {userName}</h1>
-                                <div className={css(styles.content)}>
-                                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
-                
-                                <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
-                                <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
-                                    
-                                   {events.map((event, index) => (
-                                       <div onClick={() => handleClick (event)} > 
-                                       <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
-                               </div>    ))}
-                                    <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
-                                </Row>
-                
-                
-                            </Row>
-                            <span className={css(styles.title)}>{"My Recordings"}</span>
-                                </div>
-                                <div style={{padding:"10px"}}>
-                                    <CompList list={recordings} userId = {userId} dash={false} />
-                                </div>
-                                </div>
-                
-                        </div>
-                        </div>
-                 </Fragment>
-                   
-                    );
-                   } 
+
+    //Allows admin to select a recording to delete
+    function handleDeleteRecording() {
+        let target = prompt("Please enter the recordingID of the recording you wish to delete:");
+        //If the admin did not input any recordingID
+        if(target == null || target == "") {
+            console.log("Admin did not input a recordingID");
+        }
+        //If the admin did input a recordingID
+        else {
+            console.log("Admin wants to delete recording " + target);
+            //Confirm you want to delete this recording
+            if(window.confirm("Are you sure you want to delete recording " + target + "?")) {
+                //ADD DELETE RECORDING FUNCTIONALITY HERE
+                console.log("Admin confirmed deleting recording " + target);
+            } else {
+                console.log("Admin cancelled delete on recording " + target);
+            }
+        }
+    }
 };
 
-export default Dashboard;
+export default AdminDashboard;

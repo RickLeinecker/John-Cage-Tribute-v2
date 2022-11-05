@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import Spinner from '../layout/Spinner';
 import CompList from "./CompList";
 import Axios from "axios";
+import Pager from './Pager.js';
 
 class Search extends React.Component {
 	constructor(props) {
@@ -17,18 +18,33 @@ class Search extends React.Component {
 		this.searchbarChange = this.searchbarChange.bind(this);
 		this.performSearch = this.performSearch.bind(this);
 		this.changeSearchParam = this.changeSearchParam.bind(this);
+		this.pageRef = React.createRef();
+		this.listRef = React.createRef();
 	}
 	
 	componentDidMount() {
+		console.log("API");
 		Axios.get("http://localhost:3001/recordings").then(r => {
-			this.setState({list: r.data})
-			console.log(r.data);
+			this.setState({list: r.data});
 		})
+	}
+
+	componentDidUpdate() {
+		// console.log("Update:");
+		// console.log(this.pageRef.current.state);
+
+		this.pageRef.current.setState({items: this.state.list});
+		//this.pageRef.current.calculate(this.pageRef.current.state, 1);
+		// this.pageRef.current.render();
+
+		// console.log("Updating pager?");
+		// console.log(this.pageRef.current.state);
+
+		console.log("update........");
 	}
 	
 	render() {
-		console.log(this.state.list);
-		console.log("GELLO");
+		console.log("rendering!");
 		const s = "search-params-button";
 		const chosenStyle = {
 			backgroundColor: "#adf"
@@ -52,9 +68,27 @@ class Search extends React.Component {
 									padding:"10px 0px"
 								}}>
 								</div>
-								<div style={{padding:"10px"}}>
+								{/* <div style={{padding:"10px"}}>
 									<CompList list={this.state.list} dash={false} />
-								</div>
+								</div> */}
+								<Pager
+									ref={this.pageRef}
+									items={this.state.list}
+									// {...console.log("Printing out the current list:")}
+									// {...console.log(this.state.list)}
+									// Might need to change this if it doesnt work
+									pageCount={10}
+									render={
+										pagerState => (
+											<div>
+												<CompList ref={this.listRef} list={pagerState.items} dash={false} />
+												{/* {console.log("Here we go:")}
+												{console.log(pagerState.items)}
+												{console.log(this.state.list)}
+												{console.log("Stopping.")} */}
+											</div>
+										)}
+									/>
 							</Fragment>
 						</div>
 					</div>
@@ -69,12 +103,20 @@ class Search extends React.Component {
 	
 	performSearch(e) {
 		var query = this.state.searchQuery;
-		console.log("Query: ", query);
 		Axios.get("http://localhost:3001/title", {params: {query: query}}).then(r => {
 			this.setState({list: r.data})
-			console.log(r.data);
 		})
 		e.preventDefault();
+
+		const pageRef = this.pageRef;
+		
+		// pageRef.current.setState({items: this.state.list});
+
+		// console.log("Current pageref state:");
+		// console.log(pageRef.current.state);
+
+		// pageRef.current.calculate(pageRef.current.state, 1);
+		// pageRef.current.render();
 	}
 	
 	changeSearchParam(str) {
