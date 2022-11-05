@@ -1,7 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutterapp">
-   <application
-        android:label="flutterapp"
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:label="John Cage Tribute"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
