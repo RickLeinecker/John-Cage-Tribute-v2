@@ -12,12 +12,13 @@ import 'package:mic_stream/mic_stream.dart';
 
 // Socket serverSocket = io("http://192.168.12.11:8080/",
 //     OptionBuilder().setTransports(["websocket"]).build());
-Socket serverSocket = io("http://172.26.94.38:8080/",
-    OptionBuilder().setTransports(["websocket"]).build());
+
+// Socket serverSocket = io("http://172.26.94.38:8080/",
+//     OptionBuilder().setTransports(["websocket"]).build());
 
 // Live
-// Socket serverSocket = io("https://johncagetribute.org/",
-//     OptionBuilder().setTransports(["websocket"]).build());
+Socket serverSocket = io("https://johncagetribute.org/",
+    OptionBuilder().setTransports(["websocket"]).build());
 
 Stream<Uint8List>? micStream;
 

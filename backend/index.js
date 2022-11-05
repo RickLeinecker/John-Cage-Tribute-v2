@@ -27,9 +27,6 @@ const PORT = 8080;
 
 const app = express();
 
-const http = httpControl.createServer(app);
-const io = socket(http);
-
 availableRooms = {};
 memberAttendance = {};
 audioProcessorPool = childProcess.fork("../Website/audioProcessor/audioProcessorPool.js");
