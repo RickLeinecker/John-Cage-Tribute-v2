@@ -60,6 +60,13 @@ textarea {
   margin-bottom: 1rem;
 }
 
+.x-large-contest {
+  font-size: 4rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
 .large {
   font-size: 3rem;
   line-height: 1.2;
@@ -806,7 +813,8 @@ button {
 	border-radius: 5px;
 	border: 1px solid gray;
 	cursor: default;
-	background-color: #ddd
+	background-color: #ddd;
+  color: black;
 }
 
 .comp-list-item:hover {
@@ -901,6 +909,11 @@ input[type="submit"] {
   /* Text Styles */
   .x-large {
     font-size: 3rem;
+  }
+
+  .contest {
+    font-size: 3rem;
+    color: #17a2b8;
   }
 
   .large {
