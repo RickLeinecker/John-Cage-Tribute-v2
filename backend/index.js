@@ -6,6 +6,10 @@ import router from "./routes/index.js";
 import mysql from "mysql2"
 dotenv.config();
 
+
+
+const PORT = 8080;
+
 const app = express();
  
 app.use(cors({ credentials:true, origin:'http://localhost:3000' }));
@@ -18,13 +22,15 @@ app.listen(3001, ()=> console.log('Server running at port 3001'));
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'mypassword112',
+    password: '',
     database: 'jctdatabase'
 });
 
+// Recording API Calls
+// -----------------------------------------------------------------------------------
 // List Compositions
 app.get("/recordings", (req, res) => {
-    db2.query("SELECT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -68,7 +74,6 @@ app.get("/title", (req, res) => {
 
 // List Contests
 app.get("/contests", (req, res) => {
-      
     db2.query("SELECT * FROM Contests",
     (err, res) => {
     if (err) {
@@ -81,20 +86,66 @@ app.get("/contests", (req, res) => {
 });
 
 // Delete Recording
-app.delete("/delete/:id", (req, res) => {
-    const id = req.params.id;
-    db2.query("DELETE FROM Recordings WHERE recordingId = '" + id + "'", (err, result) => {
+app.delete("/deleterecording", (req, res) => {
+    const id = req.query.id; // need new description, userId, recordingId trying to edit
+    db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
       if (err) {
         console.log(err);
       } else {
         res.send(result);
       }
     });
-  });
+
+    // CHECK if not maestro send error
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s +"' AND R.recordingId = '" + req.query.recordingid + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+        if (result.length == 1)
+        {
+            db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("Row Count is ", result.length);
+                }
+            })
+        }
+    })
+});
+
+// Edit Comp description
+app.post("/editrecording", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    // CHECK if not maestro send error
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s +"' AND R.recordingId = '" + req.query.recordingid + "'", (err, result) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log("Row Count is ", result.length);
+        }
+        if (result.length == 1)
+        {
+            db2.query("UPDATE Recordings SET description = '" + req.query.newdescription + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
+                if (err) {
+                  console.log(err)
+                } else {
+                  console.log("Row Count is ", result.length);
+                }
+            })
+        }
+    })
+});
 
 // Create Recording
 
 // Create UserRecording
+
+// Schedule API Calls
+// -----------------------------------------------------------------------------------
 // create schedule
 app.post("/schedule", (req, res) => {
     const s  = req.body.id;
@@ -219,5 +270,44 @@ app.get("/userScheduled", (req, res) => {
     });
 });
 
-// update recording
+// REQUEST/APPROVAL maestro accounts api calls
+// -------------------------------------------------------------------------------
+// 	List all users who are requested to become maestro
+app.get("/listrequested", (req, res) => {
+    db2.query("SELECT DISTINCT U.id, U.username, U.email, U.bio, U.isRequested FROM Users U WHERE U.isRequested = 1",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
 
+//  Change isrequested to 1 
+app.post("/changerequested", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    db2.query("UPDATE Users SET isRequested = 1 WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    });
+
+});
+
+// api call to change ismaestro to 1
+app.post("/changeismaestro", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    db2.query("UPDATE Users SET isMaestro = 1 WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    });
+});

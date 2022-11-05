@@ -4,12 +4,16 @@ import Spinner from '../layout/Spinner';
 import api from '../../utils/api';
 import {setAlert} from "../../actions/alert"
 import Moment from 'moment';
+import * as FaIcons from 'react-icons/fa';
+import { IconContext } from 'react-icons';
+import * as AiIcons from 'react-icons/ai';
 
 class CompList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			list: props.list
+			list: props.list,
+			userId: props.userId
 		}
 	}
 	
@@ -19,6 +23,12 @@ class CompList extends React.Component {
 				list: this.props.list
 			})
 		}
+
+		if(prevProps.userId !== this.props.userId) {
+			this.setState({
+				userId: this.props.userId
+			})
+		}
 	}
 		
 	render() {
@@ -26,10 +36,12 @@ class CompList extends React.Component {
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
+				console.log("ITEM", item)
 				return (<CompListItem 
 					info={item}
 					key={item._id}
-					user={this.props.user}
+					user={this.props.userId}
+					maestro = {item.maestroId}
 				/>)
 			})
 		}
@@ -39,9 +51,9 @@ class CompList extends React.Component {
 		return (
 		<div style={{textAlign:"center"}}>
 			<div id="comp-list-header">
-				<div style={{width:"30%",margin:"5px"}}>Title</div>
-				<div style={{width:"30%",margin:"5px"}}>Maestro</div>
-				<div style={{width:"20%",margin:"5px"}}>Date</div>
+				<div style={{width:"100%",margin:"5px"}}>Title</div>
+				<div style={{width:"100%",margin:"5px"}}>Maestro</div>
+				<div style={{width:"100%",margin:"5px"}}>Date</div>
 			</div>
 			{list}
 		</div>
@@ -52,6 +64,7 @@ class CompList extends React.Component {
 class CompListItem extends React.Component {
 	constructor(props) {
 		super(props);
+		console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
 			chosen: false,
@@ -66,7 +79,7 @@ class CompListItem extends React.Component {
 				// private: props.info.private
 			}
 		}
-		// this.chosenState = this.chosenState.bind(this);
+		//this.chosenState = this.chosenState.bind(this);
 		// this.parseDateTime = this.parseDateTime.bind(this);
 		this.deleteComp = this.deleteComp.bind(this);
 		this.changeForm = this.changeForm.bind(this);
@@ -82,15 +95,23 @@ class CompListItem extends React.Component {
 		
 		var sidebar = null;
 		if(this.state.chosen) {
+			console.log("chosen")
+			console.log("comp info", info)
 			var c = "info-field-title";
 			var c1 = "info-p";
 			sidebar = (
+
+			<IconContext.Provider value={{ color: '#fff' }}>
 			<div className="dark-overlay" style={{zIndex:"2", position:"fixed"}}>
-				<div id="sidebar" className={this.state.sidebarClass}>
-					<button onClick={this.chosenState} style={{padding:"5px"}}>Close</button>
+				
+				<div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}>
+					<div id= "close" className = 'close' onClick={()=>this.setState({chosen: false}) }>
+							 <AiIcons.AiOutlineClose />
+					</div>
+				
 					{!this.state.editing ? (
-						<div style={{padding:"10px"}}>
-							<h2 className="text-primary" id="info-title">Composition Information</h2>
+						<div className="sb-ref" style={{padding:"10px"}}>
+							<h2 id="info-title">Composition Information</h2>
 							<br />
 							<p className={c1}>
 								<span className={c}>Title: </span>{info.title}
@@ -102,7 +123,7 @@ class CompListItem extends React.Component {
 								<span className={c}>Composer: </span>{info.composer}
 							</p>
 							<p className={c1}>
-								<span className={c}>Performers: </span>{info.performers.join(", ")}
+								<span className={c}>Performers: </span>{info.performers}
 							</p>
 							<p className={c1}>
 								<span className={c}>Description: </span>{info.description}
@@ -115,11 +136,13 @@ class CompListItem extends React.Component {
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio controls className="audio-elem">
-								<source src={"http://localhost:3000/recordings" 
-								+ info._id} type={info.filetype} />
-							</audio>
+							<audio className="audio-elem" controls src={'../../AudioFiles/'
+								+ info.recordingId + ".mp3"} >
+
+							</audio>	 
 						</div>
+						
+					
 					) : ( // Composition editing form
 						<div style={{padding: "10px"}}>
 							<h2 className="text-primary" id="info-title">Edit Composition</h2>
@@ -150,16 +173,17 @@ class CompListItem extends React.Component {
 					)}
 				</div>
 			</div>
+			</IconContext.Provider>
 			)
 		}
 		
 		return (
 		<Fragment>
 			{sidebar}
-			<div className="comp-list-item" onClick={this.chosenState}>
-				<div style={{width:"30%",margin:"5px"}}>{info.title}</div>
-				<div style={{width:"30%",margin:"5px"}}>{info.username}</div>
-				<div style={{width:"20%",margin:"5px"}}>{info.date}</div>
+			<div className="comp-list-item" onClick={()=>this.setState({chosen: true})}>
+				<div style={{width:"100%",margin:"5px"}}>{info.title}</div>
+				<div style={{width:"100%",margin:"5px"}}>{info.username}</div>
+				<div style={{width:"100%",margin:"5px"}}>{info.date}</div>
 			</div>
 		</Fragment>
 		);
@@ -241,5 +265,4 @@ class CompListItem extends React.Component {
 		})
 	}
 }
-
 export default connect(null, {setAlert})(CompList);
