@@ -5,9 +5,6 @@ import cors from "cors";
 import router from "./routes/index.js";
 import mysql from "mysql2"
 import Users from "./models/User.js";
-import bcrypt from "bcrypt";
-import bodyParser from 'body-parser';
-import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
 
 dotenv.config();
@@ -26,7 +23,7 @@ app.listen(3001, ()=> console.log('Server running at port 3001'));
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'MySQL!1996',
+    password: 'mypassword112',
     database: 'jctdatabase'
 });
 
@@ -37,6 +34,7 @@ app.get('/confirmation/:token', async (req, res) => {
         await Users.update({ confirmed: true}, { where: { id }});
     }   catch (e) {
         console.log("THERE HAS BEEN SUM ERROR");
+        console.log("ID ISX ", id);
         res.send('error');
     }
     return res.redirect('http://localhost:3000/login');
@@ -301,7 +299,7 @@ app.get("/listrequested", (req, res) => {
     });
 });
 
-//  Change isrequested to 1 
+// Change isrequested to 1 
 app.post("/changerequested", (req, res) => {
     const s  = req.query.id; // need new description, userId, recordingId trying to edit
 
@@ -312,10 +310,9 @@ app.post("/changerequested", (req, res) => {
             console.log("Row Count is ", result.length);
         }
     });
-
 });
 
-// api call to change ismaestro to 1
+// api call to change ismaestro to 1 (Approval)
 app.post("/changeismaestro", (req, res) => {
     const s  = req.query.id; // need new description, userId, recordingId trying to edit
 
