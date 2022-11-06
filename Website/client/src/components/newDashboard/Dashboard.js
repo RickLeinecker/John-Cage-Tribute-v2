@@ -10,6 +10,7 @@ import jwt_decode from "jwt-decode";
 import { Link, Redirect } from 'react-router-dom';
 import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
+import setAuthToken from "../../utils/setAuthToken";
 
 const styles = StyleSheet.create({
     container: {
@@ -161,6 +162,7 @@ const Dashboard = () => {
             console.log("userid after decoded", userId);
             setExpire(decoded.exp);
             console.log("heres token", decoded);
+            setAuthToken(decoded);
 
             getRecordings(decoded.userId);
             getEvents(decoded.userId);
