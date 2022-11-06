@@ -5,7 +5,6 @@ node_modules
 backend/node_modules
 backend/audioFiles
 backend/test.txt
-backend/.env
 
 # Ignore stuff from Website
 Website/node_modules
