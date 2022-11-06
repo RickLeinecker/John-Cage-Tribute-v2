@@ -34,7 +34,18 @@ export const SidebarData = {
     path: '/Rooms',
     icon: <IoIcons.IoMdCalendar/>,
     cName: 'nav-text'
-  }
+  },
+  {
+    title: 'Logout',
+    path: '/login',
+    icon: <IoIcons.IoMdPeople/>,
+    cName: 'nav-text',
+    func: function (){ 
+      localStorage.setItem('token', null);
+      // call whatever for logout
+    
+    }
+  },
   ],
 
   Unauthenticated: [

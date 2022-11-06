@@ -12,8 +12,17 @@ function Navbar() {
 
   const showSidebar = () => {
     let tokenData = localStorage.getItem("token")
-    setAuth(tokenData == null ? SidebarData.Unauthenticated : SidebarData.Authenticated);
+    var parsedData = JSON.parse(tokenData);
+
+    if (parsedData == null){
+      setAuth(SidebarData.Unauthenticated);
+    }
+    else {
+    setAuth(SidebarData.Authenticated);
+    }
+  
     console.log(JSON.parse(tokenData));
+    console.log(isAuthenticated);
     setSidebar(!sidebar);
   }
 
@@ -34,7 +43,7 @@ function Navbar() {
             </li>
             { isAuthenticated.map((item, index) => {
               return (
-                <li key={index} className={item.cName}>
+                <li key={index} className={item.cName} onClick ={ item.func? ()=> item.func() : null}> 
                   <Link to={item.path}>
                     {item.icon}
                     <span>{item.title}</span>
