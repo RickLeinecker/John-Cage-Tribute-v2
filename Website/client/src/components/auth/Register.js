@@ -43,6 +43,7 @@ const Register = () => {
         history.push("/login");
     } catch (error) {
         if (error.response) {
+          console.log("login error");
             setMsg(error.response.data.msg);
         }
     }

@@ -14,6 +14,10 @@ import randomstring from 'randomstring';
 import pkg2 from 'node-lame';
 import fetch from 'node-fetch';
 import { createServer } from "http";
+import bcrypt from "bcrypt";
+import bodyParser from 'body-parser';
+import nodemailer from 'nodemailer';
+import jwt from "jsonwebtoken";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
@@ -30,12 +34,12 @@ const app = express();
 availableRooms = {};
 memberAttendance = {};
 audioProcessorPool = childProcess.fork("../Website/audioProcessor/audioProcessorPool.js");
- 
+
 app.use(cors({ credentials:true, origin:'http://localhost:3000' }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(router);
- 
+
 //app.listen(PORT, ()=> console.log(`Server running at port ${PORT}`));
 
 const http = createServer(app);
@@ -46,6 +50,18 @@ const db2 = mysql.createConnection({
     user: 'root',
     password: 'JCSD!2022',
     database: 'jctdatabase'
+});
+
+// email confirmation api
+app.get('/confirmation/:token', async (req, res) => {
+    try {
+        const { user: { id } } = jwt.verify(req.params.token, process.env.EMAIL_SECRET);
+        await Users.update({ confirmed: true}, { where: { id }});
+    }   catch (e) {
+        console.log("THERE HAS BEEN SUM ERROR");
+        res.send('error');
+    }
+    return res.redirect('http://localhost:3000/login');
 });
 
 // Recording API Calls
@@ -93,38 +109,11 @@ app.get("/title", (req, res) => {
     });
 });
 
-// List user's recordings
-app.get("/userRec", (req, res) => {
-    const s  = 1 // going to switch this to user id that is passed through token
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '%" + s + "%' = T.userId LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
-    (err, result) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(result);
-        res.send(result);
-    }
-    });
-});
-
-// Search Composition by Title, Maestro, or Date
-app.get("/title", (req, res) => {
-    const s  = req.query.query;
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id AND ((R.title LIKE '%" + s + "%') OR (U.username LIKE '%" + s + "%') OR (R.recordingDate LIKE '%" + s + "%'))",
-    (err, result) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(result);
-        res.send(result);
-    }
-    });
-});
 
 // List Contests
 app.get("/contests", (req, res) => {
     db2.query("SELECT * FROM Contests",
-    (err, result) => {
+    (err, res) => {
     if (err) {
         console.log(err);
     } else {
@@ -188,7 +177,6 @@ app.post("/editrecording", (req, res) => {
         }
     })
 });
-
 
 // Create Recording
 
@@ -322,7 +310,6 @@ app.get("/userScheduled", (req, res) => {
 
 // REQUEST/APPROVAL maestro accounts api calls
 // -------------------------------------------------------------------------------
-
 // 	List all users who are requested to become maestro
 app.get("/listrequested", (req, res) => {
     db2.query("SELECT DISTINCT U.id, U.username, U.email, U.bio, U.isRequested FROM Users U WHERE U.isRequested = 1",
@@ -336,7 +323,7 @@ app.get("/listrequested", (req, res) => {
     });
 });
 
-//  Change isrequested to 1 
+//  Change isrequested to 1
 app.post("/changerequested", (req, res) => {
     const s  = req.query.id; // need new description, userId, recordingId trying to edit
 
@@ -551,7 +538,7 @@ io.on("connection", function (socket) {
         const { roomId, enteredPin } = data;
         console.log(roomId);
         console.log(enteredPin);
-        
+
         const room = availableRooms[roomId];
 
         if (!room) {
@@ -734,27 +721,27 @@ io.on("connection", function (socket) {
     // CONCURRENT W/ STARTSESSION
     socket.on('endsession', async function (data) {
         console.log(`Received endsession from socket: ${socket.id}.`);
-    
+
         const roomId = data["roomId"];
         const existingRoom = availableRooms[roomId];
-    
+
         console.log(data);
         console.log(roomId);
-    
+
         if (!existingRoom) {
           io.to(roomId).emit(
             'roomerror',
             'Cannot end session of nonexistent room. Please exit.'
           );
-    
+
           return;
         }
-    
+
         io.of('/')
           .in(roomId)
           .clients((error, socketIds) => {
             if (error) throw error;
-    
+
             socketIds.forEach((socketId) => {
               delete memberAttendance[socketId];
               io.sockets.sockets[socketId].emit(
@@ -765,11 +752,11 @@ io.on("connection", function (socket) {
               io.sockets.sockets[socketId].emit('updaterooms', availableRooms);
             });
           });
-    
+
         io.emit('updateoneroom', { roomId: roomId, room: null });
-    
+
         audioProcessorPool.send({command:'endSession', roomId:roomId});
-    
+
         // Create a WAV file buffer from the raw audio data before we
         // delete the room. This encodes the number of channels, sample rate,
         // and bit depth into the raw data which the MP3 conversion needs
@@ -782,16 +769,16 @@ io.on("connection", function (socket) {
 
         console.log("AUDIO BUFFER:");
         console.log(audioFileBuffer);
-    
+
         console.log('Finished making the wav file');
-    
+
         delete availableRooms[roomId];
-    
+
         // Generate a random temporary filename for the MP3
         var mp3FileName = "./audioFiles/" + randomstring.generate() + ".mp3";
-    
+
         console.log(`It's a new name!! ${mp3FileName}`);
-    
+
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
           "output": mp3FileName,
@@ -799,7 +786,7 @@ io.on("connection", function (socket) {
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
-    
+
         console.log("H??");
         // Encode the MP3 file
         //await encoder.encode();
@@ -812,37 +799,37 @@ io.on("connection", function (socket) {
                 console.log(error);
             });
         console.log('Finished encoding MP3');
-    
+
         data.composition = {
           time: numberOfSamples / sampleRate,
           ...data.composition
         };
-    
+
         // console.log(`Data composition:`);
         // console.log(data);
-    
+
         // Open the MP3 file as a read stream
         var mp3FileStream = fs.createReadStream(mp3FileName);
-    
+
         // Make API call
         var formData = new FormData();
         // var file = fs.createReadStream(`test2.mp3`);
-    
+
         // formData.append('file', file);
         formData.append('file', mp3FileStream);
         formData.append('data', JSON.stringify(data)); // Composition metadata here
-    
+
         // console.log("formData:");
         // console.log(formData);
-    
+
         console.log('Uploading MP3 to database...')
-    
+
         //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
         console.log('uploaddownload call complete!');
-    
-        // After the MP3 file as been uploaded, delete it from the server 
-        // Close the read stream to release the file descriptor 
+
+        // After the MP3 file as been uploaded, delete it from the server
+        // Close the read stream to release the file descriptor
         mp3FileStream.close()
         console.log("This worked idk");
         fs.unlink(mp3FileName, (err) => {
@@ -958,7 +945,7 @@ audioProcessorPool.on('message', (data) => {
             }
         }
     }
-    // All the performers in a room were muted, so we need to 
+    // All the performers in a room were muted, so we need to
     // add 0s to the session audio for that room to represent silence
     else if (data.message == 'addSilence') {
         numSamples = data.numSamples;

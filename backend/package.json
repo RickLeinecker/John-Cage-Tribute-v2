@@ -38,6 +38,7 @@
     "mysql2": "^2.3.3",
     "node-fetch": "^2.6.1",
     "node-lame": "^1.2.2",
+    "nodemailer": "^6.8.0",
     "normalize-url": "^5.1.0",
     "path": "^0.12.7",
     "pm2": "^4.4.1",

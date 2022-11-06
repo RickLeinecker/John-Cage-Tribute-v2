@@ -32,6 +32,12 @@ const Landing = ({ isAuthenticated }) => {
                 Learn More
               </Link>
             </div>
+            <div className='buttons'>
+              <h1 className='medium'>Check out our Contest!</h1>
+              <Link to='/contestpage' className='btn btn-primary'>
+                Contests
+              </Link>
+            </div>
           </div>
           </div>
         </div>

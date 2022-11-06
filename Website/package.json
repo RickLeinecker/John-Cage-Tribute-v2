@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Practice John Cage Website",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index",
     "server": "nodemon index",
@@ -41,6 +42,7 @@
     "path": "^0.12.7",
     "pm2": "^4.4.1",
     "randomstring": "^1.1.5",
+    "react-dom": "^18.2.0",
     "sequelize": "^6.23.2",
     "socket.io": "^2.3.0",
     "tunajs": "^1.0.13",

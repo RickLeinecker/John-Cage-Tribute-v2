@@ -21,6 +21,8 @@ body {
   color: #333;
 }
 
+
+
 a {
   color: var(--primary-color);
   text-decoration: none;
@@ -56,6 +58,13 @@ textarea {
   font-size: 4rem;
   line-height: 1.2;
   margin-bottom: 1rem;
+}
+
+.x-large-contest {
+  font-size: 4rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
 }
 
 .large {
@@ -269,15 +278,21 @@ textarea {
   overflow: auto;
 }
 
-#sidebar {
+.sidebar {
 	height: 100%;
 	width: 360px;
-	background-color: #fff;
+	background-color: #060b26;
 	position: absolute;
 	top: 0px;
-	left: 100%;
-	text-align: left;
+	right: 50px;
+  transition : right 2000ms;
+
 	overflow: scroll
+}
+
+.sidebar.active {
+  right: 0;
+  transition: right 2000ms;
 }
 
 .open-sidebar {
@@ -285,8 +300,11 @@ textarea {
 }
 
 #info-title {
-	text-align: center;
-	border-bottom: 2px solid gray;
+	text-align: left;
+	border-bottom: 2px solid rgb(245, 245, 245);
+}
+ul li {
+padding-bottom: 20px;
 }
 
 .info-field-title {
@@ -301,6 +319,13 @@ textarea {
 .edit-info-field {
 	font-family: Lucida Sans Unicode;
 	width: 95%;
+}
+
+.close {
+  width: 100%;
+  height: 40px;
+  font-size: 2rem;
+  display: flex;
 }
 
 #private-box {
@@ -787,10 +812,12 @@ button {
 	padding: 10px;
 	margin: 5px 0px;
 	text-align: left;
+  color: black;
 	border-radius: 5px;
 	border: 1px solid gray;
 	cursor: default;
-	background-color: #ddd
+	background-color: #ddd;
+  color: black;
 }
 
 .comp-list-item:hover {
@@ -887,12 +914,23 @@ input[type="submit"] {
     font-size: 3rem;
   }
 
+  .contest {
+    font-size: 3rem;
+    color: #17a2b8;
+  }
+
   .large {
     font-size: 2rem;
   }
 
   .lead {
     font-size: 1rem;
+  }
+
+  .dash {
+    text-align: center;
+    font-size: 1.2em;
+    color: white;
   }
 
 
