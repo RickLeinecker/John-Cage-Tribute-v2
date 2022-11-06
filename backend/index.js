@@ -5,9 +5,6 @@ import cors from "cors";
 import router from "./routes/index.js";
 import mysql from "mysql2"
 import Users from "./models/User.js";
-import bcrypt from "bcrypt";
-import bodyParser from 'body-parser';
-import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
 
 dotenv.config();
