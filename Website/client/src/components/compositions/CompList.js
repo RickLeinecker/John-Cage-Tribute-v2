@@ -7,6 +7,7 @@ import Moment from 'moment';
 import * as FaIcons from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
+import Axios from "axios";
 
 class CompList extends React.Component {
 	constructor(props) {
@@ -15,9 +16,12 @@ class CompList extends React.Component {
 			list: props.list,
 			userId: props.userId
 		}
+
+		console.log("props complist", this.state);
 	}
 	
 	componentDidUpdate(prevProps) {
+		console.log(this.state);
 		if(prevProps.list !== this.props.list) {
 			this.setState({
 				list: this.props.list
@@ -36,9 +40,10 @@ class CompList extends React.Component {
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
-				console.log("ITEM", item)
+				console.log("ITEM", item, this.props.userId);
 				return (<CompListItem 
 					info={item}
+					userId = {this.state.userId}
 					key={item._id}
 					user={this.props.userId}
 					maestro = {item.maestroId}
@@ -67,6 +72,7 @@ class CompListItem extends React.Component {
 		console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
+			userId: props.userId,
 			chosen: false,
 			sidebarClass: "",
 			editing: false,
@@ -89,7 +95,7 @@ class CompListItem extends React.Component {
 	}
 	
 	render() {
-		var {info, formdata} = this.state;
+		var {info, user, formdata} = this.state;
 		// var tags = info.tags.join(", ");
 		// var {date, runtime} = this.parseDateTime(info.date, info.runtime);
 		
@@ -154,11 +160,6 @@ class CompListItem extends React.Component {
 								<input value={formdata.title} onChange={this.changeForm} name="title" className="edit-info-field"/>
 								<p id="edit-title-err" style={{color:"red"}}></p>
 								<br />
-								<h4>Tags</h4>
-								<p style={{color:"gray",fontSize:".8em"}}>Separated by commas</p>
-								<input className="edit-info-field" name="tags" value={formdata.tags} onChange={this.changeForm}/>
-								<p id="edit-tags-err" style={{color:"red"}}></p>
-								<br />
 								<h4>Description</h4>
 								<p style={{color:"gray",fontSize:".8em"}}>Limit 256 characters</p>
 								<textarea value={formdata.description} onChange={this.changeForm} name="description" className="edit-info-field"/>
@@ -166,7 +167,7 @@ class CompListItem extends React.Component {
 								<h4 style={{display:"inline-block"}}>Private</h4>
 								<div style={{backgroundColor: formdata.private? "blue":"white"}} id="private-box" onClick={this.setPrivate}></div>
 								<br /><br />
-								<input type="button" value="Cancel" onClick={this.cancelEdit} />
+								<input type="button" value="Cancel" onClick={()=>this.cancelEdit()} />
 								<input type="button" value="Save" onClick={this.submitEdit} />
 							</form>
 						</div>
@@ -189,11 +190,25 @@ class CompListItem extends React.Component {
 		);
 	}
 	
-	submitEdit(e) {
-		const {info, formdata} = this.state;
-		if(typeof formdata.tags == "string")
-			formdata.tags = formdata.tags.split(",");
-		formdata.user = this.props.user;
+ submitEdit = async (e) => {
+	const {userId, info, formdata} = this.state;
+	console.log("edit form data", info, formdata, userId);
+	var description = formdata.description ?  formdata.description : "test descrip ";
+	var query = {id:userId, recordingid: info.recordingId , newdescription: description}
+
+	console.log("query", query)
+	try {
+		 await Axios.post("http://localhost:3001/editrecording", {params: {query: query}}).then(r => {
+			this.setState({list: r.data})
+	} )} catch (error) {
+  if (error.response) {
+	console.log(error.response);
+	}
+	}
+
+	return;
+		//formdata.user = this.props.user;
+
 		api.put("/compositions/edit/"+info._id, formdata)
 		.then(() => {
 			window.location.reload()
@@ -224,7 +239,6 @@ class CompListItem extends React.Component {
 		this.setState({
 			formdata: {
 				title: info.title,
-				tags: info.tags.join(","),
 				description: info.description,
 				private: info.private
 			},

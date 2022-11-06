@@ -201,7 +201,8 @@ const Dashboard = () => {
     console.log("id is", id);
     await axios.get("http://localhost:3001/userRec", {params: {id: id}}).then(r => {
         setRecordings(r.data);
-        console.log("recordings call", r);	
+        setId(id);
+        console.log("recordings call", r, id);	
 		})
    }
 

@@ -85,7 +85,7 @@ app.get("/userRec", (req, res) => {
     const s  = req.query.id; // going to switch this to user id that is passed through token
     console.log("req: !!", s);
     console.log("req.id", req);
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -157,11 +157,14 @@ app.delete("/deleterecording", (req, res) => {
 
 // Edit Comp description
 app.post("/editrecording", (req, res) => {
+    console.log("CALL EDIT RECORDING DESC")
+    console.log(req);
     const s  = req.query.id; // need new description, userId, recordingId trying to edit
 
     // CHECK if not maestro send error
     db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s +"' AND R.recordingId = '" + req.query.recordingid + "'", (err, result) => {
         if (err) {
+            console.log("EDIT ERROR");
           console.log(err)
         } else {
           console.log("Row Count is ", result.length);
@@ -170,6 +173,7 @@ app.post("/editrecording", (req, res) => {
         {
             db2.query("UPDATE Recordings SET description = '" + req.query.newdescription + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
                 if (err) {
+                console.log("EDIT ERROR");
                   console.log(err)
                 } else {
                   console.log("Row Count is ", result.length);
