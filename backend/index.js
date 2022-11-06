@@ -326,4 +326,99 @@ app.post("/changeismaestro", (req, res) => {
             console.log("Row Count is ", result.length);
         }
     });
+
+});
+
+// api call to change isRequested to 0 (Rejected)
+app.post("/changeismaestro", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    db2.query("UPDATE Users SET isRequested = 0 WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    });
+});
+
+// list all users for admin
+app.get("/listusers", (req, res) => {
+    db2.query("SELECT U.id, U.username, U.email, U.bio, U.isMaestro from Users U",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// delete user for admin
+app.post("/deleteuser", (req, res) => {
+    // need ID
+    db2.query("DELETE FROM Users WHERE id = '",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// delete recording
+app.delete("/deleterecording", (req, res) => {
+    const id = req.query.id; // need id
+    db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+});
+
+// APIS for User Profile
+// -------------------------------------------------------------------------------
+// get user info
+app.get("/userinfo", (req, res) => {
+    const s  = req.query.id; 
+    db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// edit bio
+app.post("/editbio", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET bio = '" + req.query.newbio + "' WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    })
+
+});
+
+// edit username
+app.post("/editusername", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET username = '" + req.query.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    })
+
 });
