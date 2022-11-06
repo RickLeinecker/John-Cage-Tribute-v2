@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 dotenv.config();
- 
+
 // export const getUsers = async(req, res) => {
 //     try {
 //         const users = await Users.findAll({
@@ -17,7 +17,7 @@ dotenv.config();
 //         console.log(error);
 //     }
 // }
- 
+
 export const Register = async(req, res) => {
     const { username, email, password, confPassword } = req.body;
     if(password !== confPassword) return res.status(400).json({msg: "Password and Confirm Password do not match"});
@@ -59,7 +59,7 @@ export const Register = async(req, res) => {
         console.log(error);
     }
 }
- 
+
 export const Login = async(req, res) => {
     try {
         const user = await Users.findAll({
@@ -95,7 +95,7 @@ export const Login = async(req, res) => {
         res.status(404).json({msg:"Email not found"});
     }
 }
- 
+
 export const Logout = async(req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if(!refreshToken) return res.sendStatus(204);

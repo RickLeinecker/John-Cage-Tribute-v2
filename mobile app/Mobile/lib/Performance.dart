@@ -1,25 +1,90 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class Performance extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:mic_stream/mic_stream.dart';
+
+// STEP1:  Stream setup
+class StreamSocket {
+  final _socketResponse = StreamController<String>();
+
+  void Function(String) get addResponse => _socketResponse.sink.add;
+
+  Stream<String> get getResponse => _socketResponse.stream;
+
+  void dispose() {
+    _socketResponse.close();
+  }
+}
+
+class Performance extends StatefulWidget {
   const Performance({Key? key, required this.title}) : super(key: key);
   final String title;
+
+  _PerformanceState createState() => _PerformanceState();
+} // Performance
+
+// Placeholder API call for json
+// https://jsonplaceholder.typicode.com
+
+class _PerformanceState extends State<Performance> {
+  var interval = Duration(seconds: 2);
+
+  Future CheckPermissions() async {
+    var status = Permission.microphone.status;
+
+    if (await status.isDenied) {
+      print('Permissions denied.');
+      return;
+    }
+
+    print('Permissions granted!');
+  }
+
+  Future GetPermissions() async {
+    await Permission.microphone.request();
+  }
+
+  Stream<int> numberStream(Duration interval, [int? maxCount]) async* {
+    int i = 0;
+
+    while (true) {
+      await Future.delayed(interval);
+      yield i++;
+      if (i == maxCount) break;
+    }
+  }
+
+  @override
+  void initState() {
+    // Testing websocket
+
+    // channel.sink.add("Hello from the JCT dev team!");
+    // // channel.sink.addStream(numberStream(interval, 10));
+    // channel.stream
+    //     .listen((event) => print(event), onError: (error) => print(error));
+
+    GetPermissions();
+
+    // numberStream(interval, 10).listen((num) {
+    //   print('Streaming: ${num}');
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text('Performance Page'),
       ),
-      body: Center(
-        child: TextButton(
-          onPressed: () {},
-          child: const Text('Go Back'),
-        ),
-      ),
+      body: Container(
+          color: Colors.grey,
+          child:
+              Center(child: Column(children: [Text('Haha, I am here now!')]))),
     );
   }
-
 }
+
 
 /*
 

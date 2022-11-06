@@ -6,9 +6,19 @@
       <excludeFolder url="file://$MODULE_DIR$/Mobile/build" />
       <excludeFolder url="file://$MODULE_DIR$/Mobile/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/Mobile/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/Mobile/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/Mobile/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/Mobile/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/build" />
+      <excludeFolder url="file://$MODULE_DIR$/webapp/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/webapp/build" />
+      <excludeFolder url="file://$MODULE_DIR$/webapp/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/Mobile/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/Mobile/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/Mobile/windows/flutter/ephemeral/.plugin_symlinks/permission_handler_windows/example/.pub" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
   </component>
 </module>

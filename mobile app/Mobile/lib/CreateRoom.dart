@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
@@ -11,22 +10,30 @@ import 'package:mic_stream/mic_stream.dart';
 // Socket serverSocket = io("http://192.168.12.116:8080/",
 //     OptionBuilder().setTransports(["websocket"]).build());
 
-// Live
-Socket serverSocket = io("https://johncagetribute.org/",
+Socket serverSocket = io("http://192.168.12.11:8080/",
     OptionBuilder().setTransports(["websocket"]).build());
+
+// Socket serverSocket = io("http://172.26.94.38:8080/",
+//     OptionBuilder().setTransports(["websocket"]).build());
+
+// Live
+// Socket serverSocket = io("https://johncagetribute.org/",
+//     OptionBuilder().setTransports(["websocket"]).build());
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
 
-class LiveStream extends StatefulWidget {
-  const LiveStream({Key? key, required this.title}) : super(key: key);
+const roomId = 33;
+
+class CreateRoom extends StatefulWidget {
+  CreateRoom({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
-  State<LiveStream> createState() => _LiveStreamState();
+  State<CreateRoom> createState() => _CreateRoomState();
 }
 
-class _LiveStreamState extends State<LiveStream> {
+class _CreateRoomState extends State<CreateRoom> {
   bool created = false, started = false;
 
   @override
@@ -37,11 +44,6 @@ class _LiveStreamState extends State<LiveStream> {
 
     serverSocket.on("updaterooms", (rooms) {
       print("Updated rooms: ${rooms}");
-    });
-
-    serverSocket.on("roomerror", (socket) {
-      micListener?.cancel();
-      print("Stopping!!");
     });
 
     return Scaffold(
@@ -62,10 +64,10 @@ class _LiveStreamState extends State<LiveStream> {
                           const Padding(padding: EdgeInsets.only(bottom: 350)),
                           ElevatedButton(
                             onPressed: () {
-                              joinStream();
+                              schedule();
                               created = !created;
                             },
-                            child: const Text('Join a Stream'),
+                            child: const Text('Create a Room'),
                             style: ElevatedButton.styleFrom(
                                 fixedSize: const Size(150, 80),
                                 backgroundColor: Colors.blue),
@@ -78,8 +80,27 @@ class _LiveStreamState extends State<LiveStream> {
                               Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
-                                  children: const [
-                                    Text("Waiting for host to start...")
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        leave();
+                                        created = !created;
+                                      },
+                                      child: const Text("Leave Room"),
+                                      style: ElevatedButton.styleFrom(
+                                          fixedSize: const Size(150, 80),
+                                          backgroundColor: Colors.redAccent),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        startConcert();
+                                        started = !started;
+                                      },
+                                      child: const Text('Start Concert'),
+                                      style: ElevatedButton.styleFrom(
+                                          fixedSize: const Size(150, 80),
+                                          backgroundColor: Colors.lightGreen),
+                                    )
                                   ]),
                             ]
                           : [
@@ -87,11 +108,11 @@ class _LiveStreamState extends State<LiveStream> {
                                   padding: EdgeInsets.only(bottom: 350)),
                               ElevatedButton(
                                 onPressed: () {
-                                  leaveStream();
+                                  stopConcert();
                                   started = !started;
                                   created = !created;
                                 },
-                                child: const Text("Leave Concert"),
+                                child: const Text("Stop Concert"),
                                 style: ElevatedButton.styleFrom(
                                     fixedSize: const Size(150, 80),
                                     backgroundColor: Colors.redAccent),
@@ -100,42 +121,62 @@ class _LiveStreamState extends State<LiveStream> {
         ));
   }
 
-  void joinStream() async {
-    var room = 33;
+  // Functions that interact with the server code
+  schedule() async {
+    if (!serverSocket.connected) {
+      print("I'm not connected...");
 
-    print("ROOM NUMBER: ${room}");
+      return const AlertDialog(
+        title: Text("HOLD UP"),
+        content: Text("Please wait while we connect to the servers..."),
+        actions: [Text("OK")],
+      );
+    } else {
+      // Start constructing the room
+      var room = {
+        "members": {},
+        "id": roomId,
+        "pin": "abcdefg",
+        "currentListeners": 0,
+        "maxListeners": 1,
+        "currentPerformers": 0,
+        "maxPerformers": 2,
+        "isOpen": false,
+        "sessionStarted": false,
+        "sessionAudio": 0
+      };
 
-    var pinPackage = {"roomId": room, "enteredPin": "abcdefg"};
+      var member = {"role": 1, "userId": 3, "isHost": true};
 
-    serverSocket.emit("verifypin", pinPackage);
+      var package = {"room": room, "member": member};
 
-    serverSocket.on("pinerror", (err) {
-      print(err);
-      return;
+      serverSocket.emit("createroom", package);
+
+      serverSocket.on('event', (data) => print(data));
+      serverSocket.on('error', (err) => print(err));
+      serverSocket.on('timeout', (time) => print(time));
+      serverSocket.on('fromServer', (_) => print(_));
+      serverSocket.on('disconnect', (disconn) {
+        print(disconn);
+        micListener?.cancel();
+      });
+
+      setState(() {
+        print("State has been set!");
+      });
+    }
+  }
+
+  void leave() async {
+    serverSocket.emit("leaveroom", roomId);
+
+    setState(() {
+      print("State has been set!");
     });
+  }
 
-    print('We should be joining the room now...');
-
-    serverSocket.on("pinsuccess", (_) {
-      var member = {"role": 1, "userId": 7, "isHost": false};
-      var package = {"member": member, "roomId": room};
-
-      serverSocket.emit("joinroom", package);
-
-      print("Successful pin!");
-
-      serverSocket.on("joinerror", (err) => print(err));
-      serverSocket.on("roomerror", (err) => print(err));
-    });
-
-    serverSocket.on('event', (data) => print(data));
-    serverSocket.on('error', (err) => print(err));
-    serverSocket.on('timeout', (time) => print(time));
-    serverSocket.on('fromServer', (_) => print(_));
-    serverSocket.on('disconnect', (disconn) {
-      print(disconn);
-      micListener?.cancel();
-    });
+  void startConcert() async {
+    serverSocket.emit("startsession", roomId);
 
     serverSocket.on("audiostart", (message) async {
       print(message);
@@ -148,23 +189,32 @@ class _LiveStreamState extends State<LiveStream> {
         serverSocket.emit("sendaudio", data);
       });
     });
+
+    setState(() => print("setstate"));
   }
 
-  void leaveStream() {
-    serverSocket.emit("leaveroom", 33);
-
+  void stopConcert() async {
     micListener?.cancel();
+
+    var package = {"roomId": roomId, "composition": {}};
+
+    serverSocket.emit("endsession", package);
+
+    print("We should have stopped...");
+
+    setState(() => print("setstate"));
   }
-}
 
-void initMic() async {
-  var micPerms = Permission.microphone.status;
+  // Mic initialization
+  void initMic() async {
+    var micPerms = Permission.microphone.status;
 
-  if (await micPerms.isDenied) {
-    print("Asking for mic permissions.");
-    await Permission.microphone.request();
-  } else
-    print("Permissions already granted!");
+    if (await micPerms.isDenied) {
+      print("Asking for mic permissions.");
+      await Permission.microphone.request();
+    } else
+      print("Permissions already granted!");
+  }
 }
 
 /*
