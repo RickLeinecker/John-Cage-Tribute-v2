@@ -179,9 +179,35 @@ app.post("/editrecording", (req, res) => {
     })
 });
 
-// Create Recording
+// Create Recording and UserRecording
+app.post("/createRecording", (req, res) => {
+    const s  = req.body.id;
+    const title = 0; // Need all this information
+    const desc = 0;
+    const length = 0;
+    const audioFile = 0;
+    const date = 0;
+    db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('"+ s + "', '" + title + "', '" + desc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("Recording created");
+    }
+    });
 
-// Create UserRecording
+    // db2.query("INSERT INTO UserRecording(recordingId, userId) VALUES ('",
+    // (err, res) => {
+    // if (err) {
+    //     console.log(err);
+    // } else {
+    //     console.log("Recording created");
+    // }
+    // });
+});
+
+// Playback previous recordings
+// get the audio file 
 
 // Schedule API Calls
 // -----------------------------------------------------------------------------------
@@ -296,8 +322,8 @@ app.post("/enterSchedule", (req, res) => {
 
 // List user's scheduled recordings
 app.get("/userScheduled", (req, res) => {
-    const s  = req.query.id; // going to switch this to user id that is passed through token
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
+    const s  = req.query.id;
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.passcodePerform, S.passcodeListen, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -349,6 +375,100 @@ app.post("/changeismaestro", (req, res) => {
             console.log("Row Count is ", result.length);
         }
     });
+});
+
+// api call to change isRequested to 0 (Rejected)
+app.post("/changeismaestro", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+
+    db2.query("UPDATE Users SET isRequested = 0 WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    });
+});
+
+// list all users for admin
+app.get("/listusers", (req, res) => {
+    db2.query("SELECT U.id, U.username, U.email, U.bio, U.isMaestro from Users U",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// delete user for admin
+app.post("/deleteuser", (req, res) => {
+    // need ID
+    db2.query("DELETE FROM Users WHERE id = '",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// delete recording
+app.delete("/deleterecording", (req, res) => {
+    const id = req.query.id; // need id
+    db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+});
+
+// APIS for User Profile
+// -------------------------------------------------------------------------------
+// get user info
+app.get("/userinfo", (req, res) => {
+    const s  = req.query.id; 
+    db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// edit bio
+app.post("/editbio", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET bio = '" + req.query.newbio + "' WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    })
+
+});
+
+// edit username
+app.post("/editusername", (req, res) => {
+    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET username = '" + req.query.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Row Count is ", result.length);
+        }
+    })
+
 });
 
 
