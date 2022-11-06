@@ -6,7 +6,7 @@ import router from "./routes/index.js";
 import mysql from "mysql2"
 import socket from "socket.io";
 import path from "path";
-import { Login, Register } from "./controllers/Users.js";
+import Users from "./models/User.js";
 import childProcess from "child_process";
 import fs from "fs";
 import * as url from 'url';
@@ -27,7 +27,8 @@ const {Lame} = pkg2;
 
 dotenv.config();
 
-const PORT = 8080;
+const backendPort = 3001;
+const socketPort = 8080;
 
 const app = express();
 
@@ -40,15 +41,15 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(router);
 
-//app.listen(PORT, ()=> console.log(`Server running at port ${PORT}`));
+app.listen(backendPort, ()=> console.log(`Server running at port ${backendPort}`));
 
 const http = createServer(app);
-http.listen(PORT, () => console.log(`Websocket server started on port ${PORT}`));
+http.listen(socketPort, () => console.log(`Websocket server started on port ${socketPort}`));
 
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'JCSD!2022',
+    password: '',
     database: 'jctdatabase'
 });
 
