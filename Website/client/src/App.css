@@ -825,6 +825,20 @@ button {
 	animation: hover-darken .2s linear forwards
 }
 
+#passcode {
+	padding: 6px;
+	margin: 5px;
+	width: 500px;
+	font-size: 1.2em;
+	outline: none;
+}
+
+.listen-text {
+	font-size: 1.2em;
+	text-align: center;
+  color: white;
+}
+
 .audio-elem {
 	position: absolute;
 	bottom: 10px;
