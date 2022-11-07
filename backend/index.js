@@ -211,7 +211,7 @@ app.post("/createRecording", (req, res) => {
         });
 
         // get RecordingId of recording we just created
-        db2.query("SELECT DISTINCT R.recordingId FROM Recordings R WHERE (date ='" + date + "') AND (audioFile = '" + audioFile + "'",
+        db2.query("SELECT DISTINCT R.recordingId FROM Recordings R WHERE (date ='" + date + "') AND (audioFile = '" + audioFile + "')",
         (err, res) => {
         if (err) {
             console.log(err);
