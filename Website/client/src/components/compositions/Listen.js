@@ -1,11 +1,17 @@
 import React, { Fragment, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import api from '../../utils/api';
-import Spinner from '../layout/Spinner';
-import CompList from "./CompList";
-import Axios from "axios";
-import Pager from './Pager.js';
+import {io} from "socket.io-client";
+
+const socket = io("http://127.0.0.1:8080/");
+
+socket.on('connect', () => {
+  console.log("Websocket is working!!");
+});
+
+socket.on('err', (err) => console.log(err));
+socket.on('timeout', (time) => console.log(time));
+socket.on("connect_error", (err) => {
+    console.log(`connect_error due to ${err.message}`);
+  });
 
 class Listen extends React.Component {
     constructor(props) {
@@ -97,6 +103,7 @@ class Listen extends React.Component {
         e.preventDefault();
         var query = this.state.passcodeQuery;
         //ADD API CALL HERE
+        socket.emit("woomy");
 
         if(query == this.state.tempPasscode) {
             console.log("PASSCODE IS CORRECT");
