@@ -49,7 +49,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'mypassword112',
     database: 'jctdatabase'
 });
 
@@ -181,33 +181,118 @@ app.post("/editrecording", (req, res) => {
 
 // Create Recording and UserRecording
 app.post("/createRecording", (req, res) => {
-    const s  = req.body.id;
-    const title = 0; // Need all this information
-    const desc = 0;
-    const length = 0;
-    const audioFile = 0;
-    const date = 0;
-    db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('"+ s + "', '" + title + "', '" + desc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
+    const audioFile = req.query.audioname; // variables passed in
+    const passcode = req.query.passcode;
+    const length = req.query.length;
+    const maestro = req.query.maestroId;
+    const userone = req.query.user1;
+    const usertwo = req.query.user2;
+    const userthree = req.query.user3;
+    
+    // get information for recording from schedule
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.scheduleDate, S.title, S.description FROM Schedule S WHERE passcodePerform ='" + passcode + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        
+        const title = result[0].title;
+        const desc = result[0].description;
+        const date = result[0].scheduleDate;
+
+        db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('" + maestro + "', '" + title + "', '" + desc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
+        (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("Recording created");
+        }
+        });
+
+        // get RecordingId of recording we just created
+        db2.query("SELECT DISTINCT R.recordingId FROM Recordings R WHERE (date ='" + date + "') AND (audioFile = '" + audioFile + "'",
+        (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+           const recId = result[0].recordingId;
+
+            // insert maestro
+            db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + maestro + "')",
+            (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("UserRecording created maestro");
+            }
+            });
+
+            if (userone > 0)
+            {
+                db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + userone + "')",
+                (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("UserRecording created userone");
+                }
+                });
+            }
+
+            if (usertwo > 0)
+            {
+                db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + usertwo + "')",
+                (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("UserRecording created usertwo");
+                }
+                });
+            }
+
+            if (userthree > 0)
+            {
+                db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + userthree + "')",
+                (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("UserRecording created userthree");
+                }
+                });
+            }
+        }
+        });
+
+    }
+    });
+
+    // delete schedule table
+    db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
     (err, res) => {
     if (err) {
         console.log(err);
     } else {
-        console.log("Recording created");
+        console.log("UserRecording created userthree");
     }
     });
-
-    // db2.query("INSERT INTO UserRecording(recordingId, userId) VALUES ('",
-    // (err, res) => {
-    // if (err) {
-    //     console.log(err);
-    // } else {
-    //     console.log("Recording created");
-    // }
-    // });
 });
 
-// Playback previous recordings
-// get the audio file 
+// get the audio file path
+app.get("/getAudio", (req, res) => {
+    const s  = req.query.recordingId;
+    db2.query("SELECT DISTINCT R.audioFile FROM Recordings R WHERE R.recordingId = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
 
 // Schedule API Calls
 // -----------------------------------------------------------------------------------
