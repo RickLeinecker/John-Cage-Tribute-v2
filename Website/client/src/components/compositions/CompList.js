@@ -194,11 +194,11 @@ class CompListItem extends React.Component {
 	const {userId, info, formdata} = this.state;
 	console.log("edit form data", info, formdata, userId);
 	var description = formdata.description ?  formdata.description : "test descrip ";
-	var query = {id:userId, recordingid: info.recordingId , newdescription: description}
+	var query = JSON.stringify({id:userId, recordingid: info.recordingId , newdescription: description});
 
 	console.log("query", query)
 	try {
-		 await Axios.post("http://localhost:3001/editrecording", {params: {query: query}}).then(r => {
+		 await Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
 			this.setState({list: r.data})
 	} )} catch (error) {
   if (error.response) {

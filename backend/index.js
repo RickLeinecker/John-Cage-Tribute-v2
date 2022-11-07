@@ -157,12 +157,18 @@ app.delete("/deleterecording", (req, res) => {
 
 // Edit Comp description
 app.post("/editrecording", (req, res) => {
-    console.log("CALL EDIT RECORDING DESC")
-    console.log(req);
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    console.log("CALL EDIT RECORDING4 DESC")
+    const s  = JSON.parse(req.body.params);
+    console.log(s.id);
+    console.log(s.recordingid);
+    
+//    const parsed = JSON.parse(s[0]);
+  //  const pind = s[0];
+    // need new description, userId, recordingId trying to edit
+
 
     // CHECK if not maestro send error
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s +"' AND R.recordingId = '" + req.query.recordingid + "'", (err, result) => {
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s.id +"' AND R.recordingId = '" + s.recordingid + "'", (err, result) => {
         if (err) {
             console.log("EDIT ERROR");
           console.log(err)
@@ -176,9 +182,12 @@ app.post("/editrecording", (req, res) => {
                 console.log("EDIT ERROR");
                   console.log(err)
                 } else {
-                  console.log("Row Count is ", result.length);
+                  console.log("Updating and Row Count is ", result.length);
                 }
             })
+        } else
+        {
+            console.log('Not updating row count not 1');
         }
     })
 });
