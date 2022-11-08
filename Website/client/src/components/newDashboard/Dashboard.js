@@ -235,7 +235,7 @@ const Dashboard = () => {
       {console.log(selectedEvent)}
       return (
           <Fragment>
-          <div className='search'> 
+          <div className='schedule'> 
   
                   <div className='search-inner'>
                           <div className='search-box'>
