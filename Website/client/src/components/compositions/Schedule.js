@@ -92,22 +92,16 @@ const Schedule = ({ isAuthenticated }) => {
     });
 
     const handleSubmit = event => {
-        // var day = value.getDate();
-        // var month = value.getMonth();
-        // var year = value.getFullYear();
-
-        // console.log("Date", day, month);
-        // var fullTime = new Date(year, month, day);
-        // console.log(fullTime);
-
         var temp = value.toISOString().replace("Z", "");
 
         console.log("In handleSubmit: " + value);
         console.log("Temp: " + temp);
     
         event.preventDefault();
-        //Add handleSubmit here
+        
         trySchedule(userId, temp);
+
+        window.location.reload();
     }
 
     const trySchedule = async (userId, date)=>{
@@ -119,10 +113,10 @@ const Schedule = ({ isAuthenticated }) => {
             })
        
         } catch (error) {
-      if (error.response) {
-        console.log(error.response);
-    }
-    }
+            if (error.response) {
+                console.log(error.response);
+            }
+        }
     }
 
     function addbits(s) {
