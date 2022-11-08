@@ -21,6 +21,7 @@ import jwt from "jsonwebtoken";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
+import Axios from "axios";
 
 const {WaveFile} = wavpkg;
 const {Lame} = pkg2;
@@ -32,8 +33,6 @@ const socketPort = 8080;
 
 const app = express();
 
-availableRooms = {};
-memberAttendance = {};
 audioProcessorPool = childProcess.fork("../Website/audioProcessor/audioProcessorPool.js");
 
 app.use(cors({ credentials:true, origin:'http://localhost:3000' }));
@@ -49,7 +48,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'mypassword112',
+    password: '',
     database: 'jctdatabase'
 });
 
@@ -280,19 +279,8 @@ app.post("/createRecording", (req, res) => {
     });
 });
 
-// get the audio file path
-app.get("/getAudio", (req, res) => {
-    const s  = req.query.recordingId;
-    db2.query("SELECT DISTINCT R.audioFile FROM Recordings R WHERE R.recordingId = '" + s + "'",
-    (err, result) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(result);
-        res.send(result);
-    }
-    });
-});
+// Playback previous recordings
+// get the audio file 
 
 // Schedule API Calls
 // -----------------------------------------------------------------------------------
@@ -573,34 +561,35 @@ var audioProcessorPool = childProcess.fork('../Website/audioProcessor/audioProce
 
 io.on("connection", function (socket) {
     // Register from mobile app
-    socket.on("register", (credentials) => {
-        const payload = {
-            body: {
-                username: credentials.username,
-                email: credentials.email,
-                password: credentials.password,
-                confPassword: credentials.passwordconfirm
-            }
-        };
-
-        console.log("Credentials: ", payload);
+    socket.on("register", async (credentials) => {
+        await Axios.post('http://localhost:3001/users', {
+            username: credentials.username,
+            email: credentials.email,
+            password: credentials.password,
+            confPassword: credentials.passwordconfirm
+        }).then((response) => {
+            console.log(response);
+            socket.emit("regsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("regerror", error.response.data);
+          });
 
         // Register(payload, app.response);
     });
 
     // Log in from mobile app
-    socket.on("login", (credentials) => {
-        const payload = {
-            body: {
-                email: credentials.email,
-                password: credentials.password
-            }
-        }
-
-        console.log("Credentials: ", credentials);
-        console.log("Payload: ", payload);
-
-        // Login(payload);
+    socket.on("login", async (credentials) => {
+        await Axios.post('http://localhost:3001/login/', {
+          email: credentials.email,
+          password: credentials.password
+         }).then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
     });
 
     // Joining a concert
@@ -623,36 +612,85 @@ io.on("connection", function (socket) {
     socket.on('createroom', function (data) {
         console.log(`Received createroom from socket: ${socket.id}.`);
 
-        const room = data.room;
-        const roomId = room['id'];
-        const member = data.member;
+        // Run checks to make sure the user is the maestro AND they're opening on their scheduled timeframe
+        db2.query("SELECT * FROM Schedule ORDER BY scheduleDate ASC;", (err, result) => {
+            if (err)
+            {
+                console.log(err);
+                socket.emit("scheduleerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
+                return;
+            } else
+            {
+                // Empty table check
+                if (result[0] == undefined)
+                {
+                    console.log("Nothing's scheduled.");
+                    socket.emit("scheduleerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
+                    return;
+                }
 
-        availableRooms[roomId] = room;
-        availableRooms[roomId]['isOpen'] = true;
-        availableRooms[roomId]['members'] = {};
-        availableRooms[roomId]['members'][socket.id] = member;
-        availableRooms[roomId]['members'][socket.id]['socket'] = socket.id;
-        audioProcessorPool.send({ command: 'createAudioProcessor', roomId: roomId });
-        availableRooms[roomId]['sessionAudio'] = [];
+                // Maestro check
+                if (data.member.userId != result[0].maestroId)
+                {
+                    console.log("Somebody didn't make an appointment!");
+                    socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+                    return;
+                }
 
-        if (member.role == Role.PERFORMER) {
-            audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
-            console.log("I'm in INDEX, addPerformer");
-            availableRooms[roomId]['currentPerformers'] = 1;
-            availableRooms[roomId]['currentListeners'] = 0;
-        }
-        else {
-            availableRooms[roomId]['currentPerformers'] = 0;
-            availableRooms[roomId]['currentListeners'] = 1;
-        }
+                const scheduleStart = new Date(result[0].scheduleDate);
+                const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000);
+                const currDate = new Date();
 
-        memberAttendance[socket.id] = roomId;
-        socket.join(roomId);
+                console.log(`Start: ${scheduleStart}`);
+                console.log(`End: ${scheduleEnd}`);
 
-        io.to(roomId).emit('updatemembers', {
-            members: availableRooms[roomId]['members'],
-            sessionStarted: null
+                // Timeframe check
+                if (scheduleStart > currDate || currDate > scheduleEnd)
+                {
+                    console.log("You're outside of the timeframe!");
+                    socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+                    return;
+                }
+                
+                const room = data.room;
+                const roomId = room['id'];
+                const member = data.member;
+
+                availableRooms[roomId] = room;
+                availableRooms[roomId]['isOpen'] = true;
+                availableRooms[roomId]['members'] = {};
+                availableRooms[roomId]['members'][socket.id] = member;
+                availableRooms[roomId]['members'][socket.id]['socket'] = socket.id;
+                audioProcessorPool.send({ command: 'createAudioProcessor', roomId: roomId });
+                availableRooms[roomId]['sessionAudio'] = [];
+                availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
+
+                if (member.role == Role.PERFORMER) {
+                    audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
+                    console.log("I'm in INDEX, addPerformer");
+                    availableRooms[roomId]['currentPerformers'] = 1;
+                    availableRooms[roomId]['currentListeners'] = 0;
+                }
+                else {
+                    availableRooms[roomId]['currentPerformers'] = 0;
+                    availableRooms[roomId]['currentListeners'] = 1;
+                }
+
+                memberAttendance[socket.id] = roomId;
+                socket.join(roomId);
+
+                socket.emit("schedulesuccess", "You did it!");
+
+                console.log(availableRooms);
+
+                io.to(roomId).emit('updatemembers', {
+                    members: availableRooms[roomId]['members'],
+                    sessionStarted: null
+                });
+            }
         });
+
+        
     });
 
     // UPDATED
@@ -942,6 +980,8 @@ io.on("connection", function (socket) {
 
           return;
         }
+
+        db2.query(`DELETE FROM Schedule WHERE passcodePerform = '${availableRooms[roomId].scheduleID}';`);
 
         io.of('/')
           .in(roomId)

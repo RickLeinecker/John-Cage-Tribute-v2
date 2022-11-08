@@ -37,7 +37,6 @@ export const Register = async(req, res) => {
             password: hashPassword
         });
         res.json({msg: "Registration Successful"});
-        console.log("userid is", user.id);
         jwt.sign(
             {
               user: user,

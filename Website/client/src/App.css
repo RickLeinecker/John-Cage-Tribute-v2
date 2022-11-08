@@ -281,10 +281,11 @@ textarea {
 .sidebar {
 	height: 100%;
 	width: 360px;
+  text-align: left;
 	background-color: #060b26;
 	position: absolute;
 	top: 0px;
-	right: 50px;
+	right: 0px;
   transition : right 2000ms;
 
 	overflow: scroll

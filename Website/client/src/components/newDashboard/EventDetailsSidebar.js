@@ -116,7 +116,7 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
   return (
     <IconContext.Provider value={{ color: "#fff" }}>
       <div className="dark-overlay" style={{ zIndex: "2", position: "fixed" }}>
-        <div id="sidebar" className={"sidebar active"} style={{ zIndex: "0" }}>
+        <div id="sidebar" className={"sidebar"} style={{ zIndex: "0" }}>
           <div id="close" className="close" onClick={clickHandler}>
             <AiIcons.AiOutlineClose />
           </div>

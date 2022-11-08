@@ -8,8 +8,23 @@ import { IconContext } from 'react-icons';
 
 function Navbar() {
   const [sidebar, setSidebar] = useState(false);
+  const [isAuthenticated, setAuth] = useState(SidebarData.Unauthenticated);
 
-  const showSidebar = () => setSidebar(!sidebar);
+  const showSidebar = () => {
+    let tokenData = localStorage.getItem("token")
+    var parsedData = JSON.parse(tokenData);
+
+    if (parsedData == null){
+      setAuth(SidebarData.Unauthenticated);
+    }
+    else {
+    setAuth(SidebarData.Authenticated);
+    }
+  
+    console.log(JSON.parse(tokenData));
+    console.log(isAuthenticated);
+    setSidebar(!sidebar);
+  }
 
   return (
     <>
@@ -26,9 +41,9 @@ function Navbar() {
                 <AiIcons.AiOutlineClose />
               </Link>
             </li>
-            {SidebarData.map((item, index) => {
+            { isAuthenticated.map((item, index) => {
               return (
-                <li key={index} className={item.cName}>
+                <li key={index} className={item.cName} onClick ={ item.func? ()=> item.func() : null}> 
                   <Link to={item.path}>
                     {item.icon}
                     <span>{item.title}</span>
