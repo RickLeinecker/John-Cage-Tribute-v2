@@ -380,8 +380,7 @@ app.get("/listrequested", (req, res) => {
 
 //  Change isrequested to 1
 app.post("/changerequested", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
     db2.query("UPDATE Users SET isRequested = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
