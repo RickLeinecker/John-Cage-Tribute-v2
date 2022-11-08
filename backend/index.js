@@ -492,8 +492,8 @@ app.post("/editbio", (req, res) => {
 
 // edit username
 app.post("/editusername", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET username = '" + req.query.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET username = '" + req.body.newusername + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {

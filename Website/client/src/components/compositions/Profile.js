@@ -73,23 +73,16 @@ class Profile extends React.Component {
 
         Axios.post("http://localhost:3001/editbio", payload);
 
-        // Axios.post("http://localhost:3001/editrecording", payload).then(r => {
-		// 	this.setState({bio: r.data[0].bio})
-	    // })
-        // Axios.post("http://localhost:3001/editbio", {newbio: this.state.editBio}, {params: {
-        //     id: this.state.userId
-        // }})
-        // Axios.post("http://localhost:3001/editbio", {
-        //     bio: this.state.editBio
-        // })
-        // Axios.post("http://localhost:3001/editbio", this.state.userId, {
-        //     bio: this.state.editBio
-        // })
-        // Axios.post("http://localhost:3001/editbio", {}, this.state.userId).then((response) => {
-        //     bio: this.state.editBio
-        // })
+        var payloadtwo = {
+            id: this.state.userId,
+            newusername: this.state.editName,
+        }
+
+        console.log(payloadtwo);
+
+        Axios.post("http://localhost:3001/editusername", payloadtwo);
         
-        //this.setState({editing: false});
+        this.setState({editing: false});
     }
 
     cancelEdit(e) {
@@ -131,16 +124,16 @@ class Profile extends React.Component {
                             <div className='search-box'>
                                 <h1 className='large text-primary'>Profile</h1>
                                 <span>
-                                    <p className='landing-text'>Username: {this.state.username}</p>
+                                    <p className='profile-text'>Username: {this.state.username}</p>
                                 </span>
                                 <span>
-                                    <p className='landing-text'>Email: {this.state.email}</p>
+                                    <p className='profile-text'>Email: {this.state.email}</p>
                                 </span>
                                 <span>
-                                    <p className='landing-text'>Maestro Status: {this.state.isMaestro}</p>
+                                    <p className='profile-text'>Maestro Status: {this.state.isMaestro}</p>
                                 </span>
                                 <span>
-                                    <p className='landing-text'>Bio: {this.state.bio}</p>
+                                    <p className='profile-text'>Bio: {this.state.bio}</p>
                                 </span>
                                 <span style={{align: "center"}}>
                                     <button className='btn btn-primary' onClick={() => this.setState({editing: true})}>Edit</button>
