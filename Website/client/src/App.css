@@ -493,7 +493,8 @@ button {
 
 /* Info Page */
 .info-left {
-  width: 50%;
+  width: 485px;
+  padding-right: 15px;
 }
 
 /* Login/Signup Page */
