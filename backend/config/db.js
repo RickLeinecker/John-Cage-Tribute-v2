@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
  
-const db1 = new Sequelize('jctdatabase', 'root', '', {
+const db1 = new Sequelize('jctdatabase', 'root', 'Infinity#1', {
     host: "localhost",
     dialect: "mysql"
 });

@@ -49,7 +49,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'mypassword112',
+    password: 'Infinity#1',
     database: 'jctdatabase'
 });
 
