@@ -32,7 +32,7 @@ class Profile extends React.Component {
 
     componentDidMount() {
         Axios.get("http://localhost:3001/userinfo", {params: {id: this.state.userId}}).then(r => {
-            console.log(r);
+            //console.log(r);
             this.setState({username: r.data[0].username});
             // this.setState({userId: r.data[0].id});
             this.setState({email: r.data[0].email});
@@ -66,16 +66,16 @@ class Profile extends React.Component {
         console.log("new bio: " + this.state.editBio);
         console.log("id "+this.state.userId);
 
-        var query = JSON.stringify({id: this.state.userId, newbio: this.state.editBio});
-        console.log(query);
+        var payload = {
+            id: this.state.userId,
+            newbio: this.state.editBio,
+        };
 
-        // Axios.post("http://localhost:3001/editbio", {query: {
-        //     id: this.state.userId,
-        //     newbio: this.state.editBio
-        // }})
-        Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
-			this.setState({bio: r.data[0].bio})
-	    })
+        Axios.post("http://localhost:3001/editbio", payload);
+
+        // Axios.post("http://localhost:3001/editrecording", payload).then(r => {
+		// 	this.setState({bio: r.data[0].bio})
+	    // })
         // Axios.post("http://localhost:3001/editbio", {newbio: this.state.editBio}, {params: {
         //     id: this.state.userId
         // }})
