@@ -19,6 +19,7 @@ import Landing from '../layout/Landing';
 import AdminDashboard from '../newDashboard/AdminDashboard';
 import MaestroRequests from '../compositions/MaestroRequests';
 import ContestPage from '../compositions/ContestPage';
+import InfoPage from '../compositions/InfoPage';
 import AdminLogin from '../auth/AdminLogin';
 
 const Routes = props => {
@@ -36,6 +37,7 @@ const Routes = props => {
         <Route exact path="/maestrorequests" component={MaestroRequests} />
         <Route exact path="/schedule" component={Schedule} />
         <Route exact path="/contestpage" component={ContestPage} />
+        <Route exact path="/infopage" component={InfoPage} />
         <PrivateRoute exact path="/landing" component={Landing} />     
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />
         <PrivateRoute exact path="/edit-profile" component={ProfileForm} />

@@ -491,6 +491,11 @@ button {
   grid-auto-flow: column;
 }
 
+/* Info Page */
+.info-left {
+  width: 50%;
+}
+
 /* Login/Signup Page */
 .loginSignup {
   position: relative;
