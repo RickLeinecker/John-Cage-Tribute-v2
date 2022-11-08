@@ -387,8 +387,7 @@ app.get("/listrequested", (req, res) => {
 
 //  Change isrequested to 1
 app.post("/changerequested", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
     db2.query("UPDATE Users SET isRequested = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
@@ -482,8 +481,12 @@ app.get("/userinfo", (req, res) => {
 
 // edit bio
 app.post("/editbio", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET bio = '" + req.query.newbio + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    console.log(`ID is: ${s}`);
+    console.log("~~~~~\nHERE IS REQ\n");
+    console.log(req);
+    console.log("\nTHERE WAS REQ\n~~~~~");
+    db2.query("UPDATE Users SET bio = '" + req.body.newbio + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
@@ -495,8 +498,8 @@ app.post("/editbio", (req, res) => {
 
 // edit username
 app.post("/editusername", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET username = '" + req.query.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET username = '" + req.body.newusername + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {

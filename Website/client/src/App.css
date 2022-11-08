@@ -607,6 +607,12 @@ button {
   grid-gap: 1rem;
 }
 
+.profile-text {
+	font-size: 1.2em;
+	text-align: left;
+  color: white;
+}
+
 .profile-top {
   grid-area: top;
   display: flex;

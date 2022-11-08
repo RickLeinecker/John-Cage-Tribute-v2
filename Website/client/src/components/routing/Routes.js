@@ -10,7 +10,7 @@ import AddExperience from '../profile-forms/AddExperience';
 import AddEducation from '../profile-forms/AddEducation';
 import Search from '../compositions/Search';
 import Rooms from '../compositions/Rooms';
-import Profile from '../profile/Profile';
+import Profile from '../compositions/Profile';
 import Posts from '../posts/Posts';
 import Post from '../post/Post';
 import NotFound from '../layout/NotFound';
@@ -30,7 +30,7 @@ const Routes = props => {
         <Route exact path="/login" component={Login} />
         <Route exact path="/search" component={Search} />
         <Route exact path="/rooms" component={Rooms} />
-        <Route exact path="/profile/:id" component={Profile} />
+        <Route exact path="/Profile" component={Profile} />
         <Route exact path="/dashboard" component={Dashboard} />
         <Route exact path="/admindashboard" component={AdminDashboard} />
         <Route exact path="/maestrorequests" component={MaestroRequests} />
