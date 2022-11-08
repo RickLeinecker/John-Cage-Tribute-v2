@@ -69,10 +69,8 @@ const Dashboard = () => {
 
     const [userId, setId] = useState(0);
     const [userName, setuserName] = useState('');
-    // const isMaestro = -1;
-    // console.log("HERE: " + isMaestro);
     const [isMaestro, setIsMaestro] = useState(-1);
-    // console.log("HERE: " + isMaestro);
+    const [isRequested, setIsRequested] = useState(-1);
     const [token, setToken] = useState('');
     const [expire, setExpire] = useState('');
     const [users, setUsers] = useState([]);
@@ -182,11 +180,7 @@ const Dashboard = () => {
             getRecordings(decoded.userId);
             getEvents(decoded.userId);
             getIsMaestro(decoded.userId);
-
-            // axios.get("http://localhost:3001/userinfo", {params: {id: userId}}).then(r => {
-            // isMaestro = r.data[0].isMaestro;
-            // console.log("LOOKY "+r.data[0].isMaestro);
-            // })
+            getIsRequested(decoded.userId);
         } catch (error) {
             if (error.response) {
                // history.push("/");
@@ -194,11 +188,6 @@ const Dashboard = () => {
             }
         }
     }
-
-    // axios.get("http://localhost:3001/userinfo", {params: {id: userId}}).then(r => {
-    //     // isMaestro = r.data[0].isMaestro;
-    //     console.log("LOOKY "+r.data[0].isMaestro);
-    // })
   
     const axiosJWT = axios.create();
  
@@ -234,15 +223,20 @@ const Dashboard = () => {
 		})
    }
 
-   const getIsMaestro = async (id)=>{
-    await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
-        // setIsMaestro(r.data[0].isMaestro);
-        console.log(typeof(r.data[0].isMaestro));
-        console.log(r.data[0].isMaestro);
-        setIsMaestro(r.data[0].isMaestro);
-        console.log("SOLUTION?: " + isMaestro);
-    })
+    const getIsMaestro = async (id)=>{
+        await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
+            console.log(typeof(r.data[0].isMaestro));
+            console.log(r.data[0].isMaestro);
+            setIsMaestro(r.data[0].isMaestro);
+            console.log("SOLUTION?: " + isMaestro);
+        })
    }
+
+    const getIsRequested = async (id)=>{
+        await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
+            setIsRequested(r.data[0].isRequested);
+        })
+    }
 
    const getEvents = async (id)=>{
     // return testData;
@@ -269,21 +263,6 @@ const Dashboard = () => {
     console.log( selectedEvent, evd, 'Push the concert details page for this concert 2');
   }
 
-    function checkMaestro() {
-        // var isMaestro = -1;
-        // axios.get("http://localhost:3001/userinfo", {params: {id: userId}}).then(r => {
-        //     isMaestro = r.data[0].isMaestro;
-        //     console.log("LOOKY "+r.data[0].isMaestro);
-        // })
-        
-        console.log("isMaestro: " + isMaestro);
-        // if(isMaestro == 1) {
-        //     document.getElementById('conditional').style.visibility = "hidden";
-        // }
-    }
-
-    // console.log("TESTING123 "+isMaestro);
-
   if ( selectedEvent.length < 1)
   {
       {console.log(selectedEvent)}
@@ -297,7 +276,36 @@ const Dashboard = () => {
                             <h1 className='large text-primary'>Welcome Back: {userName}</h1>
                             <div className={css(styles.content)}>
                                 <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
-        
+                                <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
+                                    <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
+                                        {events.map((event, index) => (
+                                            <div onClick={() => handleClick (event)} > 
+                                                <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
+                                            </div>
+                                        ))}
+                                        <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                    </Row>
+                                </Row>
+                                <span className={css(styles.title)}>{"My Recordings"}</span>
+                            </div>
+                            <div style={{padding:"10px"}}>
+                                <CompList list={recordings} userId = {userId} dash={false} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Fragment>
+        );
+    } else if(isRequested == 1) {
+        return (
+            <Fragment>
+                <div className='schedule'> 
+                    <div className='search-inner'>
+                        <div className='search-box'>
+                            <h1 className='large text-primary'>Welcome Back: {userName}</h1>
+                            <h1 className='medium'>Admin is reviewing your request, please wait...</h1>
+                            <div className={css(styles.content)}>
+                                <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
                                 <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
                                     <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                         {events.map((event, index) => (
@@ -325,11 +333,10 @@ const Dashboard = () => {
                         <div className='search-inner'>
                             <div className='search-box'>
                                 <h1 className='large text-primary'>Welcome Back: {userName}</h1>
-                                <h1 className='medium' id='conditional'>Want to schedule your own concerts? Become a Maestro!</h1>
+                                <h1 className='medium'>Want to schedule your own concerts? Become a Maestro!</h1>
                                 <button className='btn btn-primary' onClick={requestMaestro}>Request Maestro Status</button>
                                 <div className={css(styles.content)}>
                                     <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
-            
                                     <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
                                         <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                             {events.map((event, index) => (

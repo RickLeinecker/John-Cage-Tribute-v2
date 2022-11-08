@@ -83,6 +83,8 @@ class Profile extends React.Component {
         Axios.post("http://localhost:3001/editusername", payloadtwo);
         
         this.setState({editing: false});
+
+        window.location.reload();
     }
 
     cancelEdit(e) {
