@@ -49,7 +49,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'mypassword112',
     database: 'jctdatabase'
 });
 
@@ -159,8 +159,6 @@ app.delete("/deleterecording", (req, res) => {
 app.post("/editrecording", (req, res) => {
     console.log("CALL EDIT RECORDING4 DESC")
     const s  = JSON.parse(req.body.params);
-    console.log(s.id);
-    console.log(s.recordingid);
     
 //    const parsed = JSON.parse(s[0]);
   //  const pind = s[0];
@@ -168,7 +166,7 @@ app.post("/editrecording", (req, res) => {
 
 
     // CHECK if not maestro send error
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s.id +"' AND R.recordingId = '" + s.recordingid + "'", (err, result) => {
+    db2.query("SELECT DISTINCT R.recordingId, R.description FROM Recordings R WHERE (R.maestroId = '" + s.id +"') AND (R.recordingId = '" + s.recordingid + "')", (err, result) => {
         if (err) {
             console.log("EDIT ERROR");
           console.log(err)
@@ -177,7 +175,7 @@ app.post("/editrecording", (req, res) => {
         }
         if (result.length == 1)
         {
-            db2.query("UPDATE Recordings SET description = '" + req.query.newdescription + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
+            db2.query("UPDATE Recordings SET description = '" + s.newdescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
                 if (err) {
                 console.log("EDIT ERROR");
                   console.log(err)
