@@ -248,9 +248,11 @@ app.post("/createRecording", (req, res) => {
 // -----------------------------------------------------------------------------------
 // create schedule
 app.post("/schedule", (req, res) => {
-    const s  = req.body.id;
+    const s  = req.query.id;
+    const title = req.query.title;
+    const desc = req.query.description;
     console.log("req.query.id -----", s);
-    console.log("req.body.date -----", req.body.date);
+    console.log("req.body.date -----", req.query.date);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
@@ -269,7 +271,7 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.body.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.query.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
@@ -277,7 +279,7 @@ app.post("/schedule", (req, res) => {
         }
         if (result.length == 0)
         {
-            db2.query("INSERT INTO Schedule (maestroId, title, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + passListen + "12', '" + req.body.date + "', '" + passListen + "', '" +  passPerform + "')",
+            db2.query("INSERT INTO Schedule (maestroId, title, description, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + title + "', '" + desc + "', '" + req.query.date + "', '" + passListen + "', '" +  passPerform + "')",
             (err, res) => {
             if (err) {
                 console.log(err);
