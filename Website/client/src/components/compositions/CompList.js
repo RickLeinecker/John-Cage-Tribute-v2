@@ -198,7 +198,7 @@ class CompListItem extends React.Component {
 
 	console.log("query", query)
 	try {
-		 await Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
+		 await Axios.post("https://johncagetribute.org/editrecording", {params: query}).then(r => {
 			this.setState({list: r.data})
 	} )} catch (error) {
   if (error.response) {

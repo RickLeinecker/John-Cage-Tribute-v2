@@ -88,7 +88,7 @@ const Dashboard = () => {
     ];
 
     
-    // axios.get("http://localhost:3001/userinfo", {params: {id: userId}}).then(r => {
+    // axios.get("https://johncagetribute.org/userinfo", {params: {id: userId}}).then(r => {
     //     // isMaestro = r.data[0].isMaestro;
     //     console.log("LOOKY "+r.data[0].isMaestro);
     // })
@@ -162,7 +162,7 @@ const Dashboard = () => {
   
     const refreshToken = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/token');
+            const response = await axios.get('https://johncagetribute.org/token');
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
             console.log("decoded id", typeof(decoded.userId));
@@ -195,7 +195,7 @@ const Dashboard = () => {
     axiosJWT.interceptors.request.use(async (config) => {
         const currentDate = new Date();
         if (expire * 1000 < currentDate.getTime()) {
-            const response = await axios.get('http://localhost:3001/token');
+            const response = await axios.get('https://johncagetribute.org/token');
             config.headers.Authorization = `Bearer ${response.data.accessToken}`;
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
@@ -215,7 +215,7 @@ const Dashboard = () => {
     const getRecordings = async (id)=>{
     // return testData;
     console.log("id is", id);
-    await axios.get("http://localhost:3001/userRec", {params: {id: id}}).then(r => {
+    await axios.get("https://johncagetribute.org/userRec", {params: {id: id}}).then(r => {
         setRecordings(r.data);
         console.log("BEFORE" + userId);
         setId(id);
@@ -225,7 +225,7 @@ const Dashboard = () => {
    }
 
     const getIsMaestro = async (id)=>{
-        await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
+        await axios.get("https://johncagetribute.org/userinfo", {params: {id: id}}).then(r => {
             console.log(typeof(r.data[0].isMaestro));
             console.log(r.data[0].isMaestro);
             setIsMaestro(r.data[0].isMaestro);
@@ -234,7 +234,7 @@ const Dashboard = () => {
    }
 
     const getIsRequested = async (id)=>{
-        await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
+        await axios.get("https://johncagetribute.org/userinfo", {params: {id: id}}).then(r => {
             setIsRequested(r.data[0].isRequested);
         })
     }
@@ -242,7 +242,7 @@ const Dashboard = () => {
    const getEvents = async (id)=>{
     // return testData;
     console.log("id is", id);
-    await axios.get("http://localhost:3001/userScheduled", {params: {id: id}}).then(r => {
+    await axios.get("https://johncagetribute.org/userScheduled", {params: {id: id}}).then(r => {
         setEvents(r.data);
         console.log("events call", r);	
 		})
@@ -255,7 +255,7 @@ const Dashboard = () => {
     var payload = {
         id: userId,
     }
-    axios.post("http://localhost:3001/changerequested", payload);
+    axios.post("https://johncagetribute.org/changerequested", payload);
    }
 
    const handleClick= (event) => {

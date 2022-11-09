@@ -147,7 +147,7 @@ const AdminDashboard = () => {
   
     const refreshToken = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/token');
+            const response = await axios.get('https://johncagetribute.org/token');
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
             console.log("decoded id", decoded.userId);
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
     axiosJWT.interceptors.request.use(async (config) => {
         const currentDate = new Date();
         if (expire * 1000 < currentDate.getTime()) {
-            const response = await axios.get('http://localhost:3001/token');
+            const response = await axios.get('https://johncagetribute.org/token');
             config.headers.Authorization = `Bearer ${response.data.accessToken}`;
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
   const getRecordings = async (id)=>{
     // return testData;
     console.log("id is", id);
-    await axios.get("http://localhost:3001/userRec", {params: {id: id}}).then(r => {
+    await axios.get("https://johncagetribute.org/userRec", {params: {id: id}}).then(r => {
         setRecordings(r.data);
         console.log("recordings call", r);	
 		})
@@ -202,7 +202,7 @@ const AdminDashboard = () => {
    const getEvents = async (id)=>{
     // return testData;
     console.log("id is", id);
-    await axios.get("http://localhost:3001/userScheduled", {params: {id: id}}).then(r => {
+    await axios.get("https://johncagetribute.org/userScheduled", {params: {id: id}}).then(r => {
         setEvents(r.data);
         console.log("events call", r);	
 		})
