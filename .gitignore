@@ -11,3 +11,4 @@ backend/.env
 Website/node_modules
 Website/client/node_modules
 Website/client/build
+*.txt
