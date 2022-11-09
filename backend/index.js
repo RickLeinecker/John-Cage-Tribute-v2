@@ -177,7 +177,8 @@ app.post("/editrecording", (req, res) => {
         }
         if (result.length == 1)
         {
-            db2.query("UPDATE Recordings SET description = '" + s.newdescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
+            const newDescription = s.newdescription.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET description = '" + newDescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
                 if (err) {
                 console.log("EDIT ERROR");
                   console.log(err)
@@ -205,7 +206,8 @@ app.post("/edittitle", (req, res) => {
         }
         if (result.length == 1)
         {
-            db2.query("UPDATE Recordings SET title = '" + req.query.newtitle + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
+          const newTitle = req.query.newtitle.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET title = '" + newTitle + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
                 if (err) {
                   console.log(err)
                 } else {
@@ -579,11 +581,10 @@ app.get("/userinfo", (req, res) => {
 // edit bio
 app.post("/editbio", (req, res) => {
     const s  = req.body.id; // need new description, userId, recordingId trying to edit
-    console.log(`ID is: ${s}`);
-    console.log("~~~~~\nHERE IS REQ\n");
-    console.log(req);
-    console.log("\nTHERE WAS REQ\n~~~~~");
-    db2.query("UPDATE Users SET bio = '" + req.body.newbio + "' WHERE id = '" + s + "'", (err, result) => {
+
+    const newBio = req.body.newbio.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+    db2.query("UPDATE Users SET bio = '" + newBio + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
@@ -596,7 +597,9 @@ app.post("/editbio", (req, res) => {
 // edit username
 app.post("/editusername", (req, res) => {
     const s  = req.body.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET username = '" + req.body.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+    const newName = req.body.newbio.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+    db2.query("UPDATE Users SET username = '" + newName + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
@@ -605,6 +608,20 @@ app.post("/editusername", (req, res) => {
     })
 
 });
+
+// Check Listen Code
+app.get("/listeninput", (req, res) => {
+    const s = req.query.passListen;
+    db2.query("SELECT DISTINCT S.maestroId FROM S WHERE passcodeListen = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result.length);
+    }
+    });
+})
 
 // This is here at the bottom to not interfere
 // with any of the above API calls!!
@@ -717,19 +734,17 @@ io.on("connection", function (socket) {
                 console.log(`End: ${scheduleEnd}`);
                 console.log(`Currently: ${currDate}`);
 
-                // // Timeframe check
-                // if (scheduleStart > currDate || currDate > scheduleEnd)
-                // {
-                //     console.log("You're outside of the timeframe!");
-                //     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+                // Timeframe check
+                if (scheduleStart > currDate || currDate > scheduleEnd)
+                {
+                    console.log("You're outside of the timeframe!");
+                    socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
 
-                //     console.log(scheduleStart > currDate);
-                //     console.log(currDate > scheduleEnd);
+                    console.log(scheduleStart > currDate);
+                    console.log(currDate > scheduleEnd);
 
-                //     return;
-                // }
-
-
+                    return;
+                }
 
                 const room = data.room;
                 const roomId = room['id'];
