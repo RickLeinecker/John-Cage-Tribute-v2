@@ -137,18 +137,26 @@ const Schedule = ({ isAuthenticated }) => {
     });
 
     const handleSubmit = event => {
+        console.log("In handleSubmit: " + value);
+        
+        changeTime(finalTime);
+
+        console.log("AFTER: " + value);
+        
         var temp = value.toISOString().replace("Z", "");
 
-        console.log("In handleSubmit: " + value);
+        //temp = changeTimeTwo(finalTime, temp);
+
+        temp.setTime(temp.getTime() - temp.getTimezoneOffset() * 60 * 1000);
+
+        //console.log("In handleSubmit: " + value);
         console.log("Temp: " + temp);
     
         event.preventDefault();
-
-        changeTime(finalTime);
         
         trySchedule(userId, temp, title, description);
 
-        window.location.reload();
+        //window.location.reload();
     }
 
     const trySchedule = async (userId, date, title, description)=>{
@@ -158,7 +166,7 @@ const Schedule = ({ isAuthenticated }) => {
         if(window.confirm("Schedule a Concert for " + (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear() + " at " + finalTime + "?"))
         {
             try{
-            await axios.post("http://localhost:3001/schedule", {id: userId, date: date}).then(r => {
+            await axios.post("http://localhost:3001/schedule", {id: userId, date: date, title: title, desc: description}).then(r => {
                 console.log("schedule call", r);	
                 })
         
@@ -185,12 +193,35 @@ const Schedule = ({ isAuthenticated }) => {
 
         
         //hour is always 4 ahead, so we subtract here to fix that
-        var tempHour = time.substr(0, time.indexOf(":")) + "-4";
-        tempHour = addbits(tempHour);
+        // var tempHour = time.substr(0, time.indexOf(":")) + "-4";
+        // tempHour = addbits(tempHour);
+
+        var tempHour = time.substr(0, time.indexOf(":"));
         var tempMinute = time.substr(time.indexOf(":")+1);
+
+        console.log("FEAR YE: " + tempHour + ":" + tempMinute);
     
         value.setHours(tempHour);
         value.setMinutes(tempMinute);
+    }
+
+    const changeTimeTwo = (time, temp) => {
+        console.log(`Let's do thisssss ${time.indexOf(":")}`);
+
+        
+        //hour is always 4 ahead, so we subtract here to fix that
+        // var tempHour = time.substr(0, time.indexOf(":")) + "-4";
+        // tempHour = addbits(tempHour);
+
+        var tempHour = time.substr(0, time.indexOf(":"));
+        var tempMinute = time.substr(time.indexOf(":")+1);
+
+        console.log("FEAR YE: " + tempHour + ":" + tempMinute);
+    
+        temp.setHours(tempHour);
+        temp.setMinutes(tempMinute);
+
+        return temp;
     }
 
     function handleChange(selectedOption) {
