@@ -161,7 +161,7 @@ app.delete("/deleterecording", (req, res) => {
 app.post("/editrecording", (req, res) => {
     console.log("CALL EDIT RECORDING DESC")
     const s  = JSON.parse(req.body.params);
-    
+
 //    const parsed = JSON.parse(s[0]);
   //  const pind = s[0];
     // need new description, userId, recordingId trying to edit
@@ -218,33 +218,121 @@ app.post("/edittitle", (req, res) => {
 
 // Create Recording and UserRecording
 app.post("/createRecording", (req, res) => {
-    const s  = req.body.id;
-    const title = 0; // Need all this information
-    const desc = 0;
-    const length = 0;
-    const audioFile = 0;
-    const date = 0;
-    db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('"+ s + "', '" + title + "', '" + desc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
-    (err, res) => {
+    console.log("In createRecording");
+    console.log(req.body);
+    console.log(req.query);
+
+    const audioFile = req.body.audioname; // variables passed in
+    const passcode = req.body.passcode;
+    const length = req.body.length;
+    const maestro = req.body.maestroId;
+    const userone = req.body.user1;
+    const usertwo = req.body.user2;
+    const userthree = req.body.user3;
+
+    // get information for recording from schedule
+    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, S.scheduleDate, S.title, S.description FROM Schedule S WHERE passcodePerform ='" + passcode + "'",
+    (err, result) => {
     if (err) {
         console.log(err);
     } else {
-        console.log("Recording created");
+        console.log(result);
+
+        const title = result[0].title;
+        const desc = result[0].description;
+        const date = new Date(result[0].scheduleDate).toISOString().replace('T', ' ').replace('Z', '');
+
+        // console.log(date.toDateString());
+        // console.log(date.toISOString());
+        // console.log(date.toJSON());
+        // console.log(date.toLocaleDateString());
+        // console.log(date.toLocaleString);
+        // console.log(date.toLocaleTimeString);
+
+        const newTitle = title.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');;
+        const newDesc = desc.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+        db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('" + maestro + "', '" + newTitle + "', '" + newDesc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
+        (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("Recording created");
+        }
+        });
+
+        // get RecordingId of recording we just created
+        db2.query("SELECT R.recordingId FROM Recordings R WHERE (recordingDate ='" + date + "') AND (audioFile = '" + audioFile + "')",
+        (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+           const recId = res[0].recordingId;
+
+            // insert maestro
+            db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + maestro + "')",
+            (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("UserRecording created maestro");
+            }
+            });
+
+            if (userone > 0)
+            {
+                db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + userone + "')",
+                (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("UserRecording created userone");
+                }
+                });
+            }
+
+            if (usertwo > 0)
+            {
+                db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + usertwo + "')",
+                (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("UserRecording created usertwo");
+                }
+                });
+            }
+
+            if (userthree > 0)
+            {
+                db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + userthree + "')",
+                (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("UserRecording created userthree");
+                }
+                });
+            }
+        }
+        });
+
     }
     });
 
-    // db2.query("INSERT INTO UserRecording(recordingId, userId) VALUES ('",
+    // // delete schedule table
+    // db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
     // (err, res) => {
     // if (err) {
     //     console.log(err);
     // } else {
-    //     console.log("Recording created");
+    //     console.log("UserRecording created userthree");
     // }
     // });
 });
 
 // Playback previous recordings
-// get the audio file 
+// get the audio file
 
 // Schedule API Calls
 // -----------------------------------------------------------------------------------
@@ -361,7 +449,7 @@ app.post("/enterSchedule", (req, res) => {
             })
         }
     })
-    
+
 });
 
 // List user's scheduled recordings
@@ -476,7 +564,7 @@ app.delete("/deleterecording", (req, res) => {
 // -------------------------------------------------------------------------------
 // get user info
 app.get("/userinfo", (req, res) => {
-    const s  = req.query.id; 
+    const s  = req.query.id;
     db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {
@@ -595,35 +683,97 @@ io.on("connection", function (socket) {
     socket.on('createroom', function (data) {
         console.log(`Received createroom from socket: ${socket.id}.`);
 
-        const room = data.room;
-        const roomId = room['id'];
-        const member = data.member;
+        // Run checks to make sure the user is the maestro AND they're opening on their scheduled timeframe
+        db2.query("SELECT * FROM Schedule ORDER BY scheduleDate ASC;", (err, result) => {
+            if (err)
+            {
+                console.log(err);
+                socket.emit("scheduleerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
+                return;
+            } else
+            {
+                // Empty table check
+                if (result[0] == undefined)
+                {
+                    console.log("Nothing's scheduled.");
+                    socket.emit("scheduleerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
+                    return;
+                }
 
-        availableRooms[roomId] = room;
-        availableRooms[roomId]['isOpen'] = true;
-        availableRooms[roomId]['members'] = {};
-        availableRooms[roomId]['members'][socket.id] = member;
-        availableRooms[roomId]['members'][socket.id]['socket'] = socket.id;
-        audioProcessorPool.send({ command: 'createAudioProcessor', roomId: roomId });
-        availableRooms[roomId]['sessionAudio'] = [];
+                // Maestro check
+                if (data.member.userId != result[0].maestroId)
+                {
+                    console.log("Somebody didn't make an appointment!");
+                    socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+                    return;
+                }
 
-        if (member.role == Role.PERFORMER) {
-            audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
-            console.log("I'm in INDEX, addPerformer");
-            availableRooms[roomId]['currentPerformers'] = 1;
-            availableRooms[roomId]['currentListeners'] = 0;
-        }
-        else {
-            availableRooms[roomId]['currentPerformers'] = 0;
-            availableRooms[roomId]['currentListeners'] = 1;
-        }
+                const scheduleStart = new Date(result[0].scheduleDate);
+                const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000);
+                const currDate = new Date();
 
-        memberAttendance[socket.id] = roomId;
-        socket.join(roomId);
+                console.log(result[0].scheduleDate);
+                console.log(`Start: ${scheduleStart}`);
+                console.log(`End: ${scheduleEnd}`);
+                console.log(`Currently: ${currDate}`);
 
-        io.to(roomId).emit('updatemembers', {
-            members: availableRooms[roomId]['members'],
-            sessionStarted: null
+                // // Timeframe check
+                // if (scheduleStart > currDate || currDate > scheduleEnd)
+                // {
+                //     console.log("You're outside of the timeframe!");
+                //     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+
+                //     console.log(scheduleStart > currDate);
+                //     console.log(currDate > scheduleEnd);
+
+                //     return;
+                // }
+
+
+
+                const room = data.room;
+                const roomId = room['id'];
+                const member = data.member;
+
+                availableRooms[roomId] = room;
+                availableRooms[roomId]['isOpen'] = true;
+                availableRooms[roomId]['members'] = {};
+                availableRooms[roomId]['members'][socket.id] = member;
+                availableRooms[roomId]['members'][socket.id]['socket'] = socket.id;
+                audioProcessorPool.send({ command: 'createAudioProcessor', roomId: roomId });
+                availableRooms[roomId]['sessionAudio'] = [];
+                availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
+                availableRooms[roomId]['maestro'] = result[0].maestroId;
+
+                console.log("Printing member...");
+                console.log(availableRooms[roomId]['members'][socket.id]);
+                console.log("Member printed...");
+
+                console.log(availableRooms[roomId].scheduleID);
+
+                if (member.role == Role.PERFORMER) {
+                    audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
+                    console.log("I'm in INDEX, addPerformer");
+                    availableRooms[roomId]['currentPerformers'] = 1;
+                    availableRooms[roomId]['currentListeners'] = 0;
+                }
+                else {
+                    availableRooms[roomId]['currentPerformers'] = 0;
+                    availableRooms[roomId]['currentListeners'] = 1;
+                }
+
+                memberAttendance[socket.id] = roomId;
+                socket.join(roomId);
+
+                socket.emit("schedulesuccess", "You did it!");
+
+                console.log(availableRooms);
+
+                io.to(roomId).emit('updatemembers', {
+                    members: availableRooms[roomId]['members'],
+                    sessionStarted: null
+                });
+            }
         });
     });
 
@@ -1004,6 +1154,48 @@ io.on("connection", function (socket) {
 
         //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
+
+        // Here, we create a payload that
+        // contains the information needed to
+        // insert the new recording into the database
+        var payload = {
+            audioname: mp3FileName,
+            passcode: availableRooms[roomId].scheduleID,
+            length: data.composition.time,
+            maestroId: 0,
+            user1: -1,
+            user2: -2,
+            user3: -3
+        }
+
+        // Fetch the maestro, input them into the payload and remove them from the room
+        const maestroSocket = Object.keys(availableRooms[roomId]['members'])[0];
+        payload.maestroId = availableRooms[roomId]['members'][maestroSocket].userId;
+
+        delete availableRooms[roomId]['members'][maestroSocket];
+
+        var userCount = 0;
+        const userRefs = ['user1', 'user2', 'user3'];
+
+        for(var member in availableRooms[roomId]['members'])
+        {
+            var user = availableRooms[roomId]['members'][member];
+            payload[userRefs[userCount]] = user.userId;
+            userCount++;
+        }
+
+        // Clear up the room
+        delete availableRooms[roomId];
+
+        await Axios.post('http://localhost:3001/createRecording/', payload)
+        .then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
+
         console.log('uploaddownload call complete!');
 
         // After the MP3 file as been uploaded, delete it from the server
