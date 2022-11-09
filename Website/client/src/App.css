@@ -576,6 +576,10 @@ button {
   margin-top: -8px;
 }
 
+.black {
+  color: black;
+}
+
 .btn-times {
   background: #6f48eb;
   color: #fff;
