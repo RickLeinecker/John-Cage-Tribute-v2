@@ -22,6 +22,7 @@ import jwt from "jsonwebtoken";
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
 import { info } from "console";
+import e from "express";
 
 const {WaveFile} = wavpkg;
 const {Lame} = pkg2;
@@ -50,7 +51,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'mypassword112',
     database: 'jctdatabase'
 });
 
@@ -115,7 +116,7 @@ app.get("/title", (req, res) => {
 // List Contests
 app.get("/contests", (req, res) => {
     db2.query("SELECT * FROM Contests",
-    (err, res) => {
+    (err, result) => {
     if (err) {
         console.log(err);
     } else {
@@ -298,13 +299,11 @@ app.post("/enterSchedule", (req, res) => {
     console.log("enter sched params")
     const s  = JSON.parse(req.body.params);
     console.log(s);
-    //console.log(s.id);
-   // console.log(s.recordingid);
-
     const i  = s.id;
     const p = s.passcode;
+
     // CHECK If userOne is not -1, userTwo is not -1, userThree is not -1
-    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne == -1)", (err, result) => {
+    db2.query("SELECT S.maestroId FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne = -1)", (err, result) => {
         if (err) {
           console.log(err)
           return;
@@ -314,54 +313,55 @@ app.post("/enterSchedule", (req, res) => {
         if (result.length != 0)
         {
             db2.query("UPDATE Schedule SET Schedule.userOne = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
-            (err, res) => {
+            (err) => {
             if (err) {
                 console.log(err);
             } else {
-                res.send(result);
+                res.send("user input into event");
             }
             });
-            return;
+        }   else {
+            db2.query("SELECT S.maestroId FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userTwo = -2)", (err, result) => {
+                if (err) {
+                  console.log(err)
+                } else {
+                    console.log("Row Count is ", result.length);
+                }
+                if (result.length != 0)
+                {
+                    db2.query("UPDATE Schedule SET Schedule.userTwo = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
+                    (err) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        res.send("user input into event");
+                    }
+                    });
+                } else {
+                    db2.query("SELECT S.maestroId FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userThree = -3)", (err, result) => {
+                        if (err) {
+                          console.log(err)
+                        } else {
+                            console.log("Row Count is ", result.length);
+                        }
+                        if (result.length != 0)
+                        {
+                            db2.query("UPDATE Schedule SET Schedule.userThree = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
+                            (err) => {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                res.send("user input into event");
+                            }
+                            });
+                            return;
+                        }
+                    })
+                }
+            })
         }
     })
-    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userTwo = -2)", (err, result) => {
-        if (err) {
-          console.log(err)
-        } else {
-            console.log("Row Count is ", result.length);
-        }
-        if (result.length != 0)
-        {
-            db2.query("UPDATE Schedule SET Schedule.userTwo = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
-            (err, res) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.send(result);
-            }
-            });
-            return;
-        }
-    })
-    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userThree = -3)", (err, result) => {
-        if (err) {
-          console.log(err)
-        } else {
-            console.log("Row Count is ", result.length);
-        }
-        if (result.length != 0)
-        {
-            db2.query("UPDATE Schedule SET Schedule.userThree = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
-            (err, res) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.send(result);
-            }
-            });
-            return;
-        }
-    })
+    
 });
 
 // List user's scheduled recordings
@@ -455,7 +455,7 @@ app.post("/deleteuser", (req, res) => {
         console.log(err);
     } else {
         console.log(result);
-        res.send(result);
+        res.send("user deleted");
     }
     });
 });
@@ -467,7 +467,7 @@ app.delete("/deleterecording", (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.send(result);
+        res.send("recording deleted");
       }
     });
 });
