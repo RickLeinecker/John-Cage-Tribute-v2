@@ -230,18 +230,7 @@ app.post("/createRecording", (req, res) => {
         if (err) {
             console.log(err);
         } else {
-            console.log(res);
-            console.log(res[0]);
-            console.log(res['recordingId']);
-            console.log(res.recordingId);
-
            const recId = res[0].recordingId;
-
-           console.log("UserRecording");
-           console.log(userone);
-           console.log(usertwo);
-           console.log(userthree);
-           console.log(userthree > 0);
 
             // insert maestro
             db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + maestro + "')",
@@ -1129,7 +1118,7 @@ io.on("connection", function (socket) {
         delete availableRooms[roomId]['members'][maestroSocket];
 
         var userCount = 0;
-        const userRefs = ['userone', 'usertwo', 'userthree'];
+        const userRefs = ['user1', 'user2', 'user3'];
 
         for(var member in availableRooms[roomId]['members'])
         {
