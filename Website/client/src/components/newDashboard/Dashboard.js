@@ -3,6 +3,7 @@ import { Column, Row } from 'simple-flexbox';
 import { StyleSheet, css } from 'aphrodite';
 import ConcertCardComponent from "./ConcertCard";
 import ScheduleCardComponent from "./ScheduleCard";
+import InviteCardComponent from "./InviteCard";
 import EventDetailsSidebarComponent from "./EventDetailsSidebar";
 import CompList from "../compositions/CompList";
 import axios from 'axios';
@@ -252,6 +253,7 @@ const Dashboard = () => {
                          <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
                  </div>    ))}
                       <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                      <InviteCardComponent className={css(styles.miniCardContainer)}/>
                   </Row>
   
   

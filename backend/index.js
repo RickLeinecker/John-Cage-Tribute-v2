@@ -21,6 +21,7 @@ import jwt from "jsonwebtoken";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
+import { info } from "console";
 
 const {WaveFile} = wavpkg;
 const {Lame} = pkg2;
@@ -157,7 +158,7 @@ app.delete("/deleterecording", (req, res) => {
 
 // Edit Comp description
 app.post("/editrecording", (req, res) => {
-    console.log("CALL EDIT RECORDING4 DESC")
+    console.log("CALL EDIT RECORDING DESC")
     const s  = JSON.parse(req.body.params);
     console.log(s.id);
     console.log(s.recordingid);
@@ -295,8 +296,14 @@ app.post("/schedule", (req, res) => {
 // Enter users into already created schedule table
 app.post("/enterSchedule", (req, res) => {
     // get passcode entered, get user Id
-    const s  = req.query.id;
-    const p = req.query.passcode;
+    console.log("enter sched params")
+    const s  = JSON.parse(req.body.params);
+    console.log(s);
+    //console.log(s.id);
+   // console.log(s.recordingid);
+
+    const i  = s.id;
+    const p = s.passcode;
     // CHECK If userOne is not -1, userTwo is not -1, userThree is not -1
     db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne == -1)", (err, result) => {
         if (err) {
@@ -306,7 +313,7 @@ app.post("/enterSchedule", (req, res) => {
         }
         if (result.length != 0)
         {
-            db2.query("UPDATE Schedule SET Schedule.userOne = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            db2.query("UPDATE Schedule SET Schedule.userOne = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
             (err, res) => {
             if (err) {
                 console.log(err);
@@ -325,7 +332,7 @@ app.post("/enterSchedule", (req, res) => {
         }
         if (result.length != 0)
         {
-            db2.query("UPDATE Schedule SET Schedule.userTwo = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            db2.query("UPDATE Schedule SET Schedule.userTwo = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
             (err, res) => {
             if (err) {
                 console.log(err);
@@ -344,7 +351,7 @@ app.post("/enterSchedule", (req, res) => {
         }
         if (result.length != 0)
         {
-            db2.query("UPDATE Schedule SET Schedule.userThree = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            db2.query("UPDATE Schedule SET Schedule.userThree = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
             (err, res) => {
             if (err) {
                 console.log(err);
