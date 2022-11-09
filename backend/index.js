@@ -22,6 +22,7 @@ import jwt from "jsonwebtoken";
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
 import Axios from "axios";
+import c from "config";
 
 const {WaveFile} = wavpkg;
 const {Lame} = pkg2;
@@ -180,18 +181,20 @@ app.post("/editrecording", (req, res) => {
 
 // Create Recording and UserRecording
 app.post("/createRecording", (req, res) => {
-    console.log(req);
+    console.log("In createRecording");
+    console.log(req.body);
+    console.log(req.query);
 
-    const audioFile = req.query.audioname; // variables passed in
-    const passcode = req.query.passcode;
-    const length = req.query.length;
-    const maestro = req.query.maestroId;
-    const userone = req.query.user1;
-    const usertwo = req.query.user2;
-    const userthree = req.query.user3;
+    const audioFile = req.body.audioname; // variables passed in
+    const passcode = req.body.passcode;
+    const length = req.body.length;
+    const maestro = req.body.maestroId;
+    const userone = req.body.user1;
+    const usertwo = req.body.user2;
+    const userthree = req.body.user3;
     
     // get information for recording from schedule
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.scheduleDate, S.title, S.description FROM Schedule S WHERE passcodePerform ='" + passcode + "'",
+    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, S.scheduleDate, S.title, S.description FROM Schedule S WHERE passcodePerform ='" + passcode + "'",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -200,9 +203,19 @@ app.post("/createRecording", (req, res) => {
         
         const title = result[0].title;
         const desc = result[0].description;
-        const date = result[0].scheduleDate;
+        const date = new Date(result[0].scheduleDate).toISOString().replace('T', ' ').replace('Z', '');
 
-        db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('" + maestro + "', '" + title + "', '" + desc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
+        // console.log(date.toDateString());
+        // console.log(date.toISOString());
+        // console.log(date.toJSON());
+        // console.log(date.toLocaleDateString());
+        // console.log(date.toLocaleString);
+        // console.log(date.toLocaleTimeString);
+
+        const newTitle = title.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');;
+        const newDesc = desc.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+        db2.query("INSERT INTO Recordings(maestroId, title, description, lengthSeconds, audioFile, recordingDate, inContest) VALUES ('" + maestro + "', '" + newTitle + "', '" + newDesc + "', '" + length + "', '" + audioFile + "', '" + date + "', 0)",
         (err, res) => {
         if (err) {
             console.log(err);
@@ -212,12 +225,23 @@ app.post("/createRecording", (req, res) => {
         });
 
         // get RecordingId of recording we just created
-        db2.query("SELECT DISTINCT R.recordingId FROM Recordings R WHERE (date ='" + date + "') AND (audioFile = '" + audioFile + "')",
+        db2.query("SELECT R.recordingId FROM Recordings R WHERE (recordingDate ='" + date + "') AND (audioFile = '" + audioFile + "')",
         (err, res) => {
         if (err) {
             console.log(err);
         } else {
-           const recId = result[0].recordingId;
+            console.log(res);
+            console.log(res[0]);
+            console.log(res['recordingId']);
+            console.log(res.recordingId);
+
+           const recId = res[0].recordingId;
+
+           console.log("UserRecording");
+           console.log(userone);
+           console.log(usertwo);
+           console.log(userthree);
+           console.log(userthree > 0);
 
             // insert maestro
             db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + maestro + "')",
@@ -270,15 +294,15 @@ app.post("/createRecording", (req, res) => {
     }
     });
 
-    // delete schedule table
-    db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
-    (err, res) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("UserRecording created userthree");
-    }
-    });
+    // // delete schedule table
+    // db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
+    // (err, res) => {
+    // if (err) {
+    //     console.log(err);
+    // } else {
+    //     console.log("UserRecording created userthree");
+    // }
+    // });
 });
 
 // Playback previous recordings
@@ -642,22 +666,23 @@ io.on("connection", function (socket) {
                 const scheduleStart = new Date(result[0].scheduleDate);
                 const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000);
                 const currDate = new Date();
-
+                
+                console.log(result[0].scheduleDate);
                 console.log(`Start: ${scheduleStart}`);
                 console.log(`End: ${scheduleEnd}`);
                 console.log(`Currently: ${currDate}`);
 
-                // Timeframe check
-                if (scheduleStart > currDate || currDate > scheduleEnd)
-                {
-                    console.log("You're outside of the timeframe!");
-                    socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+                // // Timeframe check
+                // if (scheduleStart > currDate || currDate > scheduleEnd)
+                // {
+                //     console.log("You're outside of the timeframe!");
+                //     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
                    
-                    console.log(scheduleStart > currDate);
-                    console.log(currDate > scheduleEnd);
+                //     console.log(scheduleStart > currDate);
+                //     console.log(currDate > scheduleEnd);
 
-                    return;
-                }
+                //     return;
+                // }
 
                 
                 
@@ -673,6 +698,11 @@ io.on("connection", function (socket) {
                 audioProcessorPool.send({ command: 'createAudioProcessor', roomId: roomId });
                 availableRooms[roomId]['sessionAudio'] = [];
                 availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
+                availableRooms[roomId]['maestro'] = result[0].maestroId;
+
+                console.log("Printing member...");
+                console.log(availableRooms[roomId]['members'][socket.id]);
+                console.log("Member printed...");
 
                 console.log(availableRooms[roomId].scheduleID);
 
@@ -992,7 +1022,7 @@ io.on("connection", function (socket) {
           return;
         }
 
-        db2.query(`DELETE FROM Schedule WHERE passcodePerform = '${availableRooms[roomId].scheduleID}';`);
+        // db2.query(`DELETE FROM Schedule WHERE passcodePerform = '${availableRooms[roomId].scheduleID}';`);
 
         io.of('/')
           .in(roomId)
@@ -1030,9 +1060,7 @@ io.on("connection", function (socket) {
         console.log('Finished making the wav file');
 
         // Generate a random temporary filename for the MP3
-        var mp3FileName = "./audioFiles/" + randomstring.generate() + ".mp3";
-
-        console.log(`It's a new name!! ${mp3FileName}`);
+        var mp3FileName = randomstring.generate() + ".mp3";
 
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
@@ -1081,35 +1109,46 @@ io.on("connection", function (socket) {
 
         console.log('Uploading MP3 to database...');
 
+        // Here, we create a payload that
+        // contains the information needed to
+        // insert the new recording into the database
         var payload = {
-            query:
-            {
-                audioName: mp3FileName,
-                passCode: availableRooms[roomId].scheduleID,
-                length: data.composition.time,
-                maestro: 0,
-                userone: -1,
-                usertwo: -2,
-                userthree: -3
-            }
+            audioname: mp3FileName,
+            passcode: availableRooms[roomId].scheduleID,
+            length: data.composition.time,
+            maestroId: 0,
+            user1: -1,
+            user2: -2,
+            user3: -3
         }
 
-        // availableRooms[roomId]["members"].forEach(member => {
-        //     console.log("Member: ");
-        //     console.log(member);
-        // });
+        // Fetch the maestro, input them into the payload and remove them from the room
+        const maestroSocket = Object.keys(availableRooms[roomId]['members'])[0];
+        payload.maestroId = availableRooms[roomId]['members'][maestroSocket].userId;
 
-        console.log(`These people helped!`);
+        delete availableRooms[roomId]['members'][maestroSocket];
+
+        var userCount = 0;
+        const userRefs = ['userone', 'usertwo', 'userthree'];
 
         for(var member in availableRooms[roomId]['members'])
         {
-            console.log(member.userId);
+            var user = availableRooms[roomId]['members'][member];
+            payload[userRefs[userCount]] = user.userId;
+            userCount++;
         }
 
         // Clear up the room
         delete availableRooms[roomId];
 
-        // Axios.post("http://localhost:3001/createRecording", payload);
+        await Axios.post('http://localhost:3001/createRecording/', payload)
+        .then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
 
         //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
