@@ -147,7 +147,7 @@ const Schedule = ({ isAuthenticated }) => {
 
         //temp = changeTimeTwo(finalTime, temp);
 
-        temp.setTime(temp.getTime() - temp.getTimezoneOffset() * 60 * 1000);
+        //temp.setTime(temp.getTime() - temp.getTimezoneOffset() * 60 * 1000);
 
         //console.log("In handleSubmit: " + value);
         console.log("Temp: " + temp);
@@ -166,9 +166,19 @@ const Schedule = ({ isAuthenticated }) => {
         if(window.confirm("Schedule a Concert for " + (value.getMonth()+1) + "/" + value.getDate() + "/" + value.getFullYear() + " at " + finalTime + "?"))
         {
             try{
-            await axios.post("http://localhost:3001/schedule", {id: userId, date: date, title: title, desc: description}).then(r => {
-                console.log("schedule call", r);	
+                var payload = {
+                    id: userId,
+                    date: date,
+                    title: title,
+                    desc: description
+                }
+            
+                await axios.post("http://localhost:3001/schedule", {params: {id: userId, date: date, title: title, desc: description}}).then(r => {
+                console.log("schedule call", r);
                 })
+                // await axios.post("http://localhost:3001/schedule", payload).then(r => {
+                // console.log("schedule call", r);	
+                // })
         
             } catch (error) {
                 if (error.response) {
