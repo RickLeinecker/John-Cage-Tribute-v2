@@ -11,6 +11,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
 import setAuthToken from "../../utils/setAuthToken";
+import InviteCardComponent from "./InviteCard";
 
 const styles = StyleSheet.create({
     container: {
@@ -284,6 +285,7 @@ const Dashboard = () => {
                                             </div>
                                         ))}
                                         <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                        <InviteCardComponent className={css(styles.miniCardContainer)}/>
                                     </Row>
                                 </Row>
                                 <span className={css(styles.title)}>{"My Recordings"}</span>
@@ -314,6 +316,7 @@ const Dashboard = () => {
                                             </div>
                                         ))}
                                         <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                        <InviteCardComponent className={css(styles.miniCardContainer)}/>
                                     </Row>
                                 </Row>
                                 <span className={css(styles.title)}>{"My Recordings"}</span>
@@ -345,6 +348,7 @@ const Dashboard = () => {
                                                 </div>
                                             ))}
                                             <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                            <InviteCardComponent className={css(styles.miniCardContainer)}/>
                                         </Row>
                                     </Row>
                                     <span className={css(styles.title)}>{"My Recordings"}</span>
@@ -377,6 +381,7 @@ const Dashboard = () => {
                                                 </div>
                                             ))}
                                             <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                            <InviteCardComponent className={css(styles.miniCardContainer)}/>
                                         </Row>
                                     </Row>
                                     <span className={css(styles.title)}>{"My Recordings"}</span>
@@ -409,6 +414,7 @@ const Dashboard = () => {
                                                 </div>
                                             ))}
                                             <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                            <InviteCardComponent className={css(styles.miniCardContainer)}/>
                                         </Row>
                                     </Row>
                                     <span className={css(styles.title)}>{"My Recordings"}</span>
