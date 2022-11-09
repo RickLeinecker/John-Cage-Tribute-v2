@@ -5,6 +5,7 @@ import CalendarIcon from "react-calendar-icon";
 import { ThemeProvider } from "@emotion/react";
 import { IconContext } from "react-icons";
 import * as AiIcons from "react-icons/ai";
+import * as FaIcons from 'react-icons/fa';
 import ConcertCardComponent from "./ConcertCard";
 
 const styles = StyleSheet.create({
@@ -139,8 +140,16 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
               <li>
                 <span className={css(styles.innerTextSidebar)}>{event.Description}</span>
               </li>
+
               <li>
-                <span className={css(styles.innerTextSidebar)}>Composer: -  need their names from the id</span>
+                <span className={css(styles.innerTextSidebar)}>Invite Participants: </span>
+              </li>
+              <li>
+                <span className={css(styles.innerTextSidebar)}>{event.passcodePerform} <AiIcons.AiFillAudio/> {event.passcodeListen} <AiIcons.AiFillCustomerService/></span>
+              </li>
+
+              <li>
+                <span className={css(styles.innerTextSidebar)}>Composer:</span>
               </li>
               <li>
               <span className={css(styles.circle)}>{event.maestroId}</span>
@@ -149,7 +158,9 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
                 <span className={css(styles.innerTextSidebar)}>Performers: </span>
               </li>
               <li>
-              <span className={css(styles.circle)}>{event.userOne}</span><span className={css(styles.circle)}>{event.userTwo}</span> <span className={css(styles.circle)}>{event.userThree}</span>
+             { event.userOne != -1 ? <span className={css(styles.circle)}>{event.userOne}</span> : ""}
+             { event.userTwo != -2 ? <span className={css(styles.circle)}>{event.userTwo}</span> : ""}
+             { event.userThree != -3 ? <span className={css(styles.circle)}>{event.userThree}</span> : ""}
               </li>
             </ul>
 

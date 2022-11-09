@@ -308,6 +308,7 @@ app.post("/enterSchedule", (req, res) => {
     db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne == -1)", (err, result) => {
         if (err) {
           console.log(err)
+          return;
         } else {
           console.log("Row Count is ", result.length);
         }
