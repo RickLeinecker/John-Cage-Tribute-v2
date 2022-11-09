@@ -39,7 +39,6 @@ const Routes = props => {
         <Route exact path="/schedule" component={Schedule} />
         <Route exact path="/contestpage" component={ContestPage} />
         <Route exact path="/infopage" component={InfoPage} />
-
         <Route exact path="/listen" component={Listen} />
         <PrivateRoute exact path="/landing" component={Landing} />     
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />

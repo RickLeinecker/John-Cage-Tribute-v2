@@ -313,7 +313,7 @@ const Dashboard = () => {
                                                 <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
                                             </div>
                                         ))}
-                                        <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                        {/* <ScheduleCardComponent  className={css(styles.miniCardContainer)} /> */}
                                     </Row>
                                 </Row>
                                 <span className={css(styles.title)}>{"My Recordings"}</span>
@@ -344,7 +344,7 @@ const Dashboard = () => {
                                                     <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
                                                 </div>
                                             ))}
-                                            <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
+                                            {/* <ScheduleCardComponent  className={css(styles.miniCardContainer)} /> */}
                                         </Row>
                                     </Row>
                                     <span className={css(styles.title)}>{"My Recordings"}</span>
