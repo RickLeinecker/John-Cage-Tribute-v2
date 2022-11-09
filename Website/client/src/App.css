@@ -491,6 +491,12 @@ button {
   grid-auto-flow: column;
 }
 
+/* Info Page */
+.info-left {
+  width: 485px;
+  padding-right: 15px;
+}
+
 /* Login/Signup Page */
 .loginSignup {
   position: relative;
@@ -568,6 +574,10 @@ button {
   visibility: visible;
   border-radius: 8px;
   margin-top: -8px;
+}
+
+.black {
+  color: black;
 }
 
 .btn-times {
