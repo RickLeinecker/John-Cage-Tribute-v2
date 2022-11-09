@@ -45,15 +45,6 @@ app.use(router);
 
 app.listen(backendPort, ()=> console.log(`Server running at port ${backendPort}`));
 
-// Serving out files to the server
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url)).replace("/backend", "/Website");
-console.log(__dirname);
-
-app.use(express.static('../Website/client/build'));
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-});
-
 const http = createServer(app);
 http.listen(socketPort, () => console.log(`Websocket server started on port ${socketPort}`));
 
@@ -527,6 +518,16 @@ app.post("/editusername", (req, res) => {
 
 });
 
+// This is here at the bottom to not interfere
+// with any of the above API calls!!
+// Serving out files to the server
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url)).replace("/backend", "/Website");
+console.log(__dirname);
+
+app.use(express.static('../Website/client/build'));
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+});
 
 // Socket.IO Code
 // A lot of which is reused from old code but there are new functionalities added
