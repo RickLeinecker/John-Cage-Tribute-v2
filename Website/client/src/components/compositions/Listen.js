@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect } from 'react';
-import {io} from "socket.io-client";
+import Socket from "socket.io-client";
 
-const socket = io("http://127.0.0.1:8080/");
+// Websocket for live server
+const socket = Socket.connect("https://johncagetribute.org/");
 
 socket.on('connect', () => {
   console.log("Websocket is working!!");
@@ -10,7 +11,7 @@ socket.on('connect', () => {
 socket.on('err', (err) => console.log(err));
 socket.on('timeout', (time) => console.log(time));
 socket.on("connect_error", (err) => {
-    console.log(`connect_error due to ${err.message}`);
+    console.log(err);
   });
 
 class Listen extends React.Component {
