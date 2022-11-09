@@ -49,7 +49,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'mypassword112',
+    password: '',
     database: 'jctdatabase'
 });
 
@@ -248,15 +248,13 @@ app.post("/createRecording", (req, res) => {
 // -----------------------------------------------------------------------------------
 // create schedule
 app.post("/schedule", (req, res) => {
-    const s  = req.query.id;
-    const title = req.query.title;
-    const desc = req.query.description;
-    console.log("req.query.id -----", s);
-    console.log("req.body.date -----", req.query.date);
+    const s  = JSON.parse(req.body.params);
+    console.log("S IS HERE:");
+    console.log(s);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
-    if (req.body.date < datex) // will need to change req.date
+    if (s.date < datex) // will need to change req.date
     {
         res.status(404).send("You must select a future date/time to record");
     }
@@ -271,15 +269,16 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.query.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
           console.log("Row Count is ", result.length);
+          console.log(result);
         }
         if (result.length == 0)
         {
-            db2.query("INSERT INTO Schedule (maestroId, title, description, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + title + "', '" + desc + "', '" + req.query.date + "', '" + passListen + "', '" +  passPerform + "')",
+            db2.query("INSERT INTO Schedule (maestroId, title, description, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s.id + "', '" + s.title + "', '" + s.desc + "', '" + s.date + "', '" + passListen + "', '" +  passPerform + "')",
             (err, res) => {
             if (err) {
                 console.log(err);

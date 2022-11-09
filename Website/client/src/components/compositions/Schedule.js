@@ -172,13 +172,20 @@ const Schedule = ({ isAuthenticated }) => {
                     title: title,
                     desc: description
                 }
+
+                console.log("LOOK HERE: " +userId+",",date+","+title+","+description);
+
+                var query = JSON.stringify({id:userId, date: date, title: title, desc: description});
+
+                console.log("query", query)
+    
             
-                await axios.post("http://localhost:3001/schedule", {params: {id: userId, date: date, title: title, desc: description}}).then(r => {
-                console.log("schedule call", r);
-                })
-                // await axios.post("http://localhost:3001/schedule", payload).then(r => {
-                // console.log("schedule call", r);	
+                // await axios.post("http://localhost:3001/schedule", {params: {id: userId, date: date, title: title, desc: description}}).then(r => {
+                // console.log("schedule call", r);
                 // })
+                await axios.post("http://localhost:3001/schedule", {params: query}).then(r => {
+                console.log("schedule call", r);	
+                })
         
             } catch (error) {
                 if (error.response) {
