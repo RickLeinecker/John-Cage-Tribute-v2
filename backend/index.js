@@ -160,8 +160,6 @@ app.delete("/deleterecording", (req, res) => {
 app.post("/editrecording", (req, res) => {
     console.log("CALL EDIT RECORDING DESC")
     const s  = JSON.parse(req.body.params);
-    console.log(s.id);
-    console.log(s.recordingid);
     
 //    const parsed = JSON.parse(s[0]);
   //  const pind = s[0];
@@ -169,7 +167,7 @@ app.post("/editrecording", (req, res) => {
 
 
     // CHECK if not maestro send error
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s.id +"' AND R.recordingId = '" + s.recordingid + "'", (err, result) => {
+    db2.query("SELECT DISTINCT R.recordingId, R.description FROM Recordings R WHERE (R.maestroId = '" + s.id +"') AND (R.recordingId = '" + s.recordingid + "')", (err, result) => {
         if (err) {
             console.log("EDIT ERROR");
           console.log(err)
@@ -178,7 +176,7 @@ app.post("/editrecording", (req, res) => {
         }
         if (result.length == 1)
         {
-            db2.query("UPDATE Recordings SET description = '" + req.query.newdescription + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
+            db2.query("UPDATE Recordings SET description = '" + s.newdescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
                 if (err) {
                 console.log("EDIT ERROR");
                   console.log(err)
@@ -251,13 +249,13 @@ app.post("/createRecording", (req, res) => {
 // -----------------------------------------------------------------------------------
 // create schedule
 app.post("/schedule", (req, res) => {
-    const s  = req.body.id;
-    console.log("req.query.id -----", s);
-    console.log("req.body.date -----", req.body.date);
+    const s  = JSON.parse(req.body.params);
+    console.log("S IS HERE:");
+    console.log(s);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
-    if (req.body.date < datex) // will need to change req.date
+    if (s.date < datex) // will need to change req.date
     {
         res.status(404).send("You must select a future date/time to record");
     }
@@ -272,15 +270,16 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.body.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
           console.log("Row Count is ", result.length);
+          console.log(result);
         }
         if (result.length == 0)
         {
-            db2.query("INSERT INTO Schedule (maestroId, title, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + passListen + "12', '" + req.body.date + "', '" + passListen + "', '" +  passPerform + "')",
+            db2.query("INSERT INTO Schedule (maestroId, title, description, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s.id + "', '" + s.title + "', '" + s.desc + "', '" + s.date + "', '" + passListen + "', '" +  passPerform + "')",
             (err, res) => {
             if (err) {
                 console.log(err);
@@ -397,8 +396,7 @@ app.get("/listrequested", (req, res) => {
 
 //  Change isrequested to 1
 app.post("/changerequested", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
     db2.query("UPDATE Users SET isRequested = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
@@ -492,8 +490,12 @@ app.get("/userinfo", (req, res) => {
 
 // edit bio
 app.post("/editbio", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET bio = '" + req.query.newbio + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    console.log(`ID is: ${s}`);
+    console.log("~~~~~\nHERE IS REQ\n");
+    console.log(req);
+    console.log("\nTHERE WAS REQ\n~~~~~");
+    db2.query("UPDATE Users SET bio = '" + req.body.newbio + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
@@ -505,8 +507,8 @@ app.post("/editbio", (req, res) => {
 
 // edit username
 app.post("/editusername", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET username = '" + req.query.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    db2.query("UPDATE Users SET username = '" + req.body.newusername + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {

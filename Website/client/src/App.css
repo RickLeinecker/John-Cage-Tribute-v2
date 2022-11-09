@@ -491,6 +491,12 @@ button {
   grid-auto-flow: column;
 }
 
+/* Info Page */
+.info-left {
+  width: 485px;
+  padding-right: 15px;
+}
+
 /* Login/Signup Page */
 .loginSignup {
   position: relative;
@@ -570,6 +576,10 @@ button {
   margin-top: -8px;
 }
 
+.black {
+  color: black;
+}
+
 .btn-times {
   background: #6f48eb;
   color: #fff;
@@ -605,6 +615,12 @@ button {
     'exp edu'
     'github github';
   grid-gap: 1rem;
+}
+
+.profile-text {
+	font-size: 1.2em;
+	text-align: left;
+  color: white;
 }
 
 .profile-top {
