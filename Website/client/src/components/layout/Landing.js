@@ -16,7 +16,7 @@ const Landing = ({ isAuthenticated }) => {
 			    <p className="landing-text">
             Welcome to the John Cage Tribute! 
             Here you can listen to (and maybe even participate in) performances inspired by the works of John Cage. 
-            To achieve this, our site utilizes a mobile app to record audio from up to 5 different devices and mixes them to produce a piece in John Cage's style.
+            To achieve this, our site utilizes a mobile app to record audio from up to 4 different devices and mixes them to produce a piece in John Cage's style.
           </p>
           <br/>
           <div className='landing-bottom'>
