@@ -8,15 +8,34 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
 // Testing
+Socket serverSocket = io("http://192.168.12.176:8080/",
+    OptionBuilder().setTransports(["websocket"]).build());
+
 // Socket serverSocket = io("http://192.168.12.116:8080/",
 //     OptionBuilder().setTransports(["websocket"]).build());
 
 // Live
-Socket serverSocket = io("https://johncagetribute.org/",
-    OptionBuilder().setTransports(["websocket"]).build());
+// Socket serverSocket = io("https://johncagetribute.org/",
+//     OptionBuilder().setTransports(["websocket"]).build());
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
+
+void displayErr(BuildContext context, String message) {
+  showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: const Text("Error Joining Room"),
+            content: Text(message),
+            actions: <Widget>[
+              FilledButton(
+                  child: Text("Close"),
+                  onPressed: () => Navigator.of(context).pop())
+            ]);
+      });
+}
 
 class LiveStream extends StatefulWidget {
   const LiveStream({Key? key, required this.title}) : super(key: key);
@@ -39,9 +58,9 @@ class _LiveStreamState extends State<LiveStream> {
       print("Updated rooms: ${rooms}");
     });
 
-    serverSocket.on("roomerror", (socket) {
+    serverSocket.on("roomerror", (err) {
       micListener?.cancel();
-      print("Stopping!!");
+      displayErr(context, err);
     });
 
     return Scaffold(
@@ -110,26 +129,25 @@ class _LiveStreamState extends State<LiveStream> {
     serverSocket.emit("verifypin", pinPackage);
 
     serverSocket.on("pinerror", (err) {
-      print(err);
-      return;
+      displayErr(context, err);
     });
 
     print('We should be joining the room now...');
 
     serverSocket.on("pinsuccess", (_) {
-      var member = {"role": 1, "userId": 7, "isHost": false};
+      var member = {"role": 1, "userId": 4, "isHost": false};
       var package = {"member": member, "roomId": room};
 
       serverSocket.emit("joinroom", package);
 
       print("Successful pin!");
 
-      serverSocket.on("joinerror", (err) => print(err));
-      serverSocket.on("roomerror", (err) => print(err));
+      serverSocket.on("joinerror", (err) => displayErr(context, err));
+      serverSocket.on("roomerror", (err) => displayErr(context, err));
     });
 
     serverSocket.on('event', (data) => print(data));
-    serverSocket.on('error', (err) => print(err));
+    serverSocket.on('error', (err) => displayErr(context, err));
     serverSocket.on('timeout', (time) => print(time));
     serverSocket.on('fromServer', (_) => print(_));
     serverSocket.on('disconnect', (disconn) {
@@ -147,6 +165,12 @@ class _LiveStreamState extends State<LiveStream> {
       micListener = micStream?.listen((data) {
         serverSocket.emit("sendaudio", data);
       });
+    });
+
+    serverSocket.on("audiostop", (message) async {
+      print(message);
+
+      micListener?.cancel();
     });
   }
 
@@ -174,33 +198,33 @@ class _ListenScreenState extends State<ListenScreen> {
   Timer timer;
 
   void initState() {
-    wsChannel = IOWebSocketChannel.connect('ws://ade18054.ngrok.io/listen');
-    timer = new Timer.periodic(
-      Duration(milliseconds: 10), (Timer t) {
-        wsChannel.sink.add("Gimme audio!");
-      });
+	wsChannel = IOWebSocketChannel.connect('ws://ade18054.ngrok.io/listen');
+	timer = new Timer.periodic(
+	  Duration(milliseconds: 10), (Timer t) {
+		wsChannel.sink.add("Gimme audio!");
+	  });
 
-    super.initState();
+	super.initState();
   }
 
   stream
 
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: wsChannel.stream,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+	return StreamBuilder(
+	  stream: wsChannel.stream,
+	  builder: (BuildContext context, AsyncSnapshot snapshot) {
+		if (!snapshot.hasData) {
+		  return Center(
+			child: CircularProgressIndicator(),
+		  );
+		}
 
-        final audioData = snapshot.data;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Listening Screen'),
-          ),
-          body: Center(
-            child: Text('Audio data length is ${audioData.length}.'),
-          ),
+		final audioData = snapshot.data;
+		return Scaffold(
+		  appBar: AppBar(
+			title: Text('Listening Screen'),
+		  ),
+		  body: Center(
+			child: Text('Audio data length is ${audioData.length}.'),
+		  ),
  */

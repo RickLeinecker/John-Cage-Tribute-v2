@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
 // Websocket to interact with server
-Socket server = io("http://192.168.12.117:8080",
+Socket server = io("http://192.168.12.176:8080/",
     OptionBuilder().setTransports(["websocket"]).build());
+
+// Socket to communicate with server
+// Socket server = io("http://192.168.12.117:8080/",
+//     new OptionBuilder().setTransports(["websocket"]).build());
 
 // These two variables hold the username and password, respectively
 final _userController = TextEditingController();
@@ -39,6 +43,14 @@ void register() {
 
   print(_credentials);
   server.emit("register", _credentials);
+
+  server.on("regsuccess", (data) {
+    print(data);
+  });
+
+  server.on("regerror", (error) {
+    print(error);
+  });
 }
 
 class SignUp extends StatefulWidget {

@@ -1,43 +1,56 @@
 // Packages
-import 'package:flutter/material.dart';
-import 'package:socket_io_client/socket_io_client.dart';
+import 'dart:async';
+import 'dart:typed_data';
 
-// Pagesexit
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:socket_io_client/socket_io_client.dart';
+import 'package:mic_stream/mic_stream.dart';
+
+// Pages
 import 'HomePage.dart';
 
-// Socket _serverSocket = io("http://192.168.12.117:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
+// Providers for state management
+final appTitle = Provider<String>((_) => "John Cage Tribute");
 
-void main() async {
-  // _serverSocket.onConnect((data) {
-  //   print("Connected to server!");
-  // });
+final storage =
+    Provider<FlutterSecureStorage>((_) => const FlutterSecureStorage());
 
-  // print("Hello?");
+final socketProvider = Provider.autoDispose<Socket>((ref) {
+  Socket socket = io("http://192.168.50.176:8080/",
+      OptionBuilder().setTransports(["websocket"]).build());
 
-  // _serverSocket.on('event', (data) => print(data));
-  // _serverSocket.on('error', (err) => print(err));
-  // _serverSocket.on('timeout', (time) => print(time));
-  // _serverSocket.on('fromServer', (_) => print(_));
-  // _serverSocket.onDisconnect((_) => print("Disconnected from server."));
+  ref.onDispose(() => socket.dispose());
 
+  return socket;
+});
+
+final micProvider = StreamProvider<Uint8List>((ref) async* {
+  Stream<Uint8List>? micStream = await MicStream.microphone(sampleRate: 44100);
+  StreamSubscription micListener = micStream.listen();
+
+  return;
+});
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stateTest = ref.watch(appTitle);
     return MaterialApp(
-      title: 'John Cage Tribute',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const HomePage(title: 'John Cage Tribute'),
-    );
+        home: HomePage(title: stateTest),
+        title: stateTest,
+        theme: ThemeData(
+          primarySwatch: Colors.deepPurple,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ));
   }
 }

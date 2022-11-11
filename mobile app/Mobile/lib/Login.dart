@@ -1,14 +1,26 @@
 // Packages
 import 'package:flutter/material.dart';
+import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'HomePage.dart';
+
+// Socket server = io("http://192.168.12.176:8080/",
+//     OptionBuilder().setTransports(["websocket"]).build());
 
 // Socket to communicate with server
-Socket server = io("http://192.168.12.117:8080/",
-    new OptionBuilder().setTransports(["websocket"]).build());
+// Socket server = io("http://192.168.12.117:8080/",
+//     new OptionBuilder().setTransports(["websocket"]).build());
+
+// Socket server = io("https://johncagetribute.org/",
+//     OptionBuilder().setTransports(["websocket"]).build());
 
 // These two variables hold the username and password, respectively
 final _emailController = TextEditingController();
 final _passController = TextEditingController();
+final storage = new FlutterSecureStorage();
 
 @override
 void dispose() {
@@ -17,34 +29,50 @@ void dispose() {
   _passController.dispose();
 }
 
-void signin() {
-  final _email = _emailController.text.trim();
-  final _password = _passController.text.trim();
+class LoginPage extends ConsumerWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
-  // Credentials JSON to send to the server
-  final _credentials = {"email": _email, "password": _password};
+  void signin(Socket socket, BuildContext context) {
+    final _email = _emailController.text.trim();
+    final _password = _passController.text.trim();
 
-  print(_credentials);
+    // Credentials JSON to send to the server
+    final _credentials = {"email": _email, "password": _password};
 
-  server.emit("login", _credentials);
-}
+    print(_credentials);
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key, required this.title}) : super(key: key);
+    socket.emit("login", _credentials);
 
-  final String title;
+    socket.on("loginsuccess", (data) async {
+      print("We won!");
+      print(data['accessToken']);
+
+      await storage.write(key: "jctacc", value: data['accessToken']);
+
+      _emailController.text = '';
+      _passController.text = '';
+
+      Navigator.of(context).pop();
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(
+              title: '',
+            ),
+          ));
+    });
+
+    socket.on("loginerror", (err) {
+      print(err);
+    });
+  }
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    Socket socket = ref.watch(socketProvider);
 
-class _LoginPageState extends State<LoginPage> {
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-
-    server.on("connect", (_) => print("Connection successful!"));
+    socket.on("connect", (_) => print("Connected!"));
 
     return MaterialApp(
         title: "John Cage Tribute",
@@ -156,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.only(left: 7.5),
                             child: TextButton(
                                 onPressed: () {
-                                  signin();
+                                  signin(socket, context);
                                 },
                                 child: const Text('Sign in',
                                     style: TextStyle(
@@ -170,14 +198,3 @@ class _LoginPageState extends State<LoginPage> {
         ));
   }
 }
-
-// Authentication wrapper, handles user authentication
-// through Firebase's Authentication API
-// class AuthenticationWrapper extends StatelessWidget {
-//   const AuthenticationWrapper({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const LoginPage(title: 'Sign In');
-//   }
-// }
