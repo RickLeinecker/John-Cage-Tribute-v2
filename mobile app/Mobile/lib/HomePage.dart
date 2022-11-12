@@ -11,42 +11,10 @@ import 'Login.dart';
 import 'LiveStream.dart';
 import 'CreateRoom.dart';
 
-var token;
-bool loggedIn = false;
-
 class HomePage extends ConsumerWidget {
-  var userName = '';
-  Future<void> loadToken(FlutterSecureStorage storage) async {
-    if (userName != '') {
-      return;
-    }
-    token = await storage.read(key: 'jctacc');
-
-    print(token);
-
-    if (token != null) {
-      Map<String, dynamic> decoded = JwtDecoder.decode(token);
-      bool expired = JwtDecoder.isExpired(token);
-
-      print(decoded);
-
-      userName = decoded['username'];
-      loggedIn = true;
-
-      print(loggedIn);
-    }
-  }
-
-  void logOut() {
-    storage.delete(key: 'jctacc');
-    loggedIn = false;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // FlutterSecureStorage storage = ref.watch(storageProvider);
-    // Future<String?> tokenizer = storage.read(key: "jctacc");
-    // Map<String, dynamic> creds = JwtDecoder.decode(tokenizer.toString());
+    bool loggedIn = false;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,7 +22,9 @@ class HomePage extends ConsumerWidget {
         actions: loggedIn
             ? [
                 ElevatedButton(
-                  onPressed: () => logOut(),
+                  onPressed: () {
+                    storage.delete(key: 'jctacc');
+                  },
                   child: const Text("Logout"),
                 )
               ]
