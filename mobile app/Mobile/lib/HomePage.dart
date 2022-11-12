@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutterapp/main.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 // Pages
@@ -10,22 +11,12 @@ import 'Login.dart';
 import 'LiveStream.dart';
 import 'CreateRoom.dart';
 
-const storage = FlutterSecureStorage();
-
 var token;
 bool loggedIn = false;
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
+class HomePage extends ConsumerWidget {
   var userName = '';
-  Future<void> loadToken() async {
+  Future<void> loadToken(FlutterSecureStorage storage) async {
     if (userName != '') {
       return;
     }
@@ -43,33 +34,23 @@ class _HomePageState extends State<HomePage> {
       loggedIn = true;
 
       print(loggedIn);
-
-      setState(() {
-        print("State has been set!");
-      });
     }
   }
 
   void logOut() {
     storage.delete(key: 'jctacc');
     loggedIn = false;
-
-    setState(() {
-      print("State has been set!");
-    });
   }
 
   @override
-  Widget build(BuildContext context) {
-    //Map<String, dynamic> decoded = JwtDecoder.decode(token);
-
-    loadToken();
-
-    //print(decoded);
+  Widget build(BuildContext context, WidgetRef ref) {
+    // FlutterSecureStorage storage = ref.watch(storageProvider);
+    // Future<String?> tokenizer = storage.read(key: "jctacc");
+    // Map<String, dynamic> creds = JwtDecoder.decode(tokenizer.toString());
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("Sign Up"),
         actions: loggedIn
             ? [
                 ElevatedButton(
@@ -88,7 +69,7 @@ class _HomePageState extends State<HomePage> {
                 ElevatedButton(
                   onPressed: () => Navigator.push(context,
                       MaterialPageRoute(builder: ((context) {
-                    return const SignUp(title: "John Cage Tribute Signup");
+                    return SignUp();
                   }))),
                   child: const Text("Sign Up"),
                 ),
@@ -124,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                     child: Center(
                         child: Text(
                       loggedIn
-                          ? "Welcome, $userName!\n\n\nPictured: Black Mountain College, where John Cage taught many of his "
+                          ? "Welcome, ${ref.watch(userProvider.notifier)}!\n\n\nPictured: Black Mountain College, where John Cage taught many of his "
                               "students in avant-garde music. Here, he organized the first \"Happening.\""
                           : "Pictured: Black Mountain College, where John Cage taught many of his "
                               "students in avant-garde music. Here, he organized the first \"Happening.\"",

@@ -30,7 +30,7 @@ void displayErr(BuildContext context, String message) {
             title: const Text("Error Joining Room"),
             content: Text(message),
             actions: <Widget>[
-              FilledButton(
+              TextButton(
                   child: Text("Close"),
                   onPressed: () => Navigator.of(context).pop())
             ]);

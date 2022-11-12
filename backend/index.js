@@ -49,7 +49,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'MySQL!1996',
     database: 'jctdatabase'
 });
 
@@ -577,6 +577,8 @@ var audioProcessorPool = childProcess.fork('../Website/audioProcessor/audioProce
 io.on("connection", function (socket) {
     // Register from mobile app
     socket.on("register", async (credentials) => {
+        console.log("Registering!!!");
+        
         await Axios.post('http://localhost:3001/users', {
             username: credentials.username,
             email: credentials.email,
@@ -589,8 +591,6 @@ io.on("connection", function (socket) {
             console.log(error);
             socket.emit("regerror", error.response.data);
           });
-
-        // Register(payload, app.response);
     });
 
     // Log in from mobile app

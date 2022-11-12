@@ -299,7 +299,7 @@ class _CreateRoomState extends State<CreateRoom> {
               title: const Text("Error Creating Room"),
               content: Text(message),
               actions: <Widget>[
-                FilledButton(
+                TextButton(
                     child: Text("Close"),
                     onPressed: () => Navigator.of(context).pop())
               ]);

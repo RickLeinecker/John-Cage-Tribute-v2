@@ -1,26 +1,15 @@
 // Packages
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'HomePage.dart';
 
-// Socket server = io("http://192.168.12.176:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket to communicate with server
-// Socket server = io("http://192.168.12.117:8080/",
-//     new OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket server = io("https://johncagetribute.org/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
 // These two variables hold the username and password, respectively
 final _emailController = TextEditingController();
 final _passController = TextEditingController();
-final storage = new FlutterSecureStorage();
 
 @override
 void dispose() {
@@ -32,47 +21,11 @@ void dispose() {
 class LoginPage extends ConsumerWidget {
   const LoginPage({Key? key}) : super(key: key);
 
-  void signin(Socket socket, BuildContext context) {
-    final _email = _emailController.text.trim();
-    final _password = _passController.text.trim();
-
-    // Credentials JSON to send to the server
-    final _credentials = {"email": _email, "password": _password};
-
-    print(_credentials);
-
-    socket.emit("login", _credentials);
-
-    socket.on("loginsuccess", (data) async {
-      print("We won!");
-      print(data['accessToken']);
-
-      await storage.write(key: "jctacc", value: data['accessToken']);
-
-      _emailController.text = '';
-      _passController.text = '';
-
-      Navigator.of(context).pop();
-
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePage(
-              title: '',
-            ),
-          ));
-    });
-
-    socket.on("loginerror", (err) {
-      print(err);
-    });
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Socket socket = ref.watch(socketProvider);
-
-    socket.on("connect", (_) => print("Connected!"));
+    Function err = ref.watch(errorProvider);
+    FlutterSecureStorage storage = ref.read(storageProvider);
 
     return MaterialApp(
         title: "John Cage Tribute",
@@ -184,7 +137,7 @@ class LoginPage extends ConsumerWidget {
                             padding: const EdgeInsets.only(left: 7.5),
                             child: TextButton(
                                 onPressed: () {
-                                  signin(socket, context);
+                                  signin(socket, context, storage);
                                 },
                                 child: const Text('Sign in',
                                     style: TextStyle(
@@ -197,4 +150,38 @@ class LoginPage extends ConsumerWidget {
               ])),
         ));
   }
+
+  void signin(Socket socket, BuildContext context, FlutterSecureStorage storage) {
+    final _email = _emailController.text.trim();
+    final _password = _passController.text.trim();
+
+    // Credentials JSON to send to the server
+    final _credentials = {"email": _email, "password": _password};
+
+    print(_credentials);
+
+    socket.emit("login", _credentials);
+
+    socket.on("loginsuccess", (data) async {
+      print(data['accessToken']);
+
+      await storage.write(key: "jctacc", value: data['accessToken']);
+
+      _emailController.text = '';
+      _passController.text = '';
+
+      Navigator.of(context).pop();
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ));
+    });
+
+    socket.on("loginerror", (err) {
+      print(err);
+    });
+  }
+
 }
