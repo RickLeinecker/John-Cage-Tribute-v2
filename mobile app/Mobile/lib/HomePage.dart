@@ -97,7 +97,7 @@ class HomePage extends ConsumerWidget {
                   ElevatedButton(
                     onPressed: () => Navigator.push(context,
                         MaterialPageRoute(builder: ((context) {
-                      return CreateRoom(title: "Create Room");
+                      return CreateRoom();
                     }))),
                     style: ButtonStyle(
                       backgroundColor:

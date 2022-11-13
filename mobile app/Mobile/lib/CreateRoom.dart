@@ -2,28 +2,12 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-
-// Testing
-Socket serverSocket = io("http://192.168.12.176:8080/",
-    OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket serverSocket = io("http://192.168.12.116:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket serverSocket = io("http://192.168.12.11:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket serverSocket = io("http://172.26.93.159:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-// Live
-// Socket serverSocket = io("https://johncagetribute.org/",
-//     OptionBuilder().setTransports(["websocket"]).build());
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
@@ -36,49 +20,43 @@ var token = '';
 var uId = -1;
 var numUsers = 0;
 
-class CreateRoom extends StatefulWidget {
-  CreateRoom({Key? key, required this.title}) : super(key: key);
-  final String title;
+final createdProvider = StateProvider<bool>((ref) {
+  return false;
+});
 
+final startedProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+class CreateRoom extends ConsumerWidget {
   @override
-  State<CreateRoom> createState() => _CreateRoomState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get refs from riverpod
+    Socket socket = ref.watch(socketProvider);
+    bool created = ref.read(createdProvider.notifier).state;
+    bool started = ref.read(startedProvider.notifier).state;
 
-class _CreateRoomState extends State<CreateRoom> {
-  bool created = false, started = false;
-
-  @override
-  Widget build(BuildContext context) {
-    // serverSocket.on(
-    //     "connect_error", (err) => print("Socket failed due to ${err.message}"));
-
-    print("Created: ${created}");
-    print("Started: ${started}");
-    print("Mic status: ${isListening}");
-
-    serverSocket.onConnectError((data) => displayErr(context, data));
-
-    serverSocket.on("connect", (socket) {
+    socket.once("connect", (socket) {
       print("Connected to server!");
     });
 
-    // serverSocket.on("updaterooms", (room) {
+    // socket.on("updaterooms", (room) {
     //   print("Updated rooms: ${room[roomId]['currentPerformers']}");
     // });
 
     return WillPopScope(
         onWillPop: () async {
           // Disconnect websocket here
-          serverSocket.clearListeners();
-          serverSocket.disconnect();
-          serverSocket.close();
+          socket.clearListeners();
+          socket.disconnect();
+          socket.close();
 
           Navigator.pop(context);
           return true;
         },
         child: Scaffold(
             appBar: AppBar(
-              title: Text(widget.title),
+              title: Text("Testing"),
             ),
             body: Container(
               width: double.infinity,
@@ -95,7 +73,7 @@ class _CreateRoomState extends State<CreateRoom> {
                                   padding: EdgeInsets.only(bottom: 350)),
                               ElevatedButton(
                                 onPressed: () {
-                                  schedule();
+                                  schedule(socket);
                                 },
                                 child: const Text('Create a Room'),
                                 style: ElevatedButton.styleFrom(
@@ -116,7 +94,7 @@ class _CreateRoomState extends State<CreateRoom> {
                                       children: [
                                         ElevatedButton(
                                           onPressed: () {
-                                            leave();
+                                            leave(socket);
                                             created = !created;
                                           },
                                           child: const Text("Leave Room"),
@@ -127,7 +105,7 @@ class _CreateRoomState extends State<CreateRoom> {
                                         ),
                                         ElevatedButton(
                                           onPressed: () {
-                                            startConcert();
+                                            startConcert(socket);
                                             started = !started;
                                           },
                                           child: const Text('Start Concert'),
@@ -143,7 +121,7 @@ class _CreateRoomState extends State<CreateRoom> {
                                       padding: EdgeInsets.only(bottom: 350)),
                                   ElevatedButton(
                                     onPressed: () {
-                                      stopConcert();
+                                      stopConcert(socket);
                                       started = !started;
                                       created = !created;
                                     },
@@ -157,16 +135,19 @@ class _CreateRoomState extends State<CreateRoom> {
                                     icon: isListening
                                         ? Icon(Icons.mic_off_sharp)
                                         : Icon(Icons.mic),
-                                    onPressed: () =>
-                                        {isListening ? mute() : unmute()},
+                                    onPressed: () => {
+                                      isListening
+                                          ? mute(socket)
+                                          : unmute(socket)
+                                    },
                                   )
                                 ])),
             )));
   }
 
   // Functions that interact with the server code
-  schedule() async {
-    if (!serverSocket.connected) {
+  schedule(Socket socket) async {
+    if (!socket.connected) {
       print("I'm not connected...");
 
       return const AlertDialog(
@@ -193,47 +174,49 @@ class _CreateRoomState extends State<CreateRoom> {
 
       var package = {"room": room, "member": member};
 
-      serverSocket.emit("createroom", package);
+      socket.emit("createroom", package);
 
-      serverSocket.on("scheduleerror", (err) {
+      socket.on("scheduleerror", (err) {
         created = false;
 
-        setState(() {
-          print("State has been set!");
-        });
+        // setState(() {
+        //   print("State has been set!");
+        // });
 
-        displayErr(context, err);
+        //displayErr(context, err);
       });
 
-      serverSocket.on("schedulesuccess", (message) {
+      socket.once("schedulesuccess", (message) {
         print(message);
         created = true;
 
         numUsers = 1;
 
-        setState(() {
-          print("State has been set!");
-        });
+        socket.off("scheduleerror");
+
+        // setState(() {
+        //   print("State has been set!");
+        // });
       });
 
-      setState(() {
-        print("State has been set!");
-      });
+      // setState(() {
+      //   print("State has been set!");
+      // });
     }
   }
 
-  void leave() async {
-    serverSocket.emit("leaveroom", roomId);
+  void leave(Socket socket) async {
+    socket.emit("leaveroom", roomId);
 
-    setState(() {
-      print("State has been set!");
-    });
+    // setState(() {
+    //   print("State has been set!");
+    // });
   }
 
-  void startConcert() async {
-    serverSocket.emit("startsession", roomId);
+  void startConcert(Socket socket) async {
+    socket.emit("startsession", roomId);
 
-    serverSocket.on("audiostart", (message) async {
+    socket.on("audiostart", (message) async {
       print(message);
 
       // Start listening to microphone
@@ -242,23 +225,26 @@ class _CreateRoomState extends State<CreateRoom> {
       );
 
       micListener = micStream?.listen((data) {
-        serverSocket.emit("sendaudio", data);
+        socket.emit("sendaudio", data);
       });
       isListening = true;
     });
 
-    setState(() => print("setstate"));
+    //setState(() => print("setstate"));
   }
 
-  void stopConcert() async {
+  void stopConcert(Socket socket) async {
     micListener?.pause();
     isListening = false;
 
     var package = {"roomId": roomId, "composition": {}};
 
-    serverSocket.emit("endsession", package);
+    socket.emit("endsession", package);
 
-    setState(() => print("setstate"));
+    // Stop listening to
+    socket.off("audiostart");
+
+    //setState(() => print("setstate"));
   }
 
   // Mic initialization
@@ -272,22 +258,22 @@ class _CreateRoomState extends State<CreateRoom> {
       print("Permissions already granted!");
   }
 
-  void mute() async {
+  void mute(Socket socket) async {
     const payload = {'roomId': roomId, 'isActive': false};
-    serverSocket.emit("muteordeafen", payload);
+    socket.emit("muteordeafen", payload);
 
     // await micListener?.cancel();
-    setState(() => print("setstate"));
+    //setState(() => print("setstate"));
   }
 
-  void unmute() {
+  void unmute(Socket socket) {
     const payload = {'roomId': roomId, 'isActive': true};
-    serverSocket.emit("muteordeafen", payload);
+    socket.emit("muteordeafen", payload);
 
     // micListener = micStream?.listen((data) {
-    //   serverSocket.emit("sendaudio", data);
+    //   socket.emit("sendaudio", data);
     // });
-    setState(() => print("setstate"));
+    //setState(() => print("setstate"));
   }
 
   void displayErr(BuildContext context, String message) {
@@ -304,6 +290,36 @@ class _CreateRoomState extends State<CreateRoom> {
                     onPressed: () => Navigator.of(context).pop())
               ]);
         });
+  }
+}
+
+final statesProvider = StateNotifierProvider<StatesNotifier, States>((ref) {
+  return StatesNotifier();
+});
+
+// Class to handle the state of created/started bools
+@immutable
+class States {
+  const States({this.created = false, this.started = false});
+
+  final bool created;
+  final bool started;
+
+  States copyWith({bool? created, bool? started}) {
+    return States(
+        created: created ?? this.created, started: started ?? this.started);
+  }
+}
+
+class StatesNotifier extends StateNotifier<States> {
+  StatesNotifier() : super(const States());
+
+  void changeCreated(bool newCreated) {
+    state = States(created: newCreated);
+  }
+
+  void changeStarted(bool newStarted) {
+    state = States(started: newStarted);
   }
 }
 
