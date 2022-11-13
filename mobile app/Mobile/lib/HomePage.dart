@@ -1,9 +1,7 @@
 // Dependencies
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutterapp/main.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 
 // Pages
 import 'SignUp.dart';
@@ -23,7 +21,7 @@ class HomePage extends ConsumerWidget {
             ? [
                 ElevatedButton(
                   onPressed: () {
-                    storage.delete(key: 'jctacc');
+                    //storage.delete(key: 'jctacc');
                   },
                   child: const Text("Logout"),
                 )

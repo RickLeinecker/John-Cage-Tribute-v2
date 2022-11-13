@@ -9,30 +9,24 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:mic_stream/mic_stream.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
-
 // Pages
 import 'HomePage.dart';
 
 // Providers for state management
-final storageProvider =
-    Provider<FlutterSecureStorage>
-    (
-      (ref) {
-        const storage = FlutterSecureStorage();
-        Future<String?> token = storage.read(key: "jctacc");
-        Map<String, dynamic> creds = JwtDecoder.decode(token.toString());
+final storageProvider = Provider<FlutterSecureStorage>((ref) {
+  const storage = FlutterSecureStorage();
+  // Future<String?> token = storage.read(key: "jctacc");
+  // Map<String, dynamic> creds = JwtDecoder.decode(token.toString());
 
-        print("We're here!");
+  // print("We're here!");
 
-        ref.read(userProvider.notifier).state = creds['username'];
+  // ref.read(userProvider.notifier).state = creds['username'];
 
-        print(creds['username']);
-        print(ref.watch(userProvider.notifier));
+  // print(creds['username']);
+  // print(ref.watch(userProvider.notifier));
 
-        return storage;
-      }
-
-    );
+  return storage;
+});
 
 final userProvider = StateProvider<String>((ref) {
   return '';
@@ -44,13 +38,16 @@ final socketProvider = Provider.autoDispose<Socket>((ref) {
       OptionBuilder().setTransports(["websocket"]).build());
   socket.on("connect", (_) => print("Connected!"));
 
-  ref.onDispose(() => socket.dispose());
+  ref.onDispose(() {
+    socket.dispose();
+    print("Disposal!");
+  });
 
   return socket;
 });
 
 final micProvider = StreamProvider<Uint8List>((ref) async* {
-  Stream<Uint8List>? micStream = await MicStream.microphone(sampleRate: 44100);
+  Stream<Uint8List>? micStream = await MicStream.microphone(sampleRate: 22050);
 
   ref.onDispose(() {
     print("Handle garbage collection");
@@ -61,22 +58,21 @@ final micProvider = StreamProvider<Uint8List>((ref) async* {
 
 final errorProvider = Provider<Function>((ref) {
   return (BuildContext context, String message) {
-  showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            title: const Text("Error Joining Room"),
-            content: Text(message),
-            actions: <Widget>[
-              TextButton(
-                  child: Text("Close"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    }
-                  )
-            ]);
-      });
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text("Error Joining Room"),
+              content: Text(message),
+              actions: <Widget>[
+                TextButton(
+                    child: Text("Close"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    })
+              ]);
+        });
   };
 });
 

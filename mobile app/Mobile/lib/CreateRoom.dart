@@ -6,14 +6,10 @@ import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
-bool isListening = false;
-
-final storage = new FlutterSecureStorage();
 
 const roomId = 33;
 var token = '';
@@ -28,13 +24,18 @@ final startedProvider = StateProvider<bool>((ref) {
   return false;
 });
 
+final listeningProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
 class CreateRoom extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get refs from riverpod
     Socket socket = ref.watch(socketProvider);
-    bool created = ref.read(createdProvider.notifier).state;
-    bool started = ref.read(startedProvider.notifier).state;
+    bool created = ref.watch(createdProvider);
+    bool started = ref.watch(startedProvider);
+    bool listening = ref.watch(listeningProvider);
 
     socket.once("connect", (socket) {
       print("Connected to server!");
@@ -73,7 +74,7 @@ class CreateRoom extends ConsumerWidget {
                                   padding: EdgeInsets.only(bottom: 350)),
                               ElevatedButton(
                                 onPressed: () {
-                                  schedule(socket);
+                                  schedule(socket, ref, context);
                                 },
                                 child: const Text('Create a Room'),
                                 style: ElevatedButton.styleFrom(
@@ -94,7 +95,7 @@ class CreateRoom extends ConsumerWidget {
                                       children: [
                                         ElevatedButton(
                                           onPressed: () {
-                                            leave(socket);
+                                            leave(socket, ref);
                                             created = !created;
                                           },
                                           child: const Text("Leave Room"),
@@ -105,8 +106,8 @@ class CreateRoom extends ConsumerWidget {
                                         ),
                                         ElevatedButton(
                                           onPressed: () {
-                                            startConcert(socket);
-                                            started = !started;
+                                            startConcert(socket, ref);
+                                            //started = !started;
                                           },
                                           child: const Text('Start Concert'),
                                           style: ElevatedButton.styleFrom(
@@ -121,7 +122,7 @@ class CreateRoom extends ConsumerWidget {
                                       padding: EdgeInsets.only(bottom: 350)),
                                   ElevatedButton(
                                     onPressed: () {
-                                      stopConcert(socket);
+                                      stopConcert(socket, ref);
                                       started = !started;
                                       created = !created;
                                     },
@@ -132,13 +133,11 @@ class CreateRoom extends ConsumerWidget {
                                   ),
                                   // ignore: prefer_const_constructors
                                   IconButton(
-                                    icon: isListening
+                                    icon: listening
                                         ? Icon(Icons.mic_off_sharp)
                                         : Icon(Icons.mic),
                                     onPressed: () => {
-                                      isListening
-                                          ? mute(socket)
-                                          : unmute(socket)
+                                      listening ? mute(socket) : unmute(socket)
                                     },
                                   )
                                 ])),
@@ -146,7 +145,7 @@ class CreateRoom extends ConsumerWidget {
   }
 
   // Functions that interact with the server code
-  schedule(Socket socket) async {
+  schedule(Socket socket, WidgetRef ref, BuildContext context) async {
     if (!socket.connected) {
       print("I'm not connected...");
 
@@ -170,54 +169,37 @@ class CreateRoom extends ConsumerWidget {
         "sessionAudio": 0
       };
 
-      var member = {"role": 1, "userId": 1, "isHost": true};
+      var member = {"role": 1, "userId": 19, "isHost": true};
 
       var package = {"room": room, "member": member};
 
       socket.emit("createroom", package);
 
       socket.on("scheduleerror", (err) {
-        created = false;
+        ref.read(createdProvider.notifier).state = false;
 
-        // setState(() {
-        //   print("State has been set!");
-        // });
-
-        //displayErr(context, err);
+        displayErr(context, err);
       });
 
       socket.once("schedulesuccess", (message) {
-        print(message);
-        created = true;
-
+        ref.read(createdProvider.notifier).state = true;
         numUsers = 1;
-
         socket.off("scheduleerror");
-
-        // setState(() {
-        //   print("State has been set!");
-        // });
       });
-
-      // setState(() {
-      //   print("State has been set!");
-      // });
     }
   }
 
-  void leave(Socket socket) async {
+  void leave(Socket socket, WidgetRef ref) async {
     socket.emit("leaveroom", roomId);
 
-    // setState(() {
-    //   print("State has been set!");
-    // });
+    ref.read(createdProvider.notifier).state = false;
   }
 
-  void startConcert(Socket socket) async {
+  void startConcert(Socket socket, WidgetRef ref) async {
     socket.emit("startsession", roomId);
 
     socket.on("audiostart", (message) async {
-      print(message);
+      ref.read(startedProvider.notifier).state = true;
 
       // Start listening to microphone
       micStream = await MicStream.microphone(
@@ -227,22 +209,25 @@ class CreateRoom extends ConsumerWidget {
       micListener = micStream?.listen((data) {
         socket.emit("sendaudio", data);
       });
-      isListening = true;
+      ref.read(listeningProvider.notifier).state = true;
     });
 
     //setState(() => print("setstate"));
   }
 
-  void stopConcert(Socket socket) async {
+  void stopConcert(Socket socket, WidgetRef ref) async {
     micListener?.pause();
-    isListening = false;
 
+    // Send server a package to end the concert,
+    // then remove the 'audiostart' listener
     var package = {"roomId": roomId, "composition": {}};
-
     socket.emit("endsession", package);
-
-    // Stop listening to
     socket.off("audiostart");
+
+    // State management
+    ref.read(createdProvider.notifier).state = false;
+    ref.read(startedProvider.notifier).state = false;
+    ref.read(listeningProvider.notifier).state = false;
 
     //setState(() => print("setstate"));
   }
@@ -292,71 +277,3 @@ class CreateRoom extends ConsumerWidget {
         });
   }
 }
-
-final statesProvider = StateNotifierProvider<StatesNotifier, States>((ref) {
-  return StatesNotifier();
-});
-
-// Class to handle the state of created/started bools
-@immutable
-class States {
-  const States({this.created = false, this.started = false});
-
-  final bool created;
-  final bool started;
-
-  States copyWith({bool? created, bool? started}) {
-    return States(
-        created: created ?? this.created, started: started ?? this.started);
-  }
-}
-
-class StatesNotifier extends StateNotifier<States> {
-  StatesNotifier() : super(const States());
-
-  void changeCreated(bool newCreated) {
-    state = States(created: newCreated);
-  }
-
-  void changeStarted(bool newStarted) {
-    state = States(started: newStarted);
-  }
-}
-
-/*
-websocket setup
-class _ListenScreenState extends State<ListenScreen> {
-	WebSocketChannel wsChannel;
-	Timer timer;
-
-	void initState() {
-		wsChannel = IOWebSocketChannel.connect('ws://ade18054.ngrok.io/listen');
-		timer = new Timer.periodic(
-			Duration(milliseconds: 10), (Timer t) {
-				wsChannel.sink.add("Gimme audio!");
-			});
-
-		super.initState();
-	}
-
-	stream
-
-	Widget build(BuildContext context) {
-		return StreamBuilder(
-			stream: wsChannel.stream,
-			builder: (BuildContext context, AsyncSnapshot snapshot) {
-				if (!snapshot.hasData) {
-					return Center(
-						child: CircularProgressIndicator(),
-					);
-				}
-
-				final audioData = snapshot.data;
-				return Scaffold(
-					appBar: AppBar(
-						title: Text('Listening Screen'),
-					),
-					body: Center(
-						child: Text('Audio data length is ${audioData.length}.'),
-					),
- */

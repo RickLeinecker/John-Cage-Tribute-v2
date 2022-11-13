@@ -6,6 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'HomePage.dart';
+import 'CustomPackages/popups.dart';
 
 // These two variables hold the username and password, respectively
 final _emailController = TextEditingController();
@@ -24,7 +25,6 @@ class LoginPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Socket socket = ref.watch(socketProvider);
-    Function err = ref.watch(errorProvider);
     FlutterSecureStorage storage = ref.read(storageProvider);
 
     return MaterialApp(
@@ -151,7 +151,8 @@ class LoginPage extends ConsumerWidget {
         ));
   }
 
-  void signin(Socket socket, BuildContext context, FlutterSecureStorage storage) {
+  void signin(
+      Socket socket, BuildContext context, FlutterSecureStorage storage) {
     final _email = _emailController.text.trim();
     final _password = _passController.text.trim();
 
@@ -180,8 +181,7 @@ class LoginPage extends ConsumerWidget {
     });
 
     socket.on("loginerror", (err) {
-      print(err);
+      displayErr(context, err['msg']);
     });
   }
-
 }
