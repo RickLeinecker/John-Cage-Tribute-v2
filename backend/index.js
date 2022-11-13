@@ -178,13 +178,15 @@ app.post("/editrecording", (req, res) => {
         if (result.length == 1)
         {
             const newDescription = s.newdescription.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-            db2.query("UPDATE Recordings SET description = '" + newDescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
+            const newTitle = s.newtitle.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET description = '" + newDescription + "' , " + "title = '" + newTitle + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
                 if (err) {
                 console.log("EDIT ERROR");
                   console.log(err)
                 } else {
                   console.log("Updating and Row Count is ", result.length);
                 }
+                res.send(result);
             })
         } else
         {

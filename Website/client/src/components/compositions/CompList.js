@@ -79,6 +79,7 @@ class CompListItem extends React.Component {
 			editing: false,
 			formdata: {
 				title: props.info.title,
+				description: props.info.description,
 				length: props.info.lengthSeconds,
 				date: props.info.recordingDate,
 				maestro: props.info.username
@@ -177,8 +178,6 @@ class CompListItem extends React.Component {
 								<p style={{color:"gray",fontSize:".8em"}}>Limit 256 characters</p>
 								<textarea value={formdata.description} onChange={this.changeForm} name="description" className="edit-info-field"/>
 								<p id="edit-desc-err" style={{color:"red"}}></p>
-								<h4 style={{display:"inline-block"}}>Private</h4>
-								<div style={{backgroundColor: formdata.private? "blue":"white"}} id="private-box" onClick={this.setPrivate}></div>
 								<br /><br />
 								<input type="button" value="Cancel" onClick={()=>this.cancelEdit()} />
 								<input type="button" value="Save" onClick={this.submitEdit} />
@@ -207,12 +206,14 @@ class CompListItem extends React.Component {
 	const {userId, info, formdata} = this.state;
 	console.log("edit form data", info, formdata, userId);
 	var description = formdata.description ?  formdata.description : "test descrip ";
-	var query = JSON.stringify({id:userId, recordingid: info.recordingId , newdescription: description});
+	var title = formdata.title?  formdata.title : "test title ";
+	var query = JSON.stringify({id:userId, recordingid: info.recordingId , newdescription: description, newtitle: title});
 
 	console.log("query", query)
 	try {
 		 await Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
 			this.setState({list: r.data})
+			window.location.reload();
 	} )} catch (error) {
   if (error.response) {
 	console.log(error.response);
