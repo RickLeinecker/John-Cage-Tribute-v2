@@ -470,6 +470,20 @@ app.get("/userScheduled", (req, res) => {
     });
 });
 
+// List user's scheduled recordings
+app.get("/username", (req, res) => {
+    const s  = req.query.id;
+    db2.query("SELECT DISTINCT U.username FROM USERS U WHERE id = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
 // REQUEST/APPROVAL maestro accounts api calls
 // -------------------------------------------------------------------------------
 // 	List all users who are requested to become maestro
