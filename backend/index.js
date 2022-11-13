@@ -86,8 +86,7 @@ app.get("/recordings", (req, res) => {
 app.get("/userRec", (req, res) => {
     const s  = req.query.id; // going to switch this to user id that is passed through token
     console.log("req: !!", s);
-    console.log("req.id", req);
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId WHERE U.id = R.maestroId",
     (err, result) => {
     if (err) {
         console.log(err);
