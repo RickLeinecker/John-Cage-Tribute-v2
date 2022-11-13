@@ -166,12 +166,8 @@ const Dashboard = () => {
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
             console.log("decoded id", typeof(decoded.userId));
-            // console.log("BEFORE" + userId);
             setId(decoded.userId);
-            // console.log("AFTER " + userId);
             setuserName(decoded.username);
-            // setisMaestro(decoded.isMaestro);
-            // console.log("HEY HO " +isMaestro);
             console.log("username after decoded", userName);
             console.log("userid after decoded", userId);
             setExpire(decoded.exp);
@@ -179,9 +175,10 @@ const Dashboard = () => {
             setAuthToken(decoded);
 
             getRecordings(decoded.userId);
-            getEvents(decoded.userId);
             getIsMaestro(decoded.userId);
+            getEvents(decoded.userId);
             getIsRequested(decoded.userId);
+            // getRoles();
         } catch (error) {
             if (error.response) {
                // history.push("/");
@@ -226,10 +223,10 @@ const Dashboard = () => {
 
     const getIsMaestro = async (id)=>{
         await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
-            console.log(typeof(r.data[0].isMaestro));
-            console.log(r.data[0].isMaestro);
+            // console.log(typeof(r.data[0].isMaestro));
+            // console.log(r.data[0].isMaestro);
             setIsMaestro(r.data[0].isMaestro);
-            console.log("SOLUTION?: " + isMaestro);
+            // console.log("SOLUTION?: " + isMaestro);
         })
    }
 
@@ -244,7 +241,7 @@ const Dashboard = () => {
     console.log("id is", id);
     await axios.get("http://localhost:3001/userScheduled", {params: {id: id}}).then(r => {
         setEvents(r.data);
-        console.log("events call", r);	
+        console.log("events call", r);
 		})
    }
    var evd;
@@ -266,12 +263,26 @@ const Dashboard = () => {
 
   if ( selectedEvent.length < 1)
   {
-      {console.log(selectedEvent)}
-      {console.log("POOP"+isMaestro)}
+    //   {console.log(selectedEvent)}
+    //   {console.log("POOP"+isMaestro)}
+    //   console.log("FINAL?");
+    //   console.log(events);
+      var temp = [];
+      events.map((item, index) => {
+        // console.log("INSIDE: " + item.maestroId);
+        if(item.maestroId == userId) {
+            temp.push("Maestro");
+        } else {
+            temp.push("Participant");
+        }
+      })
+    //   console.log("TEMP AFTER: ");
+    //   console.log(temp);
+
       if(isMaestro == 1){
         return (
             <Fragment>
-                <div className='schedule'> 
+                <div className='schedule'>
                     <div className='search-inner'>
                         <div className='search-box'>
                             <h1 className='large text-primary'>Welcome Back: {userName}</h1>
@@ -280,8 +291,9 @@ const Dashboard = () => {
                                 <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
                                     <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                         {events.map((event, index) => (
-                                            <div onClick={() => handleClick (event)} > 
-                                                <ConcertCardComponent className={css(styles.miniCardContainer)} group = {"Maestro: " + event.maestroId} date= {event.date} />
+                                            // {decideRole(event.maestroId)}
+                                            <div onClick={() => handleClick (event)}> 
+                                                <ConcertCardComponent className={css(styles.miniCardContainer)} group = {temp[index]} date= {event.date} />
                                             </div>
                                         ))}
                                         <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
