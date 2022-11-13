@@ -9,6 +9,9 @@ import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
 import setAuthToken from "../../utils/setAuthToken";
 
+//This file is for a user viewing their own profile
+//For a user viewing another user's profile, go to UserBio.js
+
 class Profile extends React.Component {
     constructor(props) {
 		super(props);
@@ -19,6 +22,7 @@ class Profile extends React.Component {
 			email: "",
             bio: "",
             isMaestro: -1,
+            isMaestroWord: "",
 			editing: false,
             editName: "",
             editBio: "",
@@ -27,7 +31,6 @@ class Profile extends React.Component {
         this.changeBio = this.changeBio.bind(this);
         this.submitEdit = this.submitEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
-		
 	}
 
     componentDidMount() {
@@ -44,6 +47,12 @@ class Profile extends React.Component {
 
             this.setState({editName: this.state.username});
             this.setState({editBio: this.state.bio});
+
+            if(this.state.isMaestro == 1) {
+                this.setState({isMaestroWord: "Yes"});
+            } else {
+                this.setState({isMaestroWord: "No"});
+            }
         })
 	}
 
