@@ -77,6 +77,9 @@ class ContestPage extends React.Component {
     }
 
     render() {
+        console.log("WINNIE THE POOH:");
+        console.log(this.state.list);
+
         return(
             <div className='schedule'>
                 <div className='dark-overlay'>

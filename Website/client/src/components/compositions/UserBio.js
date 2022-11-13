@@ -45,6 +45,8 @@ class UserBio extends React.Component {
 
         Axios.get("http://localhost:3001/userRec", {params: {id: this.state.userId}}).then(r => {
             this.setState({recordings: r.data});
+            console.log("CONEY");
+            console.log(this.state.recordings);
         })
     }
 
@@ -64,7 +66,7 @@ class UserBio extends React.Component {
                             <br />
                             <h1 className="medium">Recordings:</h1>
                             <div style={{padding:"10px"}}>
-                                <CompList list={this.state.recordings} userId = {this.state.userId} dash={false} />
+                                <CompList list={this.state.recordings} dash={false} />
                             </div>
                         </div>
                     </div>

@@ -47,7 +47,7 @@ class CompList extends React.Component {
 					userId = {this.state.userId}
 					key={item._id}
 					user={this.props.userId}
-					maestro = {item.maestroId}
+					maestro = {item.username}
 				/>)
 			})
 		}
@@ -81,7 +81,7 @@ class CompListItem extends React.Component {
 				title: props.info.title,
 				length: props.info.lengthSeconds,
 				date: props.info.recordingDate,
-				maestro: props.info.maestroId
+				maestro: props.info.username
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -138,7 +138,7 @@ class CompListItem extends React.Component {
 								<span className={c}>Date: </span>{info.date}
 							</p>
 							<p className={c1}>
-								<span className={c}>Maestro: </span>{info.maestroId}
+								<span className={c}>Maestro: </span>{info.username}
 							</p>
 							<p className={c1}>
 								<span className={c}>Performers: </span>{info.performers}
