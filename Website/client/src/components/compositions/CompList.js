@@ -8,6 +8,7 @@ import * as FaIcons from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
 import Axios from "axios";
+import { Link, Redirect } from 'react-router-dom';
 
 class CompList extends React.Component {
 	constructor(props) {
@@ -79,7 +80,8 @@ class CompListItem extends React.Component {
 			formdata: {
 				title: props.info.title,
 				length: props.info.lengthSeconds,
-				date: props.info.recordingDate
+				date: props.info.recordingDate,
+				maestro: props.info.maestroId
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -92,12 +94,22 @@ class CompListItem extends React.Component {
 		this.submitEdit = this.submitEdit.bind(this);
 		this.cancelEdit = this.cancelEdit.bind(this);
 		this.setPrivate = this.setPrivate.bind(this);
+		//CHANGE TO USE USERID
+		//localStorage.setItem("target", this.userId);
+		console.log("MAMA MIA: " + this.info);
 	}
 	
 	render() {
 		var {info, user, formdata} = this.state;
 		// var tags = info.tags.join(", ");
 		// var {date, runtime} = this.parseDateTime(info.date, info.runtime);
+
+		// console.log("LOOKY HERE: ");
+		// console.log(this.state.info.maestroId);
+
+		localStorage.setItem("target", this.state.info.maestroId);
+		console.log("KOOKY: ");
+		console.log(localStorage.getItem("target"));
 		
 		var sidebar = null;
 		if(this.state.chosen) {
@@ -126,7 +138,7 @@ class CompListItem extends React.Component {
 								<span className={c}>Date: </span>{info.date}
 							</p>
 							<p className={c1}>
-								<span className={c}>Composer: </span>{info.composer}
+								<span className={c}>Maestro: </span>{info.maestroId}
 							</p>
 							<p className={c1}>
 								<span className={c}>Performers: </span>{info.performers}
@@ -134,6 +146,7 @@ class CompListItem extends React.Component {
 							<p className={c1}>
 								<span className={c}>Description: </span>{info.description}
 							</p><br />
+							<Link to="/userbio" className="btn btn=primary">View Maestro</Link>
 							{this.props.user !== undefined ? (
 							<div style={{padding:"5px 0px"}}>
 								<button onClick={()=>this.setState({editing: true})}

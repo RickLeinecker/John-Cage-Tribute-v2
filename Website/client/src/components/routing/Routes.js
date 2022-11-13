@@ -22,6 +22,7 @@ import ContestPage from '../compositions/ContestPage';
 import Listen from '../compositions/Listen';
 import InfoPage from '../compositions/InfoPage';
 import AdminLogin from '../auth/AdminLogin';
+import UserBio from '../compositions/UserBio';
 
 const Routes = props => {
   return (
@@ -40,6 +41,7 @@ const Routes = props => {
         <Route exact path="/contestpage" component={ContestPage} />
         <Route exact path="/infopage" component={InfoPage} />
         <Route exact path="/listen" component={Listen} />
+        <Route exact path="/userbio" component={UserBio} />
         <PrivateRoute exact path="/landing" component={Landing} />     
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />
         <PrivateRoute exact path="/edit-profile" component={ProfileForm} />

@@ -4,73 +4,76 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ProSidebarProvider } from 'react-pro-sidebar';
 import CompList from "./CompList";
+import Axios from 'axios';
 
 class ContestPage extends React.Component {
     constructor(props) {
 		super(props);
 		this.state = {
-			//list: []
-            list: [
-                {
-                    "recordingId": 0,
-                    "maestroId": 0,
-                    "title": "September",
-                    "lengthSeconds": 180,
-                    "audioFile": "",
-                    "recordingsDate": "",
-                    "inContest": true
-                },
-                {
-                    "recordingId": 1,
-                    "maestroId": 1,
-                    "title": "Blinding Lights",
-                    "lengthSeconds": 200,
-                    "audioFile": "",
-                    "recordingsDate": "",
-                    "inContest": true
-                },
-                {
-                    "recordingId": 2,
-                    "maestroId": 0,
-                    "title": "Let's Groove",
-                    "lengthSeconds": 200,
-                    "audioFile": "",
-                    "recordingsDate": "",
-                    "inContest": false
-                },
-                {
-                    "recordingId": 3,
-                    "maestroId": 2,
-                    "title": "Let It Go",
-                    "lengthSeconds": 200,
-                    "audioFile": "",
-                    "recordingsDate": "",
-                    "inContest": true
-                },
-                {
-                    "recordingId": 4,
-                    "maestroId": 3,
-                    "title": "Stacy's Mom",
-                    "lengthSeconds": 200,
-                    "audioFile": "",
-                    "recordingsDate": "",
-                    "inContest": true
-                },
-                {
-                    "recordingId": 5,
-                    "maestroId": 4,
-                    "title": "4'33",
-                    "lengthSeconds": 200,
-                    "audioFile": "",
-                    "recordingsDate": "",
-                    "inContest": true
-                }
-            ]
+			list: []
+            // list: [
+            //     {
+            //         "recordingId": 0,
+            //         "maestroId": 0,
+            //         "title": "September",
+            //         "lengthSeconds": 180,
+            //         "audioFile": "",
+            //         "recordingsDate": "",
+            //         "inContest": true
+            //     },
+            //     {
+            //         "recordingId": 1,
+            //         "maestroId": 1,
+            //         "title": "Blinding Lights",
+            //         "lengthSeconds": 200,
+            //         "audioFile": "",
+            //         "recordingsDate": "",
+            //         "inContest": true
+            //     },
+            //     {
+            //         "recordingId": 2,
+            //         "maestroId": 0,
+            //         "title": "Let's Groove",
+            //         "lengthSeconds": 200,
+            //         "audioFile": "",
+            //         "recordingsDate": "",
+            //         "inContest": false
+            //     },
+            //     {
+            //         "recordingId": 3,
+            //         "maestroId": 2,
+            //         "title": "Let It Go",
+            //         "lengthSeconds": 200,
+            //         "audioFile": "",
+            //         "recordingsDate": "",
+            //         "inContest": true
+            //     },
+            //     {
+            //         "recordingId": 4,
+            //         "maestroId": 3,
+            //         "title": "Stacy's Mom",
+            //         "lengthSeconds": 200,
+            //         "audioFile": "",
+            //         "recordingsDate": "",
+            //         "inContest": true
+            //     },
+            //     {
+            //         "recordingId": 5,
+            //         "maestroId": 4,
+            //         "title": "4'33",
+            //         "lengthSeconds": 200,
+            //         "audioFile": "",
+            //         "recordingsDate": "",
+            //         "inContest": true
+            //     }
+            // ]
 		};
 	}
 
     componentDidMount() {
-        //CONNECT TO API HERE
+        Axios.get("http://localhost:3001/recordings").then(r => {
+			this.setState({list: r.data});
+		})
     }
 
     render() {
