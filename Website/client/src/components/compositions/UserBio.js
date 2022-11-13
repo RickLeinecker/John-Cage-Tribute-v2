@@ -50,6 +50,13 @@ class UserBio extends React.Component {
         })
     }
 
+    componentDidUpdate() {
+        const newId = JSON.parse(localStorage.getItem("target"));
+        if(newId != this.state.userId) {
+            window.location.reload();
+        }
+    }
+
     render() {
         return(
             <div className="schedule">
