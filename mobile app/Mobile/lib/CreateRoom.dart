@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutterapp/main.dart';
@@ -7,6 +8,8 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audio_streamer/audio_streamer.dart';
+import 'package:flutter/services.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
@@ -29,10 +32,58 @@ final listeningProvider = StateProvider<bool>((ref) {
 });
 
 class CreateRoom extends ConsumerWidget {
+  // New mic stream
+  AudioStreamer _streamer = AudioStreamer();
+  bool _isRecording = false;
+  List<double> _audio = [];
+
+  late Socket socket;
+
+  void onAudio(List<double> buffer) {
+    print(buffer);
+    _audio.addAll(buffer);
+    double secondsRecorded =
+        _audio.length.toDouble() / AudioStreamer.sampleRate.toDouble();
+
+    socket.emit("sendaudio", buffer);
+
+    // print(_audio);
+    // socket.emit("sendaudio", _audio);
+    // _audio.clear();
+
+    //socket.emit("sendaudio", _audio);
+    // print('Max amp: ${buffer.reduce(max)}');
+    // print('Min amp: ${buffer.reduce(min)}');
+    // print('$secondsRecorded seconds recorded.');
+    // print('-' * 50);
+  }
+
+  void handleError(PlatformException error, WidgetRef ref) {
+    ref.read(listeningProvider.notifier).state = false;
+
+    print(error.message);
+    print(error.details);
+  }
+
+  void start(WidgetRef ref, Socket socket) async {
+    try {
+      _streamer.start(onAudio, handleError);
+
+      ref.read(listeningProvider.notifier).state = true;
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  void stop(WidgetRef ref) async {
+    bool stopped = await _streamer.stop();
+    ref.read(listeningProvider.notifier).state = stopped;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Get refs from riverpod
-    Socket socket = ref.watch(socketProvider);
+    socket = ref.watch(socketProvider);
     bool created = ref.watch(createdProvider);
     bool started = ref.watch(startedProvider);
     bool listening = ref.watch(listeningProvider);
@@ -181,11 +232,15 @@ class CreateRoom extends ConsumerWidget {
         displayErr(context, err);
       });
 
-      socket.once("schedulesuccess", (message) {
-        ref.read(createdProvider.notifier).state = true;
-        numUsers = 1;
-        socket.off("scheduleerror");
-      });
+      // socket.once("schedulesuccess", (message) {
+      //   ref.read(createdProvider.notifier).state = true;
+      //   numUsers = 1;
+      //   socket.off("scheduleerror");
+      // });
+
+      ref.read(createdProvider.notifier).state = true;
+      numUsers = 1;
+      socket.off("scheduleerror");
     }
   }
 
@@ -201,14 +256,16 @@ class CreateRoom extends ConsumerWidget {
     socket.on("audiostart", (message) async {
       ref.read(startedProvider.notifier).state = true;
 
-      // Start listening to microphone
-      micStream = await MicStream.microphone(
-        sampleRate: 44100,
-      );
+      start(ref, socket);
 
-      micListener = micStream?.listen((data) {
-        socket.emit("sendaudio", data);
-      });
+      // Start listening to microphone
+      // micStream = await MicStream.microphone(
+      //     sampleRate: 44100, channelConfig: ChannelConfig.CHANNEL_IN_MONO);
+
+      // micListener = micStream?.listen((data) {
+      //   socket.emit("sendaudio", data);
+      // });
+
       ref.read(listeningProvider.notifier).state = true;
     });
 
@@ -216,7 +273,9 @@ class CreateRoom extends ConsumerWidget {
   }
 
   void stopConcert(Socket socket, WidgetRef ref) async {
-    micListener?.pause();
+    //micListener?.pause();
+
+    stop(ref);
 
     // Send server a package to end the concert,
     // then remove the 'audiostart' listener
@@ -228,7 +287,6 @@ class CreateRoom extends ConsumerWidget {
     ref.read(createdProvider.notifier).state = false;
     ref.read(startedProvider.notifier).state = false;
     ref.read(listeningProvider.notifier).state = false;
-
     //setState(() => print("setstate"));
   }
 

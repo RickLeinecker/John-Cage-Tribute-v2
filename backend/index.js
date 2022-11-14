@@ -625,8 +625,6 @@ io.on("connection", function (socket) {
     // Rooms' ids
     // UPDATED
     socket.on('createroom', function (data) {
-        console.log(`Received createroom from socket: ${socket.id}.`);
-
         // Run checks to make sure the user is the maestro AND they're opening on their scheduled timeframe
         db2.query("SELECT * FROM Schedule ORDER BY scheduleDate ASC;", (err, result) => {
             if (err)
@@ -639,7 +637,6 @@ io.on("connection", function (socket) {
                 // Empty table check
                 if (result[0] == undefined)
                 {
-                    console.log("Nothing's scheduled.");
                     socket.emit("scheduleerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
                     return;
                 }
@@ -647,7 +644,7 @@ io.on("connection", function (socket) {
                 // Maestro check
                 if (data.member.userId != result[0].maestroId)
                 {
-                    console.log("Somebody didn't make an appointment!");
+                    console.log(result[0].maestroId);
                     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
                     return;
                 }
@@ -673,8 +670,6 @@ io.on("connection", function (socket) {
                 //     return;
                 // }
 
-                
-                
                 const room = data.room;
                 const roomId = room['id'];
                 const member = data.member;
@@ -693,7 +688,7 @@ io.on("connection", function (socket) {
                 console.log(availableRooms[roomId]['members'][socket.id]);
                 console.log("Member printed...");
 
-                console.log(availableRooms[roomId].scheduleID);
+                //console.log(availableRooms[roomId].scheduleID);
 
                 if (member.role == Role.PERFORMER) {
                     audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
@@ -968,9 +963,8 @@ io.on("connection", function (socket) {
     // Then, pass them the audio data
     // AFTER STARTSESSION
     socket.on('sendaudio', function (data) {
-        const roomId = memberAttendance[socket.id];
-
         console.log(data);
+        const roomId = memberAttendance[socket.id];
 
         if (!roomId) {
             return;
@@ -999,7 +993,6 @@ io.on("connection", function (socket) {
         const roomId = data["roomId"];
         const existingRoom = availableRooms[roomId];
 
-        console.log(data);
         console.log(roomId);
 
         if (!existingRoom) {
@@ -1043,18 +1036,21 @@ io.on("connection", function (socket) {
         // Save the WAV file buffer as a raw data buffer
         var audioFileBuffer = Buffer.from(wav.toBuffer());
 
-        console.log("AUDIO BUFFER:");
-        console.log(audioFileBuffer);
+        // console.log("AUDIO BUFFER:");
+        // console.log(audioFileBuffer);
 
         console.log('Finished making the wav file');
 
         // Generate a random temporary filename for the MP3
         var mp3FileName = randomstring.generate() + ".mp3";
+        var mp3OutputDir = "./audioFiles/" + mp3FileName;
+
+        console.log(`Name: ${mp3FileName}`);
 
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
-          "output": mp3FileName,
-          "scale": 45,
+          "output": mp3OutputDir,
+          "scale": 30,
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
@@ -1076,9 +1072,6 @@ io.on("connection", function (socket) {
           time: numberOfSamples / sampleRate,
           ...data.composition
         };
-
-        // console.log(`Data composition:`);
-        // console.log(data);
 
         // Open the MP3 file as a read stream
         var mp3FileStream = fs.createReadStream(mp3FileName);
@@ -1130,14 +1123,14 @@ io.on("connection", function (socket) {
         // Clear up the room
         delete availableRooms[roomId];
 
-        await Axios.post('http://localhost:3001/createRecording/', payload)
-        .then((response) => {
-            console.log(response);
-            socket.emit("loginsuccess", response.data);
-          }, (error) => {
-            console.log(error);
-            socket.emit("loginerror", error.response.data);
-          });
+        // await Axios.post('http://localhost:3001/createRecording/', payload)
+        // .then((response) => {
+        //     console.log(response);
+        //     socket.emit("loginsuccess", response.data);
+        //   }, (error) => {
+        //     console.log(error);
+        //     socket.emit("loginerror", error.response.data);
+        //   });
 
         //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
