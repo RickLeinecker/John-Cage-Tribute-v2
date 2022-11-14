@@ -473,7 +473,7 @@ app.get("/userScheduled", (req, res) => {
 // List user's scheduled recordings
 app.get("/username", (req, res) => {
     const s  = req.query.id;
-    db2.query("SELECT DISTINCT U.username FROM USERS U WHERE id = '" + s + "'",
+    db2.query("SELECT DISTINCT U.username FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {
         console.log(err);
