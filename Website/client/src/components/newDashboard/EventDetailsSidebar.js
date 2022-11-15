@@ -131,7 +131,7 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
             <br />
             <div className={css(styles.calHolder)}>
               <ConcertCardComponent
-                group={event.maestroName}
+                group={event.title}
                 date={event.date}
                 styleSt={styles.container}
               />

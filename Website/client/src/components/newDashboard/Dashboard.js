@@ -807,7 +807,7 @@ class Dashboard extends React.Component {
                                                 {this.state.events.map((event, index) => (
                                                     // {decideRole(event.maestroId)}
                                                     <div onClick={() => this.handleClick (event)}> 
-                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.maestroName} date= {event.date} />
+                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.title} date= {event.date} />
                                                     </div>
                                                 ))}
                                                 <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
@@ -840,7 +840,7 @@ class Dashboard extends React.Component {
                                                 {/* {console.log(this.state.events[0].maestroName)} */}
                                                 {this.state.events.map((item, index) => (
                                                     <div onClick={() => this.handleClick (item)} >
-                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {item.maestroName} date= {item.date} />
+                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {item.title} date= {item.date} />
                                                     </div>
                                                 ))}
                                                 {/* <ScheduleCardComponent  className={css(styles.miniCardContainer)} /> */}
@@ -872,7 +872,7 @@ class Dashboard extends React.Component {
                                                 <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                                     {this.state.events.map((event, index) => (
                                                         <div onClick={() => this.handleClick (event)} > 
-                                                            <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.maestroName} date= {event.date} />
+                                                            <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.title} date= {event.date} />
                                                         </div>
                                                     ))}
                                                     {/* <ScheduleCardComponent  className={css(styles.miniCardContainer)} /> */}
@@ -906,7 +906,7 @@ class Dashboard extends React.Component {
                                             <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                                 {this.state.events.map((event, index) => (
                                                     <div onClick={() => this.handleClick (event)} > 
-                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.maestroName} date= {event.date} />
+                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.title} date= {event.date} />
                                                     </div>
                                                 ))}
                                                 <ScheduleCardComponent  className={css(styles.miniCardContainer)} />
@@ -939,7 +939,7 @@ class Dashboard extends React.Component {
                                             <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                                 {this.state.events.map((event, index) => (
                                                     <div onClick={() => this.handleClick (event)} > 
-                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.maestroName} date= {event.date} />
+                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.title} date= {event.date} />
                                                     </div>
                                                 ))}
                                                 {/* <ScheduleCardComponent  className={css(styles.miniCardContainer)} /> */}
@@ -972,7 +972,7 @@ class Dashboard extends React.Component {
                                             <Row className={css(styles.cardRow)} wrap flexGrow={0} horizontal="space-between" breakpoints={{ 300: 'column' }}>
                                                 {this.state.events.map((event, index) => (
                                                     <div onClick={() => this.handleClick (event)} > 
-                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.maestroName} date= {event.date} />
+                                                        <ConcertCardComponent className={css(styles.miniCardContainer)} group = {event.title} date= {event.date} />
                                                     </div>
                                                 ))}
                                                 {/* <ScheduleCardComponent  className={css(styles.miniCardContainer)} /> */}
