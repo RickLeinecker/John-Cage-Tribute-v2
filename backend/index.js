@@ -469,6 +469,21 @@ app.get("/userScheduled", (req, res) => {
     });
 });
 
+// Get username from userId
+app.get("/username", (req, res) => {
+    const s  = req.query.id;
+    console.log("MARIO PARTY");
+    db2.query("SELECT DISTINCT U.username FROM Users U WHERE id = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
 // REQUEST/APPROVAL maestro accounts api calls
 // -------------------------------------------------------------------------------
 // 	List all users who are requested to become maestro
@@ -567,6 +582,7 @@ app.delete("/deleterecording", (req, res) => {
 // get user info
 app.get("/userinfo", (req, res) => {
     const s  = req.query.id;
+    console.log("WE ARE HERE");
     db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {

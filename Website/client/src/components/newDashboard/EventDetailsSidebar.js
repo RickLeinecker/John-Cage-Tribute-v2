@@ -114,6 +114,9 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
 
   console.log("EVENT", event);
 
+  console.log("its time");
+  console.log(event.date.toString());
+
   return (
     <IconContext.Provider value={{ color: "#fff" }}>
       <div className="dark-overlay" style={{ zIndex: "2", position: "fixed" }}>
@@ -128,39 +131,50 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
             <br />
             <div className={css(styles.calHolder)}>
               <ConcertCardComponent
-                group={"Maestro: " + event.maestroId}
+                group={event.maestroName}
                 date={event.date}
                 styleSt={styles.container}
               />
             </div>
             <ul>
-            <li>
-                <span className={css(styles.innerTextSidebar)}>Description: </span>
+              <li>
+                <span className="landing-text">Title: </span>
               </li>
               <li>
-                <span className={css(styles.innerTextSidebar)}>{event.Description}</span>
+                <span className={css(styles.innerTextSidebar)}>{event.title}</span>
+              </li>
+              <li>
+                <span className="landing-text">Description: </span>
+              </li>
+              <li>
+                <span className={css(styles.innerTextSidebar)}>{event.description}</span>
               </li>
 
               <li>
-                <span className={css(styles.innerTextSidebar)}>Invite Participants: </span>
+                <span className="landing-text">Invite Code to Perform: </span>
               </li>
               <li>
-                <span className={css(styles.innerTextSidebar)}>{event.passcodePerform} <AiIcons.AiFillAudio/> {event.passcodeListen} <AiIcons.AiFillCustomerService/></span>
-              </li>
-
-              <li>
-                <span className={css(styles.innerTextSidebar)}>Composer:</span>
+                <span className={css(styles.innerTextSidebar)}>{event.passcodePerform} <AiIcons.AiFillAudio/></span>
               </li>
               <li>
-              <span className={css(styles.circle)}>{event.maestroId}</span>
+                <span className="landing-text">Invite Code to Listen: </span>
               </li>
               <li>
-                <span className={css(styles.innerTextSidebar)}>Performers: </span>
+                <span className={css(styles.innerTextSidebar)}>{event.passcodeListen} <AiIcons.AiFillCustomerService/></span>
               </li>
               <li>
-             { event.userOne != -1 ? <span className={css(styles.circle)}>{event.userOne}</span> : ""}
-             { event.userTwo != -2 ? <span className={css(styles.circle)}>{event.userTwo}</span> : ""}
-             { event.userThree != -3 ? <span className={css(styles.circle)}>{event.userThree}</span> : ""}
+                <span className="landing-text">Composer:</span>
+              </li>
+              <li>
+              <span className={css(styles.circle)}>{event.maestroName}</span>
+              </li>
+              <li>
+                <span className="landing-text">Performers: </span>
+              </li>
+              <li>
+             { event.userOne != -1 ? <span className={css(styles.circle)}>{event.userOneName}</span> : ""}
+             { event.userTwo != -2 ? <span className={css(styles.circle)}>, {event.userTwoName}</span> : ""}
+             { event.userThree != -3 ? <span className={css(styles.circle)}>, {event.userThreeName}</span> : ""}
               </li>
             </ul>
 
