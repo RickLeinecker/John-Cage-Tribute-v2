@@ -149,7 +149,12 @@ function EventDetailsSidebarComponent({ className = "", event, clickHandler }) {
               <li>
                 <span className={css(styles.innerTextSidebar)}>{event.description}</span>
               </li>
-
+              <li>
+                <span className="landing-text">Performance Date: </span>
+              </li>
+              <li>
+                <span className={css(styles.innerTextSidebar)}>{event.date}</span>
+              </li>
               <li>
                 <span className="landing-text">Invite Code to Perform: </span>
               </li>
