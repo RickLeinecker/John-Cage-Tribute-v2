@@ -9,21 +9,27 @@ import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
 import Axios from "axios";
 import { Link, Redirect } from 'react-router-dom';
+import SweetPagination from "sweetpagination";
 
 class CompList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			list: props.list,
-			userId: props.userId
+			userId: props.userId,
+			currentPageData: props.currentPageData
 		}
 
 		console.log("props complist", this.state);
+		this.setCurrentPageData = this.setCurrentPageData.bind(this);
 	}
 	
-	componentDidUpdate(prevProps) {
-		console.log(this.state);
-		if(prevProps.list !== this.props.list) {
+	componentDidUpdate(prevProps, temp) {
+		console.log("COMP UPD 1",this.state);
+		console.log("COMP UPD STATES", temp)
+		console.log("COMP UPD STATES", prevProps)
+		if(prevProps.list != this.props.list) {
+			console.log("COMP UPD DIFF state",this.state);
 			this.setState({
 				list: this.props.list
 			})
@@ -35,11 +41,24 @@ class CompList extends React.Component {
 			})
 		}
 	}
+	setCurrentPageData(e)  {
+		this.setState({currentPageData: e})
+	}
+
+	setListPager(newList){
+		console.log("SetListPager", newList)
+		console.log("SetListPager2", this)
+		this.setState({currentPageData: newList})
+		this.forceUpdate();
+		return this.currentPageData;
+	}
 		
 	render() {
 		var list; 
-		if(this.state.list.length != 0) {
-			list = this.state.list.map((item, i) => {
+		console.log("STATE RENDER",this.state)
+		if(this.state.currentPageData != []) {
+			console.log("STATE RENDER",this.state)
+			list = this.state.currentPageData.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
 				console.log("ITEM", item, this.props.userId);
 				return (<CompListItem 
@@ -62,6 +81,12 @@ class CompList extends React.Component {
 				<div style={{width:"100%",margin:"5px"}}>Date</div>
 			</div>
 			{list}
+			<SweetPagination
+	   		currentPageData={(e)=> this.setListPager(e)}
+			dataPerPage={4}
+			getData={this.state.list}
+			navigation={true}
+  			/>
 		</div>
 		);
 	}
