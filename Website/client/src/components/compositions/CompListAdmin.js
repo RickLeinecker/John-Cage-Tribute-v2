@@ -208,9 +208,11 @@ class CompListAdminItem extends React.Component {
             var payload = {
                 id: id
             }
+			console.log("RULES OF NATURE");
+			console.log(id);
             console.log("TREVOR");
             console.log(payload);
-            Axios.delete("http://localhost:3001/deleterecording", payload);
+            Axios.post("http://localhost:3001/deleterecordingadmin", {data: {id: id}});
         }
     }
 
