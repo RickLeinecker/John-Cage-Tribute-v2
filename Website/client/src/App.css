@@ -763,7 +763,7 @@ button {
 
 /* Search Page */
 .search {
-   display: flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: url('./img/blackmountaincollege.jpg') no-repeat center center/cover;
