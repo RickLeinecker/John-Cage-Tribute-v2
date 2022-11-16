@@ -14,3 +14,5 @@ Website/client/build
 *.txt
 *.xcconfig
 backend/.DS_Store
+*.mp3
+.DS_Store

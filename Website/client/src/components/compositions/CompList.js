@@ -82,7 +82,8 @@ class CompListItem extends React.Component {
 				description: props.info.description,
 				length: props.info.lengthSeconds,
 				date: props.info.recordingDate,
-				maestro: props.info.username
+				maestro: props.info.username,
+				audioFile: props.info.audioFile
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -97,7 +98,8 @@ class CompListItem extends React.Component {
 		this.setPrivate = this.setPrivate.bind(this);
 		//CHANGE TO USE USERID
 		//localStorage.setItem("target", this.userId);
-		console.log("MAMA MIA: " + this.info);
+		console.log(this.info);
+		console.log(this.state.formdata.audioFile);
 	}
 	
 	render() {
@@ -156,8 +158,7 @@ class CompListItem extends React.Component {
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio className="audio-elem" controls src={'../../AudioFiles/'
-								+ info.recordingId + ".mp3"} >
+							<audio className="audio-elem" controls src={"http://localhost:3001/audio/" + this.state.formdata.audioFile} >
 
 							</audio>	 
 						</div>

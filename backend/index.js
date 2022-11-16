@@ -19,6 +19,7 @@ import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
 import { Blob } from "buffer";
+import Axios from "axios";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
@@ -265,13 +266,17 @@ app.post("/createRecording", (req, res) => {
         }
         });
 
+        console.log("SELECT R.recordingId FROM Recordings R WHERE (audioFile = '" + audioFile + "')");
+
         // get RecordingId of recording we just created
-        db2.query("SELECT R.recordingId FROM Recordings R WHERE (recordingDate ='" + date + "') AND (audioFile = '" + audioFile + "')",
+        db2.query("SELECT R.recordingId FROM Recordings R WHERE (audioFile = '" + audioFile + "')",
         (err, res) => {
         if (err) {
             console.log(err);
         } else {
-           const recId = res[0].recordingId;
+            console.log("In API call...");
+            console.log(res);
+            const recId = res[0].recordingId;
 
             // insert maestro
             db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + maestro + "')",
@@ -643,9 +648,13 @@ app.get("/listeninput", (req, res) => {
 // with any of the above API calls!!
 // Serving out files to the server
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url)).replace("/backend", "/Website");
-console.log(__dirname);
+console.log(__dirname + "client/build");
 
-app.use(express.static('../Website/client/build'));
+console.log(__dirname + "audioFiles");
+
+app.use(express.static(__dirname + "client/build"));
+app.use('/audio', express.static(__dirname + "audioFiles"));
+
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 });
@@ -740,9 +749,13 @@ io.on("connection", function (socket) {
                     return;
                 }
 
-                const scheduleStart = new Date(result[0].scheduleDate);
-                const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000);
+
+
                 const currDate = new Date();
+                const offset = currDate.getTimezoneOffset();
+
+                const scheduleStart = new Date(result[0].scheduleDate - (offset * 60000));
+                const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000 - (offset * 60000));
 
                 console.log(result[0].scheduleDate);
                 console.log(`Start: ${scheduleStart}`);
@@ -752,8 +765,9 @@ io.on("connection", function (socket) {
                 // Timeframe check
                 if (scheduleStart > currDate || currDate > scheduleEnd)
                 {
-                    console.log("You're outside of the timeframe!");
                     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
+                    return;
+                }
 
                 const room = data.room;
                 const roomId = room['id'];
@@ -1131,18 +1145,16 @@ io.on("connection", function (socket) {
 
         console.log('Finished making the wav file');
 
-        delete availableRooms[roomId];
-
         // Generate a random temporary filename for the MP3
         var mp3FileName = randomstring.generate() + ".mp3";
-        var mp3OutputDir = "./audioFiles/" + mp3FileName;
+        var mp3OutputDir = "../Website/audioFiles/" + mp3FileName;
 
         console.log(`Name: ${mp3FileName}`);
 
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
           "output": mp3OutputDir,
-          "scale": 30,
+          "scale": 45,
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
@@ -1178,7 +1190,7 @@ io.on("connection", function (socket) {
         // console.log("formData:");
         // console.log(formData);
 
-        console.log('Uploading MP3 to database...')
+        console.log('Uploading MP3 to database...');
 
         //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
@@ -1186,9 +1198,13 @@ io.on("connection", function (socket) {
         // Here, we create a payload that
         // contains the information needed to
         // insert the new recording into the database
+
+        console.log("pAYLOAD");
+        console.log(payload);
+
         var payload = {
             audioname: mp3FileName,
-            passcode: availableRooms[roomId].scheduleID,
+            passcode: availableRooms[roomId]['scheduleID'],
             length: data.composition.time,
             maestroId: 0,
             user1: -1,
@@ -1215,14 +1231,14 @@ io.on("connection", function (socket) {
         // Clear up the room
         delete availableRooms[roomId];
 
-        // await Axios.post('http://localhost:3001/createRecording/', payload)
-        // .then((response) => {
-        //     console.log(response);
-        //     socket.emit("loginsuccess", response.data);
-        //   }, (error) => {
-        //     console.log(error);
-        //     socket.emit("loginerror", error.response.data);
-        //   });
+        await Axios.post('http://localhost:3001/createRecording/', payload)
+        .then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
 
         console.log('uploaddownload call complete!');
 
@@ -1338,8 +1354,6 @@ audioProcessorPool.on('message', (data) => {
 
                 if (details['role'] == Role.LISTENER && details['isActive']) {
                     //console.log(`(${details['isGuest'] ? '(GUEST)' : details['name']}) is a listener!`);
-                    // var audioBlob = new Blob([processedAudio], {"type": "audio/wav;codecs=opus;"});
-                    // console.log(audioBlob);
                     io.to(details['socket']).emit('playaudio', processedAudio);
                 }
             }
