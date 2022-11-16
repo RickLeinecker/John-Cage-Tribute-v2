@@ -8,8 +8,9 @@ import 'package:mic_stream/mic_stream.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 
-// Local packages
+// Local packages/pages
 import './CustomPackages/popups.dart';
+import './HomePage.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
@@ -111,7 +112,7 @@ class CreateRoom extends ConsumerWidget {
                                         ),
                                         ElevatedButton(
                                           onPressed: () {
-                                            startConcert(socket, ref);
+                                            startConcert(socket, ref, context);
                                             //started = !started;
                                           },
                                           child: const Text('Start Concert'),
@@ -196,7 +197,7 @@ class CreateRoom extends ConsumerWidget {
     ref.read(createdProvider.notifier).state = false;
   }
 
-  void startConcert(Socket socket, WidgetRef ref) async {
+  void startConcert(Socket socket, WidgetRef ref, BuildContext context) async {
     socket.emit("startsession", roomId);
 
     socket.on("audiostart", (message) async {
@@ -208,14 +209,29 @@ class CreateRoom extends ConsumerWidget {
       micStream = await MicStream.microphone(sampleRate: 44100);
 
       micListener = micStream?.listen((data) {
-        print(data);
         socket.emit("sendaudio", data);
       });
 
       ref.read(listeningProvider.notifier).state = true;
     });
 
-    //setState(() => print("setstate"));
+    socket.on("audiostop", (_) {
+      print("Should be stopping now!");
+
+      // Display message letting user know their time ran out
+      micListener?.cancel();
+      micStream = null;
+
+      socket.close();
+
+      // Pop back to the homepage
+      Navigator.of(context).pop();
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ));
+    });
   }
 
   void stopConcert(Socket socket, WidgetRef ref) async {
@@ -251,18 +267,10 @@ class CreateRoom extends ConsumerWidget {
   void mute(Socket socket) async {
     const payload = {'roomId': roomId, 'isActive': false};
     socket.emit("muteordeafen", payload);
-
-    // await micListener?.cancel();
-    //setState(() => print("setstate"));
   }
 
   void unmute(Socket socket) {
     const payload = {'roomId': roomId, 'isActive': true};
     socket.emit("muteordeafen", payload);
-
-    // micListener = micStream?.listen((data) {
-    //   socket.emit("sendaudio", data);
-    // });
-    //setState(() => print("setstate"));
   }
 }

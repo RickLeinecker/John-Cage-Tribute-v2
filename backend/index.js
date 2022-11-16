@@ -329,15 +329,15 @@ app.post("/createRecording", (req, res) => {
     }
     });
 
-    // // delete schedule table
-    // db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
-    // (err, res) => {
-    // if (err) {
-    //     console.log(err);
-    // } else {
-    //     console.log("UserRecording created userthree");
-    // }
-    // });
+    // delete schedule table
+    db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("UserRecording created userthree");
+    }
+    });
 });
 
 // Playback previous recordings
@@ -521,7 +521,7 @@ app.post("/changerequested", (req, res) => {
 // api call to change ismaestro to 1
 app.post("/changeismaestro", (req, res) => {
     const s  = req.query.id; // need new description, userId, recordingId trying to edit
-
+    
     db2.query("UPDATE Users SET isMaestro = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
@@ -783,6 +783,7 @@ io.on("connection", function (socket) {
                 availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
                 availableRooms[roomId]['maestro'] = result[0].maestroId;
                 availableRooms[roomId]['endtime'] = scheduleEnd;
+                availableRooms[roomId]['timeoutID'] = undefined;
 
                 console.log(`Ending at ${availableRooms[roomId]['endtime']}`);
 
@@ -1022,6 +1023,28 @@ io.on("connection", function (socket) {
 
         if (user['isHost']) {
             console.log("Yep! You're the host! Time to partyyyy!");
+
+            // Create the expected end time
+            // Either 5 minutes from start or at the
+            // end of the scheduled time slot,
+            // whichever comes first
+            const currDate = new Date();
+            const endMinutes = currDate.getTime() + (0.2 * 60000);
+            const endLimit = availableRooms[roomId]['endtime'];
+
+            const timeHolder = Math.min(endMinutes, endLimit);
+            const endTime = new Date(timeHolder);
+
+            const timeDiff = endTime - currDate;
+
+            console.log(`We should be ending at: ${endTime}`)
+            console.log(endTime);
+
+            const timeoutID = setTimeout(function () {timeLimitStop(roomId)}, timeDiff);
+
+            availableRooms[roomId]['timeoutID'] = timeoutID;
+
+            // We now have our scheduled endtime, signal everybody to begin
             availableRooms[roomId]['sessionStarted'] = true;
             io.to(roomId).emit('audiostart', "Let's do it.");
             io.emit('updateoneroom', {
@@ -1124,6 +1147,11 @@ io.on("connection", function (socket) {
           });
 
         io.emit('updateoneroom', { roomId: roomId, room: null });
+
+        const timeoutID = availableRooms[roomId]['timeoutID'];
+        console.log(`Canceling timeout ${timeoutID}`);
+
+        clearTimeout(timeoutID);
 
         audioProcessorPool.send({command:'endSession', roomId:roomId});
 
@@ -1370,3 +1398,26 @@ audioProcessorPool.on('message', (data) => {
         availableRooms[roomId]['sessionAudio'].push.apply(availableRooms[roomId]['sessionAudio'], silence);
     }
 })
+
+// Serves as a callback function for the setTimeout function
+// to call once a group's time is over
+function timeLimitStop(roomId) {
+    console.log("WE'RE DONE! BYEBYE");
+
+    io.of('/')
+          .in(roomId)
+          .clients((error, socketIds) => {
+            if (error) throw error;
+
+            socketIds.forEach((socketId) => {
+                console.log(memberAttendance[socketId]);
+                delete memberAttendance[socketId];
+                io.sockets.sockets[socketId].emit(
+                'audiostop',
+                `This room's session has ended. Please exit.`
+                );
+                io.sockets.sockets[socketId].leave(roomId);
+                io.sockets.sockets[socketId].emit('updaterooms', availableRooms);
+            });
+          });
+}
