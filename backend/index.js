@@ -549,7 +549,7 @@ app.post("/changeisrequested", (req, res) => {
 
 // list all users for admin
 app.get("/listusers", (req, res) => {
-    db2.query("SELECT U.id, U.username, U.email, U.bio, U.isMaestro from Users U",
+    db2.query("SELECT U.id, U.username, U.email, U.bio, U.isMaestro from Users U WHERE id > 0",
     (err, result) => {
     if (err) {
         console.log(err);
