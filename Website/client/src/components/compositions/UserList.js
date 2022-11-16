@@ -7,6 +7,7 @@ import Moment from 'moment';
 import * as FaIcons from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
+import axios from 'axios';
 
 class UserList extends React.Component {
 	constructor(props) {
@@ -81,6 +82,8 @@ class UserListItem extends React.Component {
 	
 	render() {
 		var {info, formdata} = this.state;
+		console.log("ID SHOWN HERE: ");
+		console.log(info.id);
 		
 		var sidebar = null;
 		if(this.state.chosen) {
@@ -114,12 +117,12 @@ class UserListItem extends React.Component {
 							{/* Accepting and Rejecting a request */}
                             <div style={{padding:"5px 0px"}}>
 								<button
-                                onClick={() => this.handleAccept(info.username)}
+                                onClick={() => this.handleAccept(info.username, info.id)}
                                 style={{padding:"0px 4px",marginRight:"5px"}}>
                                     Accept
                                 </button>
 								<button
-                                onClick={() => this.handleReject(info.username)}
+                                onClick={() => this.handleReject(info.username, info.id)}
                                 style={{padding:"0px 4px"}}>
                                     Reject
                                 </button>
@@ -158,17 +161,28 @@ class UserListItem extends React.Component {
 		})
 	}
 
-    handleAccept(username) {
+    handleAccept(username, id) {
         if(window.confirm("Are you sure you want user " + username + " to be a maestro?")) {
             console.log("Admin Accepted " + username);
-            //ADD ACCEPT FUNCTIONALITY HERE
+			var payload = {
+				id: id
+			}
+			console.log("ursa");
+    		console.log(payload);
+            axios.post("http://localhost:3001/changeismaestro", payload);
+			axios.post("http://localhost:3001/changeisrequested", payload);
+			window.location.reload();
         }
     }
 
-    handleReject(username) {
+    handleReject(username, id) {
         if(window.confirm("Are you sure you want to reject user " + username)) {
             console.log("Admin Rejected " + username);
-            //ADD REJECT FUNCTIONALITY HERE
+            var payload = {
+				id: id
+			}
+			axios.post("http://localhost:3001/changeisrequested", payload);
+			window.location.reload();
         }
     }
 }

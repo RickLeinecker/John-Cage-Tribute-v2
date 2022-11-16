@@ -10,31 +10,35 @@ class MaestroRequests extends React.Component {
     constructor(props) {
 		super(props);
 		this.state = {
-			//list: []
+			list: []
             //USED FOR TESTING, USE ABOVE WHEN CONNECTING TO BACKEND
-            list: [
-                {
-                    username: "John Cage",
-                    email: "johncage@gmail.com",
-                    password: "everythingismusic",
-                    bio: "You know who I am",
-                    isMaestro: 0,
-                    isRequested: 1
-                },
-                {
-                    username: "Chandler Hale",
-                    email: "test@gmail.com",
-                    password: "michigan",
-                    bio: "Working on this project",
-                    isMaestro: 0,
-                    isRequested: 1
-                }
-            ]
+            // list: [
+            //     {
+            //         username: "John Cage",
+            //         email: "johncage@gmail.com",
+            //         password: "everythingismusic",
+            //         bio: "You know who I am",
+            //         isMaestro: 0,
+            //         isRequested: 1
+            //     },
+            //     {
+            //         username: "Chandler Hale",
+            //         email: "test@gmail.com",
+            //         password: "michigan",
+            //         bio: "Working on this project",
+            //         isMaestro: 0,
+            //         isRequested: 1
+            //     }
+            // ]
 		};
 	}
 
     componentDidMount() {
-        //CONNECT TO API HERE
+        Axios.get("http://localhost:3001/listrequested").then(r => {
+            this.setState({list: r.data});
+            console.log("NAIRO");
+            console.log(this.state.list);
+        })
     }
 
     render() {

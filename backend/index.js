@@ -514,7 +514,9 @@ app.post("/changerequested", (req, res) => {
 
 // api call to change ismaestro to 1
 app.post("/changeismaestro", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    console.log("WE MADE IT");
+    console.log(req.body);
 
     db2.query("UPDATE Users SET isMaestro = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
@@ -526,8 +528,8 @@ app.post("/changeismaestro", (req, res) => {
 });
 
 // api call to change isRequested to 0 (Rejected)
-app.post("/changeismaestro", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+app.post("/changeisrequested", (req, res) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
 
     db2.query("UPDATE Users SET isRequested = 0 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
