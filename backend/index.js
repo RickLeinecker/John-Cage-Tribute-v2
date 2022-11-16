@@ -562,8 +562,9 @@ app.get("/listusers", (req, res) => {
 
 // delete user for admin
 app.post("/deleteuser", (req, res) => {
-    // need ID
-    db2.query("DELETE FROM Users WHERE id = '",
+    console.log("DELETING USER");
+    const id = req.body.id// need ID
+    db2.query("DELETE FROM Users WHERE id = '" + id + "'",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -575,8 +576,10 @@ app.post("/deleteuser", (req, res) => {
 });
 
 // delete recording
-app.delete("/deleterecording", (req, res) => {
-    const id = req.query.id; // need id
+app.post("/deleterecordingadmin", (req, res) => {
+    console.log("In admin delete thing:");
+    console.log(req.body.data.id);
+    const id = req.body.data.id; // need id
     db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
       if (err) {
         console.log(err);
