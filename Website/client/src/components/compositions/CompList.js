@@ -124,6 +124,15 @@ class CompListItem extends React.Component {
 		//localStorage.setItem("target", this.userId);
 		console.log("MAMA MIA: " + this.info);
 	}
+
+	componentDidUpdate(prevProps) {
+        
+		if(prevProps.info !== this.props.info) {
+			this.setState({
+				info: this.props.info
+			})
+		}
+	}
 	
 	render() {
 		var {info, user, formdata} = this.state;
