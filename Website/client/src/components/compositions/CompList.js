@@ -76,6 +76,7 @@ class CompList extends React.Component {
 			dataPerPage={4}
 			getData={this.state.list}
 			navigation={true}
+			getStyle={'style-1'}
   			/>
 		</div>
 		);
