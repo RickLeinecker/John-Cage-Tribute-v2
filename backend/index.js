@@ -562,8 +562,9 @@ app.get("/listusers", (req, res) => {
 
 // delete user for admin
 app.post("/deleteuser", (req, res) => {
-    // need ID
-    db2.query("DELETE FROM Users WHERE id = '",
+    console.log("DELETING USER");
+    const id = req.body.id// need ID
+    db2.query("DELETE FROM Users WHERE id = '" + id + "'",
     (err, result) => {
     if (err) {
         console.log(err);

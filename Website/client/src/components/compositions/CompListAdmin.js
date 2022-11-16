@@ -213,6 +213,7 @@ class CompListAdminItem extends React.Component {
             console.log("TREVOR");
             console.log(payload);
             Axios.post("http://localhost:3001/deleterecordingadmin", {data: {id: id}});
+            window.location.reload();
         }
     }
 
