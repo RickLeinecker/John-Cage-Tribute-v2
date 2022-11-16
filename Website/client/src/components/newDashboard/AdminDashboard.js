@@ -225,8 +225,8 @@ const AdminDashboard = () => {
                     <div className='search-inner'>
                         <div className='search-box'>
                             <h1 className='large text-primary'>Welcome Back: {userName}</h1>
-                            <button className="btn btn-primary" onClick={handleDeleteUser}>Delete User</button>
-                            <button className="btn btn-primary" onClick={handleDeleteRecording}>Delete Recording</button>
+                            <Link to='/allusers' className='btn btn-primary'>Delete Users</Link>
+                            <Link to='/allrecordings' className="btn btn-primary">Delete Recordings</Link>
                             <Link to='/maestrorequests' className='btn btn-primary'>Maestro Requests</Link>
                             <div className={css(styles.content)}>
                                 <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
