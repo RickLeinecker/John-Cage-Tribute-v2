@@ -7,13 +7,12 @@ import {setAlert} from "../../actions/alert"
 //=================
 //-guest or user can join rooms to listen
 //-requires pin
-  
 
 class Rooms extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			socket: io("https://johncagetribute.org/"),
+			socket: io("http://localhost:8080"),
 			roomsList: []
 		};
 		this.refresh = this.refresh.bind(this);
@@ -23,6 +22,7 @@ class Rooms extends React.Component {
 		// Socket code
 		const socket = this.state.socket;
 		socket.on("updaterooms", rooms => {
+			console.log("Rooms updated!");
 			var pn = Object.getOwnPropertyNames(rooms);
 			this.setState({roomsList: pn.map(name => rooms[name])})
 		});
@@ -55,17 +55,34 @@ class Rooms extends React.Component {
 		
 		// Audio Listener code (plus some socket)
 		var audioContext = new window.AudioContext();
-		var buffer = audioContext.createBuffer(1, 1024, 22050);
-		socket.on("playaudio", audioData => {
-			var bufferData = buffer.getChannelData(0);
-			
-			for(var i=0; i < audioData.length; i++)
-				bufferData[i] = audioData[i];
+		//var buffer = audioContext.createBuffer(1, 896, 44100);
+		socket.on('playaudio', function(audioData) {
+			console.log(audioData);
+			var blob = new Blob([audioData], { 'type' : 'audio/webm;codecs=opus' });
+			var audio = document.createElement('audio');
+			audio.src = window.URL.createObjectURL(blob);
+			audio.play();
+		});
+
+		socket.on("jfsiofjsjof", audioData => {
+			// console.log("Receiving:");
+			// var blob = new Blob([audioData], {'type' : 'audio/ogg; codecs=opus'});
+			// var audio = document.createElement('audio');
+			// audio.src = window.URL.createObjectURL(blob);
+			// audio.play();
+
+			console.log(audioData);
+
+			// console.log(audioData);
+			// var bufferData = buffer.getChannelData(0);
+
+			// for(var i=0; i < audioData.length; i++)
+			// 	bufferData[i] = audioData[i];
 				
-			var source = audioContext.createBufferSource();
-			source.buffer = buffer;
-			source.connect(audioContext.destination);
-			source.start();
+			// var source = audioContext.createBufferSource();
+			// source.buffer = buffer;
+			// source.connect(audioContext.destination);
+			// source.start();
 		})
 	}
 	

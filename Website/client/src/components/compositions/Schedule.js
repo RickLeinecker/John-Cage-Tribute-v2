@@ -9,61 +9,32 @@ import Select from 'react-select';
 import './Calendar.css';
 
 const Schedule = ({ isAuthenticated }) => {
-    // const times =
-    // [
-    //     "00:00", "00:20", "00:40",
-    //     "1:00", "1:20", "1:40",
-    //     "2:00", "2:20", "2:40",
-    //     "3:00", "3:20", "3:40",
-    //     "4:00", "4:20", "4:40",
-    //     "5:00", "5:20", "5:40",
-    //     "6:00", "6:20", "6:40",
-    //     "7:00", "7:20", "7:40",
-    //     "8:00", "8:20", "8:40",
-    //     "9:00", "9:20", "9:40",
-    //     "10:00", "10:20", "10:40",
-    //     "11:00", "11:20", "11:40",
-    //     "12:00", "12:20", "12:40",
-    //     "13:00", "13:20", "13:40",
-    //     "14:00", "14:20", "14:40",
-    //     "15:00", "15:20", "15:40",
-    //     "16:00", "16:20", "16:40",
-    //     "17:00", "17:20", "17:40",
-    //     "18:00", "18:20", "18:40",
-    //     "19:00", "19:20", "19:40",
-    //     "20:00", "20:20", "20:40",
-    //     "21:00", "21:20", "21:40",
-    //     "22:00", "22:20", "22:40",
-    //     "23:00", "23:20", "23:40"
-    // ];
     const times = [
-        {label: "00:00", value: 1}, {label: "00:20", value: 2}, {label: "00:40", value: 3},
-        {label: "1:00", value: 4}, {label: "1:20", value: 5}, {label: "1:40", value: 6},
-        {label: "2:00", value: 7}, {label: "2:20", value: 8}, {label: "2:40", value: 9},
-        {label: "3:00", value: 10}, {label: "3:20", value: 11}, {label: "3:40", value: 12},
-        {label: "4:00", value: 13}, {label: "4:20", value: 14}, {label: "4:40", value: 15},
-        {label: "5:00", value: 16}, {label: "5:20", value: 17}, {label: "5:40", value: 18},
-        {label: "6:00", value: 19}, {label: "6:20", value: 20}, {label: "6:40", value: 21},
-        {label: "7:00", value: 22}, {label: "7:20", value: 23}, {label: "7:40", value: 24},
-        {label: "8:00", value: 25}, {label: "8:20", value: 26}, {label: "8:40", value: 27},
-        {label: "9:00", value: 28}, {label: "9:20", value: 29}, {label: "9:40", value: 30},
-        {label: "10:00", value: 31}, {label: "10:20", value: 32}, {label: "10:40", value: 33},
-        {label: "11:00", value: 34}, {label: "11:20", value: 35}, {label: "11:40", value: 36},
-        {label: "12:00", value: 37}, {label: "12:20", value: 38}, {label: "12:40", value: 39},
-        {label: "13:00", value: 40}, {label: "13:20", value: 41}, {label: "13:40", value: 42},
-        {label: "14:00", value: 43}, {label: "14:20", value: 44}, {label: "14:40", value: 45},
-        {label: "15:00", value: 46}, {label: "15:20", value: 47}, {label: "15:40", value: 48},
-        {label: "16:00", value: 49}, {label: "16:20", value: 50}, {label: "16:40", value: 51},
-        {label: "17:00", value: 52}, {label: "17:20", value: 53}, {label: "17:40", value: 54},
-        {label: "18:00", value: 55}, {label: "18:20", value: 56}, {label: "18:40", value: 57},
-        {label: "19:00", value: 58}, {label: "19:20", value: 59}, {label: "19:40", value: 60},
-        {label: "20:00", value: 61}, {label: "20:20", value: 62}, {label: "20:40", value: 63},
-        {label: "21:00", value: 64}, {label: "21:20", value: 65}, {label: "21:40", value: 66},
-        {label: "22:00", value: 67}, {label: "22:20", value: 68}, {label: "22:40", value: 69},
-        {label: "23:00", value: 70}, {label: "23:20", value: 71}, {label: "23:40", value: 72}
+        {label: "12:00 AM", value: 1}, {label: "12:20 AM", value: 2}, {label: "12:40 AM", value: 3},
+        {label: "1:00 AM", value: 4}, {label: "1:20 AM", value: 5}, {label: "1:40 AM", value: 6},
+        {label: "2:00 AM", value: 7}, {label: "2:20 AM", value: 8}, {label: "2:40 AM", value: 9},
+        {label: "3:00 AM", value: 10}, {label: "3:20 AM", value: 11}, {label: "3:40 AM", value: 12},
+        {label: "4:00 AM", value: 13}, {label: "4:20 AM", value: 14}, {label: "4:40 AM", value: 15},
+        {label: "5:00 AM", value: 16}, {label: "5:20 AM", value: 17}, {label: "5:40 AM", value: 18},
+        {label: "6:00 AM", value: 19}, {label: "6:20 AM", value: 20}, {label: "6:40 AM", value: 21},
+        {label: "7:00 AM", value: 22}, {label: "7:20 AM", value: 23}, {label: "7:40 AM", value: 24},
+        {label: "8:00 AM", value: 25}, {label: "8:20 AM", value: 26}, {label: "8:40 AM", value: 27},
+        {label: "9:00 AM", value: 28}, {label: "9:20 AM", value: 29}, {label: "9:40 AM", value: 30},
+        {label: "10:00 AM", value: 31}, {label: "10:20 AM", value: 32}, {label: "10:40 AM", value: 33},
+        {label: "11:00 AM", value: 34}, {label: "11:20 AM", value: 35}, {label: "11:40 AM", value: 36},
+        {label: "12:00 PM", value: 37}, {label: "12:20 PM", value: 38}, {label: "12:40 PM", value: 39},
+        {label: "1:00 PM", value: 40}, {label: "1:20 PM", value: 41}, {label: "1:40 PM", value: 42},
+        {label: "2:00 PM", value: 43}, {label: "2:20 PM", value: 44}, {label: "2:40 PM", value: 45},
+        {label: "3:00 PM", value: 46}, {label: "3:20 PM", value: 47}, {label: "3:40 PM", value: 48},
+        {label: "4:00 PM", value: 49}, {label: "4:20 PM", value: 50}, {label: "4:40 PM", value: 51},
+        {label: "5:00 PM", value: 52}, {label: "5:20 PM", value: 53}, {label: "5:40 PM", value: 54},
+        {label: "6:00 PM", value: 55}, {label: "6:20 PM", value: 56}, {label: "6:40 PM", value: 57},
+        {label: "7:00 PM", value: 58}, {label: "7:20 PM", value: 59}, {label: "7:40 PM", value: 60},
+        {label: "8:00 PM", value: 61}, {label: "8:20 PM", value: 62}, {label: "8:40 PM", value: 63},
+        {label: "9:00 PM", value: 64}, {label: "9:20 PM", value: 65}, {label: "9:40 PM", value: 66},
+        {label: "10:00 PM", value: 67}, {label: "10:20 PM", value: 68}, {label: "10:40 PM", value: 69},
+        {label: "11:00 PM", value: 70}, {label: "11:20 PM", value: 71}, {label: "11:40 PM", value: 72}
     ];
-
-    //const temp = [{label: "", value: }, {label: "3:00", value: 2}];
 
     const timeRef = React.useRef(null);
     const calRef = React.useRef(null);
@@ -137,6 +108,8 @@ const Schedule = ({ isAuthenticated }) => {
     });
 
     const handleSubmit = event => {
+        event.preventDefault();
+        
         console.log("In handleSubmit: " + value);
         
         changeTime(finalTime);
@@ -152,7 +125,7 @@ const Schedule = ({ isAuthenticated }) => {
         //console.log("In handleSubmit: " + value);
         console.log("Temp: " + temp);
     
-        event.preventDefault();
+        // event.preventDefault();
         
         trySchedule(userId, temp, title, description);
 
@@ -207,38 +180,27 @@ const Schedule = ({ isAuthenticated }) => {
     
     const changeTime = time => {
         console.log(`Let's do thisssss ${time.indexOf(":")}`);
-
         
         //hour is always 4 ahead, so we subtract here to fix that
         // var tempHour = time.substr(0, time.indexOf(":")) + "-4";
         // tempHour = addbits(tempHour);
 
         var tempHour = time.substr(0, time.indexOf(":"));
-        var tempMinute = time.substr(time.indexOf(":")+1);
+        var tempMinute = time.substr(time.indexOf(":")+1, time.indexOf(" "));
+        tempMinute = tempMinute.substr(0, 2);
+
+        console.log("TEMPHOUR: " + tempHour);
+        console.log("TEMPMINUTE: " + tempMinute + "|");
+
+        if(time.includes(" PM")) {
+            tempHour += "+12";
+            tempHour = addbits(tempHour);
+        }
 
         console.log("FEAR YE: " + tempHour + ":" + tempMinute);
     
         value.setHours(tempHour);
         value.setMinutes(tempMinute);
-    }
-
-    const changeTimeTwo = (time, temp) => {
-        console.log(`Let's do thisssss ${time.indexOf(":")}`);
-
-        
-        //hour is always 4 ahead, so we subtract here to fix that
-        // var tempHour = time.substr(0, time.indexOf(":")) + "-4";
-        // tempHour = addbits(tempHour);
-
-        var tempHour = time.substr(0, time.indexOf(":"));
-        var tempMinute = time.substr(time.indexOf(":")+1);
-
-        console.log("FEAR YE: " + tempHour + ":" + tempMinute);
-    
-        temp.setHours(tempHour);
-        temp.setMinutes(tempMinute);
-
-        return temp;
     }
 
     function handleChange(selectedOption) {

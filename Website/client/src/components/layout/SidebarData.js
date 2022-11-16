@@ -5,6 +5,12 @@ import * as IoIcons from 'react-icons/io';
 
 export const SidebarData = {
   AuthenticatedMaestro: [
+    {
+      title: 'Home',
+      path: '',
+      icon: <FaIcons.FaHome/>,
+      cName: 'nav-text'
+    },
   {
     title: 'Profile',
     path: '/Profile',
@@ -50,6 +56,12 @@ export const SidebarData = {
 
   Authenticated: [
     {
+      title: 'Home',
+      path: '',
+      icon: <FaIcons.FaHome/>,
+      cName: 'nav-text'
+    },
+    {
       title: 'Profile',
       path: '/Profile',
       icon: <IoIcons.IoMdPeople/>,
@@ -87,6 +99,12 @@ export const SidebarData = {
     ],
 
   Unauthenticated: [
+    {
+      title: 'Home',
+      path: '',
+      icon: <FaIcons.FaHome/>,
+      cName: 'nav-text'
+    },
     {
       title: 'Recordings',
       path: '/search',

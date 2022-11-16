@@ -18,6 +18,8 @@ import bcrypt from "bcrypt";
 import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
+import { Blob } from "buffer";
+import Axios from "axios";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
@@ -91,8 +93,7 @@ app.get("/recordings", (req, res) => {
 app.get("/userRec", (req, res) => {
     const s  = req.query.id; // going to switch this to user id that is passed through token
     console.log("req: !!", s);
-    console.log("req.id", req);
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId WHERE U.id = R.maestroId",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -183,13 +184,15 @@ app.post("/editrecording", (req, res) => {
         if (result.length == 1)
         {
             const newDescription = s.newdescription.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-            db2.query("UPDATE Recordings SET description = '" + newDescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
+            const newTitle = s.newtitle.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET description = '" + newDescription + "' , " + "title = '" + newTitle + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
                 if (err) {
                 console.log("EDIT ERROR");
                   console.log(err)
                 } else {
                   console.log("Updating and Row Count is ", result.length);
                 }
+                res.send(result);
             })
         } else
         {
@@ -268,13 +271,17 @@ app.post("/createRecording", (req, res) => {
         }
         });
 
+        console.log("SELECT R.recordingId FROM Recordings R WHERE (audioFile = '" + audioFile + "')");
+
         // get RecordingId of recording we just created
-        db2.query("SELECT R.recordingId FROM Recordings R WHERE (recordingDate ='" + date + "') AND (audioFile = '" + audioFile + "')",
+        db2.query("SELECT R.recordingId FROM Recordings R WHERE (audioFile = '" + audioFile + "')",
         (err, res) => {
         if (err) {
             console.log(err);
         } else {
-           const recId = res[0].recordingId;
+            console.log("In API call...");
+            console.log(res);
+            const recId = res[0].recordingId;
 
             // insert maestro
             db2.query("INSERT INTO UserRecording(RecordingId, userId) VALUES ('" + recId + "', '" + maestro + "')",
@@ -327,15 +334,15 @@ app.post("/createRecording", (req, res) => {
     }
     });
 
-    // // delete schedule table
-    // db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
-    // (err, res) => {
-    // if (err) {
-    //     console.log(err);
-    // } else {
-    //     console.log("UserRecording created userthree");
-    // }
-    // });
+    // delete schedule table
+    db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("UserRecording created userthree");
+    }
+    });
 });
 
 // Playback previous recordings
@@ -348,6 +355,7 @@ app.post("/schedule", (req, res) => {
     const s  = JSON.parse(req.body.params);
     console.log("S IS HERE:");
     console.log(s);
+    console.log("date is", s.date);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
@@ -366,7 +374,7 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y %H-%i') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
@@ -462,12 +470,26 @@ app.post("/enterSchedule", (req, res) => {
 // List user's scheduled recordings
 app.get("/userScheduled", (req, res) => {
     const s  = req.query.id;
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.passcodePerform, S.passcodeListen, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.passcodePerform, S.passcodeListen, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y %H:%i') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
     (err, result) => {
     if (err) {
         console.log(err);
     } else {
         console.log("SUCCESS USER event RES", result);
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// List user's scheduled recordings
+app.get("/username", (req, res) => {
+    const s  = req.query.id;
+    db2.query("SELECT DISTINCT U.username FROM Users U WHERE id = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
         console.log(result);
         res.send(result);
     }
@@ -504,7 +526,9 @@ app.post("/changerequested", (req, res) => {
 
 // api call to change ismaestro to 1
 app.post("/changeismaestro", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    console.log("WE MADE IT");
+    console.log(req.body);
 
     db2.query("UPDATE Users SET isMaestro = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
@@ -516,8 +540,8 @@ app.post("/changeismaestro", (req, res) => {
 });
 
 // api call to change isRequested to 0 (Rejected)
-app.post("/changeismaestro", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+app.post("/changeisrequested", (req, res) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
 
     db2.query("UPDATE Users SET isRequested = 0 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
@@ -530,7 +554,7 @@ app.post("/changeismaestro", (req, res) => {
 
 // list all users for admin
 app.get("/listusers", (req, res) => {
-    db2.query("SELECT U.id, U.username, U.email, U.bio, U.isMaestro from Users U",
+    db2.query("SELECT U.id, U.username, U.email, U.bio, U.isMaestro from Users U WHERE id > 0",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -543,8 +567,9 @@ app.get("/listusers", (req, res) => {
 
 // delete user for admin
 app.post("/deleteuser", (req, res) => {
-    // need ID
-    db2.query("DELETE FROM Users WHERE id = '",
+    console.log("DELETING USER");
+    const id = req.body.id// need ID
+    db2.query("DELETE FROM Users WHERE id = '" + id + "'",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -556,8 +581,10 @@ app.post("/deleteuser", (req, res) => {
 });
 
 // delete recording
-app.delete("/deleterecording", (req, res) => {
-    const id = req.query.id; // need id
+app.post("/deleterecordingadmin", (req, res) => {
+    console.log("In admin delete thing:");
+    console.log(req.body.data.id);
+    const id = req.body.data.id; // need id
     db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
       if (err) {
         console.log(err);
@@ -572,6 +599,7 @@ app.delete("/deleterecording", (req, res) => {
 // get user info
 app.get("/userinfo", (req, res) => {
     const s  = req.query.id;
+    console.log("WE ARE HERE");
     db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {
@@ -632,9 +660,13 @@ app.get("/listeninput", (req, res) => {
 // with any of the above API calls!!
 // Serving out files to the server
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url)).replace("/backend", "/Website");
-console.log(__dirname);
+console.log(__dirname + "client/build");
 
-app.use(express.static('../Website/client/build'));
+console.log(__dirname + "audioFiles");
+
+app.use(express.static(__dirname + "client/build"));
+app.use('/audio', express.static(__dirname + "audioFiles"));
+
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 });
@@ -655,34 +687,35 @@ var audioProcessorPool = childProcess.fork('../Website/audioProcessor/audioProce
 
 io.on("connection", function (socket) {
     // Register from mobile app
-    socket.on("register", (credentials) => {
-        const payload = {
-            body: {
-                username: credentials.username,
-                email: credentials.email,
-                password: credentials.password,
-                confPassword: credentials.passwordconfirm
-            }
-        };
+    socket.on("register", async (credentials) => {
+        console.log("Registering!!!");
 
-        console.log("Credentials: ", payload);
-
-        // Register(payload, app.response);
+        await Axios.post('http://localhost:3001/users', {
+            username: credentials.username,
+            email: credentials.email,
+            password: credentials.password,
+            confPassword: credentials.passwordconfirm
+        }).then((response) => {
+            console.log(response);
+            socket.emit("regsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("regerror", error.response.data);
+          });
     });
 
     // Log in from mobile app
-    socket.on("login", (credentials) => {
-        const payload = {
-            body: {
-                email: credentials.email,
-                password: credentials.password
-            }
-        }
-
-        console.log("Credentials: ", credentials);
-        console.log("Payload: ", payload);
-
-        // Login(payload);
+    socket.on("login", async (credentials) => {
+        await Axios.post('http://localhost:3001/login/', {
+          email: credentials.email,
+          password: credentials.password
+         }).then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
     });
 
     // Joining a concert
@@ -703,8 +736,6 @@ io.on("connection", function (socket) {
     // Rooms' ids
     // UPDATED
     socket.on('createroom', function (data) {
-        console.log(`Received createroom from socket: ${socket.id}.`);
-
         // Run checks to make sure the user is the maestro AND they're opening on their scheduled timeframe
         db2.query("SELECT * FROM Schedule ORDER BY scheduleDate ASC;", (err, result) => {
             if (err)
@@ -717,7 +748,6 @@ io.on("connection", function (socket) {
                 // Empty table check
                 if (result[0] == undefined)
                 {
-                    console.log("Nothing's scheduled.");
                     socket.emit("scheduleerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
                     return;
                 }
@@ -725,14 +755,18 @@ io.on("connection", function (socket) {
                 // Maestro check
                 if (data.member.userId != result[0].maestroId)
                 {
-                    console.log("Somebody didn't make an appointment!");
+                    console.log(result[0].maestroId);
                     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
                     return;
                 }
 
-                const scheduleStart = new Date(result[0].scheduleDate);
-                const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000);
+
+
                 const currDate = new Date();
+                const offset = currDate.getTimezoneOffset();
+
+                const scheduleStart = new Date(result[0].scheduleDate - (offset * 60000));
+                const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000 - (offset * 60000));
 
                 console.log(result[0].scheduleDate);
                 console.log(`Start: ${scheduleStart}`);
@@ -742,12 +776,7 @@ io.on("connection", function (socket) {
                 // Timeframe check
                 if (scheduleStart > currDate || currDate > scheduleEnd)
                 {
-                    console.log("You're outside of the timeframe!");
                     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
-
-                    console.log(scheduleStart > currDate);
-                    console.log(currDate > scheduleEnd);
-
                     return;
                 }
 
@@ -764,12 +793,16 @@ io.on("connection", function (socket) {
                 availableRooms[roomId]['sessionAudio'] = [];
                 availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
                 availableRooms[roomId]['maestro'] = result[0].maestroId;
+                availableRooms[roomId]['endtime'] = scheduleEnd;
+                availableRooms[roomId]['timeoutID'] = undefined;
+
+                console.log(`Ending at ${availableRooms[roomId]['endtime']}`);
 
                 console.log("Printing member...");
                 console.log(availableRooms[roomId]['members'][socket.id]);
                 console.log("Member printed...");
 
-                console.log(availableRooms[roomId].scheduleID);
+                //console.log(availableRooms[roomId].scheduleID);
 
                 if (member.role == Role.PERFORMER) {
                     audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
@@ -784,6 +817,8 @@ io.on("connection", function (socket) {
 
                 memberAttendance[socket.id] = roomId;
                 socket.join(roomId);
+
+                console.log(roomId);
 
                 socket.emit("schedulesuccess", "You did it!");
 
@@ -999,6 +1034,28 @@ io.on("connection", function (socket) {
 
         if (user['isHost']) {
             console.log("Yep! You're the host! Time to partyyyy!");
+
+            // Create the expected end time
+            // Either 5 minutes from start or at the
+            // end of the scheduled time slot,
+            // whichever comes first
+            const currDate = new Date();
+            const endMinutes = currDate.getTime() + (5 * 60000);
+            const endLimit = availableRooms[roomId]['endtime'];
+
+            const timeHolder = Math.min(endMinutes, endLimit);
+            const endTime = new Date(timeHolder);
+
+            const timeDiff = endTime - currDate;
+
+            console.log(`We should be ending at: ${endTime}`)
+            console.log(endTime);
+
+            setTimeout(function () {timeLimitStop(roomId)}, timeDiff);
+
+            availableRooms[roomId]['timeoutID'] = 0;
+
+            // We now have our scheduled endtime, signal everybody to begin
             availableRooms[roomId]['sessionStarted'] = true;
             io.to(roomId).emit('audiostart', "Let's do it.");
             io.emit('updateoneroom', {
@@ -1044,9 +1101,9 @@ io.on("connection", function (socket) {
     socket.on('sendaudio', function (data) {
         const roomId = memberAttendance[socket.id];
 
-        console.log(data);
-
         if (!roomId) {
+            console.log(roomId);
+            console.log("RETURNING!!!1");
             return;
         }
 
@@ -1073,7 +1130,6 @@ io.on("connection", function (socket) {
         const roomId = data["roomId"];
         const existingRoom = availableRooms[roomId];
 
-        console.log(data);
         console.log(roomId);
 
         if (!existingRoom) {
@@ -1103,6 +1159,11 @@ io.on("connection", function (socket) {
 
         io.emit('updateoneroom', { roomId: roomId, room: null });
 
+        const timeoutID = availableRooms[roomId]['timeoutID'];
+        console.log(`Canceling timeout ${timeoutID}`);
+
+        clearTimeout(timeoutID);
+
         audioProcessorPool.send({command:'endSession', roomId:roomId});
 
         // Create a WAV file buffer from the raw audio data before we
@@ -1115,29 +1176,30 @@ io.on("connection", function (socket) {
         // Save the WAV file buffer as a raw data buffer
         var audioFileBuffer = Buffer.from(wav.toBuffer());
 
-        console.log("AUDIO BUFFER:");
+        console.log("audioFileBuffer:");
         console.log(audioFileBuffer);
+
+        // console.log("AUDIO BUFFER:");
+        // console.log(audioFileBuffer);
 
         console.log('Finished making the wav file');
 
-        delete availableRooms[roomId];
-
         // Generate a random temporary filename for the MP3
-        var mp3FileName = "./audioFiles/" + randomstring.generate() + ".mp3";
+        var mp3FileName = randomstring.generate() + ".mp3";
+        var mp3OutputDir = "../Website/audioFiles/" + mp3FileName;
 
-        console.log(`It's a new name!! ${mp3FileName}`);
+        console.log(`Name: ${mp3FileName}`);
 
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
-          "output": mp3FileName,
-          "scale": 45,
+          "output": mp3OutputDir,
+          "scale": 60,
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
 
         console.log("H??");
         // Encode the MP3 file
-        //await encoder.encode();
         encoder
             .encode()
             .then(() => {
@@ -1153,9 +1215,6 @@ io.on("connection", function (socket) {
           ...data.composition
         };
 
-        // console.log(`Data composition:`);
-        // console.log(data);
-
         // Open the MP3 file as a read stream
         var mp3FileStream = fs.createReadStream(mp3FileName);
 
@@ -1170,7 +1229,7 @@ io.on("connection", function (socket) {
         // console.log("formData:");
         // console.log(formData);
 
-        console.log('Uploading MP3 to database...')
+        console.log('Uploading MP3 to database...');
 
         //const response = await fetch(`https://johncagetribute.org/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
@@ -1178,9 +1237,13 @@ io.on("connection", function (socket) {
         // Here, we create a payload that
         // contains the information needed to
         // insert the new recording into the database
+
+        console.log("pAYLOAD");
+        console.log(payload);
+
         var payload = {
             audioname: mp3FileName,
-            passcode: availableRooms[roomId].scheduleID,
+            passcode: availableRooms[roomId]['scheduleID'],
             length: data.composition.time,
             maestroId: 0,
             user1: -1,
@@ -1346,3 +1409,26 @@ audioProcessorPool.on('message', (data) => {
         availableRooms[roomId]['sessionAudio'].push.apply(availableRooms[roomId]['sessionAudio'], silence);
     }
 })
+
+// Serves as a callback function for the setTimeout function
+// to call once a group's time is over
+function timeLimitStop(roomId) {
+    console.log("WE'RE DONE! BYEBYE");
+
+    io.of('/')
+          .in(roomId)
+          .clients((error, socketIds) => {
+            if (error) throw error;
+
+            socketIds.forEach((socketId) => {
+                console.log(memberAttendance[socketId]);
+                delete memberAttendance[socketId];
+                io.sockets.sockets[socketId].emit(
+                'audiostop',
+                `This room's session has ended. Please exit.`
+                );
+                io.sockets.sockets[socketId].leave(roomId);
+                io.sockets.sockets[socketId].emit('updaterooms', availableRooms);
+            });
+          });
+}

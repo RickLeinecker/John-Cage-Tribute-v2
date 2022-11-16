@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
 function ConcertCardComponent({ className = '', group, date , styleSt}) { //date , time , groupname
     const composedClassName = `${css(styleSt? styleSt : styles.container)} ${className}`;
     console.log('chosen style', composedClassName)
+    console.log("CONCERT CARD: "+date);
 
     return (
         <Column flexGrow={1} className={composedClassName} horizontal="center" vertical="center">

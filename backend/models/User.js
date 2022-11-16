@@ -5,10 +5,12 @@ const { DataTypes } = Sequelize;
 
 const Users = db.define('Users',{
     username:{
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        unique: true
     },
     email:{
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        unique: true
     },
     password:{
         type: DataTypes.STRING

@@ -40,7 +40,7 @@ const Register = () => {
             password: password,
             confPassword: password2
         });
-        history.push("/login");
+        history.push("/checkemail");
     } catch (error) {
         if (error.response) {
           console.log("login error");
@@ -109,6 +109,9 @@ const Register = () => {
                     onChange={e => setPassword2(e.target.value)}
                   />
                 </div>
+                <p className='landing-text'>
+                  (By making an account, you agree to allow us to upload your recordings, along with your username and bio)
+                </p>
                 <input type='submit' onClick={displayInfo} className='btn btn-primary' value='Register' />
               </form>
               <br/>
