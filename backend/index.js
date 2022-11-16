@@ -18,6 +18,7 @@ import bcrypt from "bcrypt";
 import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
+import { Blob } from "buffer";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
@@ -683,6 +684,9 @@ io.on("connection", function (socket) {
                 availableRooms[roomId]['sessionAudio'] = [];
                 availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
                 availableRooms[roomId]['maestro'] = result[0].maestroId;
+                availableRooms[roomId]['endtime'] = scheduleEnd;
+
+                console.log(`Ending at ${availableRooms[roomId]['endtime']}`);
 
                 console.log("Printing member...");
                 console.log(availableRooms[roomId]['members'][socket.id]);
@@ -703,6 +707,8 @@ io.on("connection", function (socket) {
 
                 memberAttendance[socket.id] = roomId;
                 socket.join(roomId);
+
+                console.log(roomId);
 
                 socket.emit("schedulesuccess", "You did it!");
 
@@ -963,10 +969,11 @@ io.on("connection", function (socket) {
     // Then, pass them the audio data
     // AFTER STARTSESSION
     socket.on('sendaudio', function (data) {
-        console.log(data);
         const roomId = memberAttendance[socket.id];
-
+        
         if (!roomId) {
+            console.log(roomId);
+            console.log("RETURNING!!!1");
             return;
         }
 
@@ -1036,6 +1043,9 @@ io.on("connection", function (socket) {
         // Save the WAV file buffer as a raw data buffer
         var audioFileBuffer = Buffer.from(wav.toBuffer());
 
+        console.log("audioFileBuffer:");
+        console.log(audioFileBuffer);
+
         // console.log("AUDIO BUFFER:");
         // console.log(audioFileBuffer);
 
@@ -1057,7 +1067,6 @@ io.on("connection", function (socket) {
 
         console.log("H??");
         // Encode the MP3 file
-        //await encoder.encode();
         encoder
             .encode()
             .then(() => {
@@ -1248,6 +1257,8 @@ audioProcessorPool.on('message', (data) => {
 
                 if (details['role'] == Role.LISTENER && details['isActive']) {
                     //console.log(`(${details['isGuest'] ? '(GUEST)' : details['name']}) is a listener!`);
+                    // var audioBlob = new Blob([processedAudio], {"type": "audio/wav;codecs=opus;"});
+                    // console.log(audioBlob);
                     io.to(details['socket']).emit('playaudio', processedAudio);
                 }
             }

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutterapp/main.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -137,7 +138,7 @@ class LoginPage extends ConsumerWidget {
                             padding: const EdgeInsets.only(left: 7.5),
                             child: TextButton(
                                 onPressed: () {
-                                  signin(socket, context, storage);
+                                  signin(socket, context, ref);
                                 },
                                 child: const Text('Sign in',
                                     style: TextStyle(
@@ -151,8 +152,8 @@ class LoginPage extends ConsumerWidget {
         ));
   }
 
-  void signin(
-      Socket socket, BuildContext context, FlutterSecureStorage storage) {
+  void signin(Socket socket, BuildContext context, WidgetRef ref) {
+    FlutterSecureStorage myStorage = new FlutterSecureStorage();
     final _email = _emailController.text.trim();
     final _password = _passController.text.trim();
 
@@ -164,9 +165,21 @@ class LoginPage extends ConsumerWidget {
     socket.emit("login", _credentials);
 
     socket.on("loginsuccess", (data) async {
-      print(data['accessToken']);
+      await myStorage.write(key: "jctacc", value: data['accessToken']);
 
-      await storage.write(key: "jctacc", value: data['accessToken']);
+      var token = myStorage.read(key: "jctacc");
+
+      var decoded = JwtDecoder.decode(data['accessToken']);
+      print(decoded['username']);
+      print(decoded['userId']);
+
+      // Set username & ID here
+      ref.read(userProvider.notifier).state = decoded['username'];
+      ref.read(idProvider.notifier).state = decoded['userId'];
+      ref.read(loggedProvider.notifier).state = true;
+
+      print("User: ${ref.read(userProvider.notifier).state}");
+      print("Id: ${ref.read(idProvider.notifier).state}");
 
       _emailController.text = '';
       _passController.text = '';

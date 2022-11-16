@@ -86,6 +86,13 @@ class CompListItem extends React.Component {
 		this.submitEdit = this.submitEdit.bind(this);
 		this.cancelEdit = this.cancelEdit.bind(this);
 		this.setPrivate = this.setPrivate.bind(this);
+
+		console.log(`ID: ${props.info.recordingId}`);
+	}
+
+	testFunction()
+	{
+		alert('....');
 	}
 	
 	render() {
@@ -99,12 +106,13 @@ class CompListItem extends React.Component {
 			console.log("comp info", info)
 			var c = "info-field-title";
 			var c1 = "info-p";
+
 			sidebar = (
 
 			<IconContext.Provider value={{ color: '#fff' }}>
 			<div className="dark-overlay" style={{zIndex:"2", position:"fixed"}}>
 				
-				<div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}>
+				<div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}  onload="testFunction();">
 					<div id= "close" className = 'close' onClick={()=>this.setState({chosen: false}) }>
 							 <AiIcons.AiOutlineClose />
 					</div>
