@@ -22,8 +22,8 @@ import { Blob } from "buffer";
 
 import wavpkg from 'wavefile';
 import FormData from '@postman/form-data';
-import Axios from "axios";
-import c from "config";
+import { info } from "console";
+import e from "express";
 
 const {WaveFile} = wavpkg;
 const {Lame} = pkg2;
@@ -35,6 +35,8 @@ const socketPort = 8080;
 
 const app = express();
 
+availableRooms = {};
+memberAttendance = {};
 audioProcessorPool = childProcess.fork("../Website/audioProcessor/audioProcessorPool.js");
 
 app.use(cors({ credentials:true, origin:'http://localhost:3000' }));
@@ -70,7 +72,7 @@ app.get('/confirmation/:token', async (req, res) => {
 // -----------------------------------------------------------------------------------
 // List Compositions
 app.get("/recordings", (req, res) => {
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -85,8 +87,7 @@ app.get("/recordings", (req, res) => {
 app.get("/userRec", (req, res) => {
     const s  = req.query.id; // going to switch this to user id that is passed through token
     console.log("req: !!", s);
-    console.log("req.id", req);
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId WHERE U.id = R.maestroId",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -100,7 +101,7 @@ app.get("/userRec", (req, res) => {
 // Search Composition by Title, Maestro, or Date
 app.get("/title", (req, res) => {
     const s  = req.query.query;
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id AND ((R.title LIKE '%" + s + "%') OR (U.username LIKE '%" + s + "%') OR (R.recordingDate LIKE '%" + s + "%'))",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id AND ((R.title LIKE '%" + s + "%') OR (U.username LIKE '%" + s + "%') OR (R.recordingDate LIKE '%" + s + "%'))",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -115,7 +116,7 @@ app.get("/title", (req, res) => {
 // List Contests
 app.get("/contests", (req, res) => {
     db2.query("SELECT * FROM Contests",
-    (err, res) => {
+    (err, result) => {
     if (err) {
         console.log(err);
     } else {
@@ -158,6 +159,44 @@ app.delete("/deleterecording", (req, res) => {
 
 // Edit Comp description
 app.post("/editrecording", (req, res) => {
+    console.log("CALL EDIT RECORDING DESC")
+    const s  = JSON.parse(req.body.params);
+
+//    const parsed = JSON.parse(s[0]);
+  //  const pind = s[0];
+    // need new description, userId, recordingId trying to edit
+
+
+    // CHECK if not maestro send error
+    db2.query("SELECT DISTINCT R.recordingId, R.description FROM Recordings R WHERE (R.maestroId = '" + s.id +"') AND (R.recordingId = '" + s.recordingid + "')", (err, result) => {
+        if (err) {
+            console.log("EDIT ERROR");
+          console.log(err)
+        } else {
+          console.log("Row Count is ", result.length);
+        }
+        if (result.length == 1)
+        {
+            const newDescription = s.newdescription.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            const newTitle = s.newtitle.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET description = '" + newDescription + "' , " + "title = '" + newTitle + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
+                if (err) {
+                console.log("EDIT ERROR");
+                  console.log(err)
+                } else {
+                  console.log("Updating and Row Count is ", result.length);
+                }
+                res.send(result);
+            })
+        } else
+        {
+            console.log('Not updating row count not 1');
+        }
+    })
+});
+
+// Edit Comp title
+app.post("/edittitle", (req, res) => {
     const s  = req.query.id; // need new description, userId, recordingId trying to edit
 
     // CHECK if not maestro send error
@@ -169,7 +208,8 @@ app.post("/editrecording", (req, res) => {
         }
         if (result.length == 1)
         {
-            db2.query("UPDATE Recordings SET description = '" + req.query.newdescription + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
+          const newTitle = req.query.newtitle.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET title = '" + newTitle + "' WHERE recordingId = '" + req.query.recordingid + "'", (err, result) => {
                 if (err) {
                   console.log(err)
                 } else {
@@ -193,7 +233,7 @@ app.post("/createRecording", (req, res) => {
     const userone = req.body.user1;
     const usertwo = req.body.user2;
     const userthree = req.body.user3;
-    
+
     // get information for recording from schedule
     db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, S.scheduleDate, S.title, S.description FROM Schedule S WHERE passcodePerform ='" + passcode + "'",
     (err, result) => {
@@ -201,7 +241,7 @@ app.post("/createRecording", (req, res) => {
         console.log(err);
     } else {
         console.log(result);
-        
+
         const title = result[0].title;
         const desc = result[0].description;
         const date = new Date(result[0].scheduleDate).toISOString().replace('T', ' ').replace('Z', '');
@@ -296,19 +336,19 @@ app.post("/createRecording", (req, res) => {
 });
 
 // Playback previous recordings
-// get the audio file 
+// get the audio file
 
 // Schedule API Calls
 // -----------------------------------------------------------------------------------
 // create schedule
 app.post("/schedule", (req, res) => {
-    const s  = req.body.id;
-    console.log("req.query.id -----", s);
-    console.log("req.body.date -----", req.body.date);
+    const s  = JSON.parse(req.body.params);
+    console.log("S IS HERE:");
+    console.log(s);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
-    if (req.body.date < datex) // will need to change req.date
+    if (s.date < datex) // will need to change req.date
     {
         res.status(404).send("You must select a future date/time to record");
     }
@@ -323,15 +363,16 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + req.body.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
           console.log("Row Count is ", result.length);
+          console.log(result);
         }
         if (result.length == 0)
         {
-            db2.query("INSERT INTO Schedule (maestroId, title, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s + "', '" + passListen + "12', '" + req.body.date + "', '" + passListen + "', '" +  passPerform + "')",
+            db2.query("INSERT INTO Schedule (maestroId, title, description, scheduleDate, passcodeListen, passcodePerform) VALUES ('" + s.id + "', '" + s.title + "', '" + s.desc + "', '" + s.date + "', '" + passListen + "', '" +  passPerform + "')",
             (err, res) => {
             if (err) {
                 console.log(err);
@@ -347,66 +388,72 @@ app.post("/schedule", (req, res) => {
 // Enter users into already created schedule table
 app.post("/enterSchedule", (req, res) => {
     // get passcode entered, get user Id
-    const s  = req.query.id;
-    const p = req.query.passcode;
+    console.log("enter sched params")
+    const s  = JSON.parse(req.body.params);
+    console.log(s);
+    const i  = s.id;
+    const p = s.passcode;
+
     // CHECK If userOne is not -1, userTwo is not -1, userThree is not -1
-    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne == -1)", (err, result) => {
+    db2.query("SELECT S.maestroId FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userOne = -1)", (err, result) => {
         if (err) {
           console.log(err)
+          return;
         } else {
           console.log("Row Count is ", result.length);
         }
         if (result.length != 0)
         {
-            db2.query("UPDATE Schedule SET Schedule.userOne = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
-            (err, res) => {
+            db2.query("UPDATE Schedule SET Schedule.userOne = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
+            (err) => {
             if (err) {
                 console.log(err);
             } else {
-                res.send(result);
+                res.send("user input into event");
             }
             });
-            return;
+        }   else {
+            db2.query("SELECT S.maestroId FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userTwo = -2)", (err, result) => {
+                if (err) {
+                  console.log(err)
+                } else {
+                    console.log("Row Count is ", result.length);
+                }
+                if (result.length != 0)
+                {
+                    db2.query("UPDATE Schedule SET Schedule.userTwo = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
+                    (err) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        res.send("user input into event");
+                    }
+                    });
+                } else {
+                    db2.query("SELECT S.maestroId FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userThree = -3)", (err, result) => {
+                        if (err) {
+                          console.log(err)
+                        } else {
+                            console.log("Row Count is ", result.length);
+                        }
+                        if (result.length != 0)
+                        {
+                            db2.query("UPDATE Schedule SET Schedule.userThree = '" + i + "' WHERE Schedule.passcodePerform = '" + p + "'",
+                            (err) => {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                res.send("user input into event");
+                            }
+                            });
+                            return;
+                        }
+                    })
+                }
+            })
         }
     })
-    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userTwo = -2)", (err, result) => {
-        if (err) {
-          console.log(err)
-        } else {
-            console.log("Row Count is ", result.length);
-        }
-        if (result.length != 0)
-        {
-            db2.query("UPDATE Schedule SET Schedule.userTwo = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
-            (err, res) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.send(result);
-            }
-            });
-            return;
-        }
-    })
-    db2.query("SELECT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE (S.passcodePerform = '" + p + "') AND (S.userThree = -3)", (err, result) => {
-        if (err) {
-          console.log(err)
-        } else {
-            console.log("Row Count is ", result.length);
-        }
-        if (result.length != 0)
-        {
-            db2.query("UPDATE Schedule SET Schedule.userThree = '" + s + "' WHERE Schedule.passcodePerform = '" + p + "'",
-            (err, res) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.send(result);
-            }
-            });
-            return;
-        }
-    })
+
 });
 
 // List user's scheduled recordings
@@ -418,6 +465,20 @@ app.get("/userScheduled", (req, res) => {
         console.log(err);
     } else {
         console.log("SUCCESS USER event RES", result);
+        console.log(result);
+        res.send(result);
+    }
+    });
+});
+
+// List user's scheduled recordings
+app.get("/username", (req, res) => {
+    const s  = req.query.id;
+    db2.query("SELECT DISTINCT U.username FROM Users U WHERE id = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
         console.log(result);
         res.send(result);
     }
@@ -441,8 +502,7 @@ app.get("/listrequested", (req, res) => {
 
 //  Change isrequested to 1
 app.post("/changerequested", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
     db2.query("UPDATE Users SET isRequested = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
@@ -501,7 +561,7 @@ app.post("/deleteuser", (req, res) => {
         console.log(err);
     } else {
         console.log(result);
-        res.send(result);
+        res.send("user deleted");
     }
     });
 });
@@ -513,7 +573,7 @@ app.delete("/deleterecording", (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.send(result);
+        res.send("recording deleted");
       }
     });
 });
@@ -522,7 +582,7 @@ app.delete("/deleterecording", (req, res) => {
 // -------------------------------------------------------------------------------
 // get user info
 app.get("/userinfo", (req, res) => {
-    const s  = req.query.id; 
+    const s  = req.query.id;
     db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {
@@ -536,8 +596,11 @@ app.get("/userinfo", (req, res) => {
 
 // edit bio
 app.post("/editbio", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET bio = '" + req.query.newbio + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+
+    const newBio = req.body.newbio.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+    db2.query("UPDATE Users SET bio = '" + newBio + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
@@ -549,8 +612,10 @@ app.post("/editbio", (req, res) => {
 
 // edit username
 app.post("/editusername", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("UPDATE Users SET username = '" + req.query.newusername + "' WHERE id = '" + s + "'", (err, result) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    const newName = req.body.newbio.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+    db2.query("UPDATE Users SET username = '" + newName + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
@@ -560,6 +625,30 @@ app.post("/editusername", (req, res) => {
 
 });
 
+// Check Listen Code
+app.get("/listeninput", (req, res) => {
+    const s = req.query.passListen;
+    db2.query("SELECT DISTINCT S.maestroId FROM S WHERE passcodeListen = '" + s + "'",
+    (err, result) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(result);
+        res.send(result.length);
+    }
+    });
+})
+
+// This is here at the bottom to not interfere
+// with any of the above API calls!!
+// Serving out files to the server
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url)).replace("/backend", "/Website");
+console.log(__dirname);
+
+app.use(express.static('../Website/client/build'));
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+});
 
 // Socket.IO Code
 // A lot of which is reused from old code but there are new functionalities added
@@ -595,17 +684,18 @@ io.on("connection", function (socket) {
     });
 
     // Log in from mobile app
-    socket.on("login", async (credentials) => {
-        await Axios.post('http://localhost:3001/login/', {
-          email: credentials.email,
-          password: credentials.password
-         }).then((response) => {
-            console.log(response);
-            socket.emit("loginsuccess", response.data);
-          }, (error) => {
-            console.log(error);
-            socket.emit("loginerror", error.response.data);
-          });
+    socket.on("login", (credentials) => {
+        const payload = {
+            body: {
+                email: credentials.email,
+                password: credentials.password
+            }
+        }
+
+        console.log("Credentials: ", credentials);
+        console.log("Payload: ", payload);
+
+        // Login(payload);
     });
 
     // Joining a concert
@@ -653,23 +743,17 @@ io.on("connection", function (socket) {
                 const scheduleStart = new Date(result[0].scheduleDate);
                 const scheduleEnd = new Date(result[0].scheduleDate.getTime() + 20*60000);
                 const currDate = new Date();
-                
+
                 console.log(result[0].scheduleDate);
                 console.log(`Start: ${scheduleStart}`);
                 console.log(`End: ${scheduleEnd}`);
                 console.log(`Currently: ${currDate}`);
 
-                // // Timeframe check
-                // if (scheduleStart > currDate || currDate > scheduleEnd)
-                // {
-                //     console.log("You're outside of the timeframe!");
-                //     socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
-                   
-                //     console.log(scheduleStart > currDate);
-                //     console.log(currDate > scheduleEnd);
-
-                //     return;
-                // }
+                // Timeframe check
+                if (scheduleStart > currDate || currDate > scheduleEnd)
+                {
+                    console.log("You're outside of the timeframe!");
+                    socket.emit("scheduleerror", "You don't have a concert scheduled for this time frame.");
 
                 const room = data.room;
                 const roomId = room['id'];
@@ -720,8 +804,6 @@ io.on("connection", function (socket) {
                 });
             }
         });
-
-        
     });
 
     // UPDATED
@@ -1011,8 +1093,6 @@ io.on("connection", function (socket) {
           return;
         }
 
-        // db2.query(`DELETE FROM Schedule WHERE passcodePerform = '${availableRooms[roomId].scheduleID}';`);
-
         io.of('/')
           .in(roomId)
           .clients((error, socketIds) => {
@@ -1050,6 +1130,8 @@ io.on("connection", function (socket) {
         // console.log(audioFileBuffer);
 
         console.log('Finished making the wav file');
+
+        delete availableRooms[roomId];
 
         // Generate a random temporary filename for the MP3
         var mp3FileName = randomstring.generate() + ".mp3";
@@ -1093,12 +1175,13 @@ io.on("connection", function (socket) {
         formData.append('file', mp3FileStream);
         formData.append('data', JSON.stringify(data)); // Composition metadata here
 
-        console.log(`Composition time: ${data.composition.time}`);
-
         // console.log("formData:");
         // console.log(formData);
 
-        console.log('Uploading MP3 to database...');
+        console.log('Uploading MP3 to database...')
+
+        //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
+        // console.log(response);
 
         // Here, we create a payload that
         // contains the information needed to
@@ -1141,8 +1224,6 @@ io.on("connection", function (socket) {
         //     socket.emit("loginerror", error.response.data);
         //   });
 
-        //const response = await fetch(`http://localhost:3000/api/compositions/upload`, { method: 'POST', body: formData });
-        // console.log(response);
         console.log('uploaddownload call complete!');
 
         // After the MP3 file as been uploaded, delete it from the server

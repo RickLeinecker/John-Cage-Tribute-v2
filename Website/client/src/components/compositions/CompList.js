@@ -7,6 +7,8 @@ import Moment from 'moment';
 import * as FaIcons from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
+import Axios from "axios";
+import { Link, Redirect } from 'react-router-dom';
 
 class CompList extends React.Component {
 	constructor(props) {
@@ -15,9 +17,12 @@ class CompList extends React.Component {
 			list: props.list,
 			userId: props.userId
 		}
+
+		console.log("props complist", this.state);
 	}
 	
 	componentDidUpdate(prevProps) {
+		console.log(this.state);
 		if(prevProps.list !== this.props.list) {
 			this.setState({
 				list: this.props.list
@@ -36,12 +41,13 @@ class CompList extends React.Component {
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
-				console.log("ITEM", item)
+				console.log("ITEM", item, this.props.userId);
 				return (<CompListItem 
 					info={item}
+					userId = {this.state.userId}
 					key={item._id}
 					user={this.props.userId}
-					maestro = {item.maestroId}
+					maestro = {item.username}
 				/>)
 			})
 		}
@@ -67,13 +73,16 @@ class CompListItem extends React.Component {
 		console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
+			userId: props.userId,
 			chosen: false,
 			sidebarClass: "",
 			editing: false,
 			formdata: {
 				title: props.info.title,
+				description: props.info.description,
 				length: props.info.lengthSeconds,
-				date: props.info.recordingDate
+				date: props.info.recordingDate,
+				maestro: props.info.username
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -86,19 +95,22 @@ class CompListItem extends React.Component {
 		this.submitEdit = this.submitEdit.bind(this);
 		this.cancelEdit = this.cancelEdit.bind(this);
 		this.setPrivate = this.setPrivate.bind(this);
-
-		console.log(`ID: ${props.info.recordingId}`);
-	}
-
-	testFunction()
-	{
-		alert('....');
+		//CHANGE TO USE USERID
+		//localStorage.setItem("target", this.userId);
+		console.log("MAMA MIA: " + this.info);
 	}
 	
 	render() {
-		var {info, formdata} = this.state;
+		var {info, user, formdata} = this.state;
 		// var tags = info.tags.join(", ");
 		// var {date, runtime} = this.parseDateTime(info.date, info.runtime);
+
+		// console.log("LOOKY HERE: ");
+		// console.log(this.state.info.maestroId);
+
+		localStorage.setItem("target", this.state.info.maestroId);
+		console.log("KOOKY: ");
+		console.log(localStorage.getItem("target"));
 		
 		var sidebar = null;
 		if(this.state.chosen) {
@@ -106,13 +118,12 @@ class CompListItem extends React.Component {
 			console.log("comp info", info)
 			var c = "info-field-title";
 			var c1 = "info-p";
-
 			sidebar = (
 
 			<IconContext.Provider value={{ color: '#fff' }}>
 			<div className="dark-overlay" style={{zIndex:"2", position:"fixed"}}>
 				
-				<div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}  onload="testFunction();">
+				<div id="sidebar" className={'sidebar active'} style={{zIndex:"0"}}>
 					<div id= "close" className = 'close' onClick={()=>this.setState({chosen: false}) }>
 							 <AiIcons.AiOutlineClose />
 					</div>
@@ -128,7 +139,7 @@ class CompListItem extends React.Component {
 								<span className={c}>Date: </span>{info.date}
 							</p>
 							<p className={c1}>
-								<span className={c}>Composer: </span>{info.composer}
+								<span className={c}>Maestro: </span>{info.username}
 							</p>
 							<p className={c1}>
 								<span className={c}>Performers: </span>{info.performers}
@@ -136,6 +147,7 @@ class CompListItem extends React.Component {
 							<p className={c1}>
 								<span className={c}>Description: </span>{info.description}
 							</p><br />
+							<Link to="/userbio" className="btn btn=primary">View Maestro</Link>
 							{this.props.user !== undefined ? (
 							<div style={{padding:"5px 0px"}}>
 								<button onClick={()=>this.setState({editing: true})}
@@ -162,19 +174,12 @@ class CompListItem extends React.Component {
 								<input value={formdata.title} onChange={this.changeForm} name="title" className="edit-info-field"/>
 								<p id="edit-title-err" style={{color:"red"}}></p>
 								<br />
-								<h4>Tags</h4>
-								<p style={{color:"gray",fontSize:".8em"}}>Separated by commas</p>
-								<input className="edit-info-field" name="tags" value={formdata.tags} onChange={this.changeForm}/>
-								<p id="edit-tags-err" style={{color:"red"}}></p>
-								<br />
 								<h4>Description</h4>
 								<p style={{color:"gray",fontSize:".8em"}}>Limit 256 characters</p>
 								<textarea value={formdata.description} onChange={this.changeForm} name="description" className="edit-info-field"/>
 								<p id="edit-desc-err" style={{color:"red"}}></p>
-								<h4 style={{display:"inline-block"}}>Private</h4>
-								<div style={{backgroundColor: formdata.private? "blue":"white"}} id="private-box" onClick={this.setPrivate}></div>
 								<br /><br />
-								<input type="button" value="Cancel" onClick={this.cancelEdit} />
+								<input type="button" value="Cancel" onClick={()=>this.cancelEdit()} />
 								<input type="button" value="Save" onClick={this.submitEdit} />
 							</form>
 						</div>
@@ -197,11 +202,27 @@ class CompListItem extends React.Component {
 		);
 	}
 	
-	submitEdit(e) {
-		const {info, formdata} = this.state;
-		if(typeof formdata.tags == "string")
-			formdata.tags = formdata.tags.split(",");
-		formdata.user = this.props.user;
+ submitEdit = async (e) => {
+	const {userId, info, formdata} = this.state;
+	console.log("edit form data", info, formdata, userId);
+	var description = formdata.description ?  formdata.description : "test descrip ";
+	var title = formdata.title?  formdata.title : "test title ";
+	var query = JSON.stringify({id:userId, recordingid: info.recordingId , newdescription: description, newtitle: title});
+
+	console.log("query", query)
+	try {
+		 await Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
+			this.setState({list: r.data})
+			window.location.reload();
+	} )} catch (error) {
+  if (error.response) {
+	console.log(error.response);
+	}
+	}
+
+	return;
+		//formdata.user = this.props.user;
+
 		api.put("/compositions/edit/"+info._id, formdata)
 		.then(() => {
 			window.location.reload()
@@ -232,7 +253,6 @@ class CompListItem extends React.Component {
 		this.setState({
 			formdata: {
 				title: info.title,
-				tags: info.tags.join(","),
 				description: info.description,
 				private: info.private
 			},

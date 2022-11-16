@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ProSidebarProvider } from 'react-pro-sidebar';
+
 const Landing = ({ isAuthenticated }) => {
   if (isAuthenticated) {
     return (
@@ -15,7 +16,7 @@ const Landing = ({ isAuthenticated }) => {
 			    <p className="landing-text">
             Welcome to the John Cage Tribute! 
             Here you can listen to (and maybe even participate in) performances inspired by the works of John Cage. 
-            To achieve this, our site utilizes a mobile app to record audio from up to 5 different devices and mixes them to produce a piece in John Cage's style.
+            To achieve this, our site utilizes a mobile app to record audio from up to 4 different devices and mixes them to produce a piece in John Cage's style.
           </p>
           <br/>
           <div className='landing-bottom'>
@@ -28,16 +29,16 @@ const Landing = ({ isAuthenticated }) => {
             <br/>
             <div className='buttons'>
               <h1 className='medium'>Want to learn more about John Cage?</h1>
-              <Link className='btn btn-primary'>
+              <Link to='/infopage' className='btn btn-primary'>
                 Learn More
-              </Link>
+                </Link>
             </div>
-            <div className='buttons'>
+            {/* <div className='buttons'>
               <h1 className='medium'>Check out our Contest!</h1>
               <Link to='/contestpage' className='btn btn-primary'>
                 Contests
               </Link>
-            </div>
+            </div> */}
           </div>
           </div>
         </div>
@@ -79,7 +80,7 @@ const Landing = ({ isAuthenticated }) => {
               </div>
               <div className='buttons'>
                 <h1 className='medium'>Want to learn more about John Cage?</h1>
-                <Link className='btn btn-primary'>
+                <Link to='/infopage' className='btn btn-primary'>
                   Learn More
                 </Link>
               </div>

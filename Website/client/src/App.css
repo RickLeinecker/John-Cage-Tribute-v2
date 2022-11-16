@@ -491,6 +491,12 @@ button {
   grid-auto-flow: column;
 }
 
+/* Info Page */
+.info-left {
+  width: 485px;
+  padding-right: 15px;
+}
+
 /* Login/Signup Page */
 .loginSignup {
   position: relative;
@@ -570,6 +576,10 @@ button {
   margin-top: -8px;
 }
 
+.black {
+  color: black;
+}
+
 .btn-times {
   background: #6f48eb;
   color: #fff;
@@ -605,6 +615,12 @@ button {
     'exp edu'
     'github github';
   grid-gap: 1rem;
+}
+
+.profile-text {
+	font-size: 1.2em;
+	text-align: left;
+  color: white;
 }
 
 .profile-top {
@@ -823,6 +839,20 @@ button {
 
 .comp-list-item:hover {
 	animation: hover-darken .2s linear forwards
+}
+
+#passcode {
+	padding: 6px;
+	margin: 5px;
+	width: 500px;
+	font-size: 1.2em;
+	outline: none;
+}
+
+.listen-text {
+	font-size: 1.2em;
+	text-align: center;
+  color: white;
 }
 
 .audio-elem {

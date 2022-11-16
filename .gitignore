@@ -1,7 +1,5 @@
 # Ignore stuff from root
 node_modules
-*.DS_Store
-*.txt
 
 # Ignore stuff from backend
 backend/node_modules
@@ -13,6 +11,6 @@ backend/.env
 Website/node_modules
 Website/client/node_modules
 Website/client/build
-
+*.txt
 *.xcconfig
 backend/.DS_Store

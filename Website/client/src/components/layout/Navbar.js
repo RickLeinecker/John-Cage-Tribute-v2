@@ -1,14 +1,47 @@
-import React, { useState } from 'react';
+import React, {Fragment, useState, useEffect, Component} from "react";
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import { Link } from 'react-router-dom';
 import { SidebarData } from './SidebarData';
 import './Navbar.css';
 import { IconContext } from 'react-icons';
+import axios from 'axios';
+import jwt_decode from "jwt-decode";
 
 function Navbar() {
   const [sidebar, setSidebar] = useState(false);
   const [isAuthenticated, setAuth] = useState(SidebarData.Unauthenticated);
+  const [isMaestro, setIsMaestro] = useState(-1);
+  const [userId, setId] = useState(0);
+  const [token, setToken] = useState('');
+
+  useEffect(() =>
+    {
+        refreshToken();
+    },[]);
+
+    const refreshToken = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/token');
+          setToken(response.data.accessToken);
+          const decoded = jwt_decode(response.data.accessToken);
+          getIsMaestro(decoded.userId);
+      } catch (error) {
+          if (error.response) {
+            // history.push("/");
+            console.log("auth fail");
+          }
+        }
+    }
+
+    const getIsMaestro = async (id)=>{
+      await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
+          console.log(typeof(r.data[0].isMaestro));
+          console.log(r.data[0].isMaestro);
+          setIsMaestro(r.data[0].isMaestro);
+          console.log("SOLUTION?: " + isMaestro);
+      })
+ }
 
   const showSidebar = () => {
     let tokenData = localStorage.getItem("token")
@@ -17,11 +50,15 @@ function Navbar() {
     if (parsedData == null){
       setAuth(SidebarData.Unauthenticated);
     }
-    else {
+    else if(isMaestro == 0) {
     setAuth(SidebarData.Authenticated);
+    }
+    else {
+      setAuth(SidebarData.AuthenticatedMaestro);
     }
   
     console.log(JSON.parse(tokenData));
+    console.log("HERE:");
     console.log(isAuthenticated);
     setSidebar(!sidebar);
   }
