@@ -53,7 +53,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'MySQL!1996',
+    password: '',
     database: 'jctdatabase'
 });
 
@@ -350,6 +350,7 @@ app.post("/schedule", (req, res) => {
     const s  = JSON.parse(req.body.params);
     console.log("S IS HERE:");
     console.log(s);
+    console.log("date is", s.date);
     const datex = new Date();
     // need to get date scheduled, title, description, id
     console.log("WE ARE HERE IN SCHEDULE :P");
@@ -368,7 +369,7 @@ app.post("/schedule", (req, res) => {
     console.log("PassListen is ", passListen);
     // CHECK if not maestro send error
     // CHECK if date already exists
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y %H-%i') AS date, S.title, S.description FROM Schedule S WHERE S.scheduleDate = '" + s.date + "'", (err, result) => {
         if (err) {
           console.log(err)
         } else {
@@ -464,7 +465,7 @@ app.post("/enterSchedule", (req, res) => {
 // List user's scheduled recordings
 app.get("/userScheduled", (req, res) => {
     const s  = req.query.id;
-    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.passcodePerform, S.passcodeListen, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
+    db2.query("SELECT DISTINCT S.maestroId, S.userOne, S.userTwo, S.userThree, S.passcodePerform, S.passcodeListen, DATE_FORMAT(S.scheduleDate, '%M-%d-%Y %H:%i') AS date, S.title, S.description FROM Schedule S WHERE ('" + s + "' = S.maestroId) OR ('" + s + "' = S.userOne) OR ('" + s + "' = S.userTwo) OR ('" + s + "' = S.userThree)",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -520,8 +521,10 @@ app.post("/changerequested", (req, res) => {
 
 // api call to change ismaestro to 1
 app.post("/changeismaestro", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
-    
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
+    console.log("WE MADE IT");
+    console.log(req.body);
+
     db2.query("UPDATE Users SET isMaestro = 1 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
             console.log(err)
@@ -532,8 +535,8 @@ app.post("/changeismaestro", (req, res) => {
 });
 
 // api call to change isRequested to 0 (Rejected)
-app.post("/changeismaestro", (req, res) => {
-    const s  = req.query.id; // need new description, userId, recordingId trying to edit
+app.post("/changeisrequested", (req, res) => {
+    const s  = req.body.id; // need new description, userId, recordingId trying to edit
 
     db2.query("UPDATE Users SET isRequested = 0 WHERE id = '" + s + "'", (err, result) => {
         if (err) {
@@ -588,6 +591,7 @@ app.delete("/deleterecording", (req, res) => {
 // get user info
 app.get("/userinfo", (req, res) => {
     const s  = req.query.id;
+    console.log("WE ARE HERE");
     db2.query("SELECT DISTINCT U.username, U.email, U.isMaestro, U.bio, U.isRequested FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {
@@ -677,7 +681,7 @@ io.on("connection", function (socket) {
     // Register from mobile app
     socket.on("register", async (credentials) => {
         console.log("Registering!!!");
-        
+
         await Axios.post('http://localhost:3001/users', {
             username: credentials.username,
             email: credentials.email,
@@ -1089,7 +1093,7 @@ io.on("connection", function (socket) {
     // AFTER STARTSESSION
     socket.on('sendaudio', function (data) {
         const roomId = memberAttendance[socket.id];
-        
+
         if (!roomId) {
             console.log(roomId);
             console.log("RETURNING!!!1");
