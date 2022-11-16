@@ -13,13 +13,13 @@ class Search extends React.Component {
 		this.state = {
 			searchQuery: "",
 			searchParam: "title",
-			list: []
+			list: [],
 		};
 		this.searchbarChange = this.searchbarChange.bind(this);
 		this.performSearch = this.performSearch.bind(this);
 		this.changeSearchParam = this.changeSearchParam.bind(this);
-		this.pageRef = React.createRef();
-		this.listRef = React.createRef();
+		// this.pageRef = React.createRef();
+		// this.listRef = React.createRef();
 	}
 	
 	componentDidMount() {
@@ -33,18 +33,20 @@ class Search extends React.Component {
 		// console.log("Update:");
 		// console.log(this.pageRef.current.state);
 
-		this.pageRef.current.setState({items: this.state.list});
+		//this.pageRef.current.setState({items: this.state.list});
 		//this.pageRef.current.calculate(this.pageRef.current.state, 1);
 		// this.pageRef.current.render();
 
 		// console.log("Updating pager?");
 		// console.log(this.pageRef.current.state);
+		
 
 		console.log("update........");
 	}
 	
 	render() {
 		console.log("rendering!");
+		console.log(this.state.list);
 		const s = "search-params-button";
 		const chosenStyle = {
 			backgroundColor: "#adf"
@@ -68,27 +70,11 @@ class Search extends React.Component {
 									padding:"10px 0px"
 								}}>
 								</div>
-								{/* <div style={{padding:"10px"}}>
+								<div style={{padding:"10px"}}>
+									{console.log("RIGHT BEFORE")}
+									{console.log(this.state.list)}
 									<CompList list={this.state.list} dash={false} />
-								</div> */}
-								<Pager
-									ref={this.pageRef}
-									items={this.state.list}
-									// {...console.log("Printing out the current list:")}
-									// {...console.log(this.state.list)}
-									// Might need to change this if it doesnt work
-									pageCount={10}
-									render={
-										pagerState => (
-											<div>
-												<CompList ref={this.listRef} list={pagerState.items} dash={false} />
-												{/* {console.log("Here we go:")}
-												{console.log(pagerState.items)}
-												{console.log(this.state.list)}
-												{console.log("Stopping.")} */}
-											</div>
-										)}
-									/>
+								</div>
 							</Fragment>
 						</div>
 					</div>
@@ -104,11 +90,19 @@ class Search extends React.Component {
 	performSearch(e) {
 		var query = this.state.searchQuery;
 		Axios.get("http://localhost:3001/title", {params: {query: query}}).then(r => {
-			this.setState({list: r.data})
+			console.log("before setstate");
+			console.log(this.state.list);
+			this.setState({list: r.data});
+			console.log("fixing");
+			console.log(r.data);
+			console.log(this.state.list);
+			this.setState({list: r.data});
 		})
 		e.preventDefault();
 
-		const pageRef = this.pageRef;
+		//this.setState({temp: 0});
+
+		// const pageRef = this.pageRef;
 		
 		// pageRef.current.setState({items: this.state.list});
 

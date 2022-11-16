@@ -18,11 +18,11 @@ class CompList extends React.Component {
 			userId: props.userId
 		}
 
-		console.log("props complist", this.state);
+		//console.log("props complist", this.state);
 	}
 	
 	componentDidUpdate(prevProps) {
-		console.log(this.state);
+		//console.log(this.state);
 		if(prevProps.list !== this.props.list) {
 			this.setState({
 				list: this.props.list
@@ -41,7 +41,7 @@ class CompList extends React.Component {
 		if(this.state.list.length != 0) {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
-				console.log("ITEM", item, this.props.userId);
+				//console.log("ITEM", item, this.props.userId);
 				return (<CompListItem 
 					info={item}
 					userId = {this.state.userId}
@@ -70,7 +70,7 @@ class CompList extends React.Component {
 class CompListItem extends React.Component {
 	constructor(props) {
 		super(props);
-		console.log("PROPS", props.info)
+		//console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
 			userId: props.userId,
@@ -98,8 +98,8 @@ class CompListItem extends React.Component {
 		this.setPrivate = this.setPrivate.bind(this);
 		//CHANGE TO USE USERID
 		//localStorage.setItem("target", this.userId);
-		console.log(this.info);
-		console.log(this.state.formdata.audioFile);
+		//console.log(this.info);
+		//console.log(this.state.formdata.audioFile);
 	}
 	
 	render() {
@@ -111,13 +111,13 @@ class CompListItem extends React.Component {
 		// console.log(this.state.info.maestroId);
 
 		localStorage.setItem("target", this.state.info.maestroId);
-		console.log("KOOKY: ");
-		console.log(localStorage.getItem("target"));
+		// console.log("KOOKY: ");
+		// console.log(localStorage.getItem("target"));
 		
 		var sidebar = null;
 		if(this.state.chosen) {
-			console.log("chosen")
-			console.log("comp info", info)
+			// console.log("chosen")
+			// console.log("comp info", info)
 			var c = "info-field-title";
 			var c1 = "info-p";
 			sidebar = (
