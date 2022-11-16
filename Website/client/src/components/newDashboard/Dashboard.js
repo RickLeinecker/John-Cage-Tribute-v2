@@ -799,7 +799,7 @@ class Dashboard extends React.Component {
                         <div className='schedule'>
                             <div className='search-inner'>
                                 <div className='search-box'>
-                                    <h1 className='large text-primary'>Welcome Back: {this.state.userName}</h1>
+                                    <h1 className='large text-primary'>Welcome Back: {this.state.username}</h1>
                                     <div className={css(styles.content)}>
                                         <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
                                         <Row className={css(styles.cardsContainer)} wrap flexGrow={1} horizontal="space-between" breakpoints={{ 600: 'column' }}>
@@ -830,7 +830,7 @@ class Dashboard extends React.Component {
                         <div className='schedule'> 
                             <div className='search-inner'>
                                 <div className='search-box'>
-                                    <h1 className='large text-primary'>Welcome Back: {this.state.userName}</h1>
+                                    <h1 className='large text-primary'>Welcome Back: {this.state.username}</h1>
                                     <h1 className='medium'>Admin is reviewing your request, please wait...</h1>
                                     <div className={css(styles.content)}>
                                         <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
@@ -863,7 +863,7 @@ class Dashboard extends React.Component {
                             <div className='schedule'> 
                                 <div className='search-inner'>
                                     <div className='search-box'>
-                                        <h1 className='large text-primary'>Welcome Back: {this.state.userName}</h1>
+                                        <h1 className='large text-primary'>Welcome Back: {this.state.username}</h1>
                                         <h1 className='medium'>Want to schedule your own concerts? Become a Maestro!</h1>
                                         <button className='btn btn-primary' onClick={this.requestMaestro}>Request Maestro Status</button>
                                         <div className={css(styles.content)}>
@@ -898,7 +898,7 @@ class Dashboard extends React.Component {
                         <div className='schedule'> 
                             <div className='search-inner'>
                                 <div className='search-box'>
-                                    <h1 className='large text-primary'>Welcome Back: {this.state.userName}</h1>
+                                    <h1 className='large text-primary'>Welcome Back: {this.state.username}</h1>
                                     <div className={css(styles.content)}>
                                         <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
                 
@@ -930,7 +930,7 @@ class Dashboard extends React.Component {
                         <div className='schedule'> 
                             <div className='search-inner'>
                                 <div className='search-box'>
-                                    <h1 className='large text-primary'>Welcome Back: {this.state.userName}</h1>
+                                    <h1 className='large text-primary'>Welcome Back: {this.state.username}</h1>
                                     <h1 className='medium'>Admin is reviewing your request, please wait...</h1>
                                     <div className={css(styles.content)}>
                                         <span className={css(styles.title)}>{"Upcoming Concerts"}</span>
@@ -963,7 +963,7 @@ class Dashboard extends React.Component {
                         <div className='search'> 
                             <div className='search-inner'>
                                 <div className='search-box'>
-                                    <h1>Welcome Back: {this.state.userName}</h1>
+                                    <h1>Welcome Back: {this.state.username}</h1>
                                     <h1 className='medium'>Want to schedule your own concerts? Become a Maestro!</h1>
                                     <button className='btn btn-primary' onClick={this.requestMaestro}>Request Maestro Status</button>
                                     <div className={css(styles.content)}>
