@@ -53,7 +53,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'MySQL!1996',
     database: 'jctdatabase'
 });
 
@@ -329,15 +329,15 @@ app.post("/createRecording", (req, res) => {
     }
     });
 
-    // // delete schedule table
-    // db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
-    // (err, res) => {
-    // if (err) {
-    //     console.log(err);
-    // } else {
-    //     console.log("UserRecording created userthree");
-    // }
-    // });
+    // delete schedule table
+    db2.query("DELETE FROM Schedule WHERE passcodePerform = '" + passcode + "'",
+    (err, res) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("UserRecording created userthree");
+    }
+    });
 });
 
 // Playback previous recordings
@@ -684,7 +684,7 @@ io.on("connection", function (socket) {
     // Register from mobile app
     socket.on("register", async (credentials) => {
         console.log("Registering!!!");
-        
+
         await Axios.post('http://localhost:3001/users', {
             username: credentials.username,
             email: credentials.email,
@@ -700,18 +700,17 @@ io.on("connection", function (socket) {
     });
 
     // Log in from mobile app
-    socket.on("login", (credentials) => {
-        const payload = {
-            body: {
-                email: credentials.email,
-                password: credentials.password
-            }
-        }
-
-        console.log("Credentials: ", credentials);
-        console.log("Payload: ", payload);
-
-        // Login(payload);
+    socket.on("login", async (credentials) => {
+        await Axios.post('http://localhost:3001/login/', {
+          email: credentials.email,
+          password: credentials.password
+         }).then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
     });
 
     // Joining a concert
@@ -790,6 +789,7 @@ io.on("connection", function (socket) {
                 availableRooms[roomId]['scheduleID'] = result[0].passcodePerform;
                 availableRooms[roomId]['maestro'] = result[0].maestroId;
                 availableRooms[roomId]['endtime'] = scheduleEnd;
+                availableRooms[roomId]['timeoutID'] = undefined;
 
                 console.log(`Ending at ${availableRooms[roomId]['endtime']}`);
 
@@ -1029,6 +1029,28 @@ io.on("connection", function (socket) {
 
         if (user['isHost']) {
             console.log("Yep! You're the host! Time to partyyyy!");
+
+            // Create the expected end time
+            // Either 5 minutes from start or at the
+            // end of the scheduled time slot,
+            // whichever comes first
+            const currDate = new Date();
+            const endMinutes = currDate.getTime() + (5 * 60000);
+            const endLimit = availableRooms[roomId]['endtime'];
+
+            const timeHolder = Math.min(endMinutes, endLimit);
+            const endTime = new Date(timeHolder);
+
+            const timeDiff = endTime - currDate;
+
+            console.log(`We should be ending at: ${endTime}`)
+            console.log(endTime);
+
+            setTimeout(function () {timeLimitStop(roomId)}, timeDiff);
+
+            availableRooms[roomId]['timeoutID'] = 0;
+
+            // We now have our scheduled endtime, signal everybody to begin
             availableRooms[roomId]['sessionStarted'] = true;
             io.to(roomId).emit('audiostart', "Let's do it.");
             io.emit('updateoneroom', {
@@ -1073,7 +1095,7 @@ io.on("connection", function (socket) {
     // AFTER STARTSESSION
     socket.on('sendaudio', function (data) {
         const roomId = memberAttendance[socket.id];
-        
+
         if (!roomId) {
             console.log(roomId);
             console.log("RETURNING!!!1");
@@ -1132,6 +1154,11 @@ io.on("connection", function (socket) {
 
         io.emit('updateoneroom', { roomId: roomId, room: null });
 
+        const timeoutID = availableRooms[roomId]['timeoutID'];
+        console.log(`Canceling timeout ${timeoutID}`);
+
+        clearTimeout(timeoutID);
+
         audioProcessorPool.send({command:'endSession', roomId:roomId});
 
         // Create a WAV file buffer from the raw audio data before we
@@ -1161,7 +1188,7 @@ io.on("connection", function (socket) {
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
           "output": mp3OutputDir,
-          "scale": 45,
+          "scale": 60,
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
@@ -1377,3 +1404,26 @@ audioProcessorPool.on('message', (data) => {
         availableRooms[roomId]['sessionAudio'].push.apply(availableRooms[roomId]['sessionAudio'], silence);
     }
 })
+
+// Serves as a callback function for the setTimeout function
+// to call once a group's time is over
+function timeLimitStop(roomId) {
+    console.log("WE'RE DONE! BYEBYE");
+
+    io.of('/')
+          .in(roomId)
+          .clients((error, socketIds) => {
+            if (error) throw error;
+
+            socketIds.forEach((socketId) => {
+                console.log(memberAttendance[socketId]);
+                delete memberAttendance[socketId];
+                io.sockets.sockets[socketId].emit(
+                'audiostop',
+                `This room's session has ended. Please exit.`
+                );
+                io.sockets.sockets[socketId].leave(roomId);
+                io.sockets.sockets[socketId].emit('updaterooms', availableRooms);
+            });
+          });
+}
