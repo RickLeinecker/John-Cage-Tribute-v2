@@ -53,7 +53,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'MySQL!1996',
     database: 'jctdatabase'
 });
 
@@ -697,18 +697,17 @@ io.on("connection", function (socket) {
     });
 
     // Log in from mobile app
-    socket.on("login", (credentials) => {
-        const payload = {
-            body: {
-                email: credentials.email,
-                password: credentials.password
-            }
-        }
-
-        console.log("Credentials: ", credentials);
-        console.log("Payload: ", payload);
-
-        // Login(payload);
+    socket.on("login", async (credentials) => {
+        await Axios.post('http://localhost:3001/login/', {
+          email: credentials.email,
+          password: credentials.password
+         }).then((response) => {
+            console.log(response);
+            socket.emit("loginsuccess", response.data);
+          }, (error) => {
+            console.log(error);
+            socket.emit("loginerror", error.response.data);
+          });
     });
 
     // Joining a concert
