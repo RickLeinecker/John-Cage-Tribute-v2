@@ -86,8 +86,7 @@ app.get("/recordings", (req, res) => {
 app.get("/userRec", (req, res) => {
     const s  = req.query.id; // going to switch this to user id that is passed through token
     console.log("req: !!", s);
-    console.log("req.id", req);
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Users U LEFT JOIN UserRecording T ON '" + s + "' = T.Userid LEFT JOIN Recordings R ON R.recordingId = T.recordingId WHERE U.id = R.maestroId",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -178,13 +177,15 @@ app.post("/editrecording", (req, res) => {
         if (result.length == 1)
         {
             const newDescription = s.newdescription.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-            db2.query("UPDATE Recordings SET description = '" + newDescription + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
+            const newTitle = s.newtitle.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+            db2.query("UPDATE Recordings SET description = '" + newDescription + "' , " + "title = '" + newTitle + "' WHERE recordingId = '" + s.recordingid + "'", (err, result) => {
                 if (err) {
                 console.log("EDIT ERROR");
                   console.log(err)
                 } else {
                   console.log("Updating and Row Count is ", result.length);
                 }
+                res.send(result);
             })
         } else
         {
@@ -469,10 +470,9 @@ app.get("/userScheduled", (req, res) => {
     });
 });
 
-// Get username from userId
+// List user's scheduled recordings
 app.get("/username", (req, res) => {
     const s  = req.query.id;
-    console.log("MARIO PARTY");
     db2.query("SELECT DISTINCT U.username FROM Users U WHERE id = '" + s + "'",
     (err, result) => {
     if (err) {
