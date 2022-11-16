@@ -9,7 +9,7 @@ import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
 import axios from 'axios';
 
-class UserList extends React.Component {
+class RequestedList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -42,7 +42,7 @@ class UserList extends React.Component {
 			list = this.state.list.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
 				console.log("ITEM", item)
-				return (<UserListItem 
+				return (<RequestedListItem 
 					info={item}
 					key={item._id}
 					user={this.props.userId}
@@ -65,7 +65,7 @@ class UserList extends React.Component {
 	}
 }
 
-class UserListItem extends React.Component {
+class RequestedListItem extends React.Component {
 	constructor(props) {
 		super(props);
 		console.log("PROPS", props.info)
@@ -119,9 +119,14 @@ class UserListItem extends React.Component {
 							{/* Accepting and Rejecting a request */}
                             <div style={{padding:"5px 0px"}}>
 								<button
-                                onClick={() => this.handleDelete(info.username, info.id)}
+                                onClick={() => this.handleAccept(info.username, info.id)}
                                 style={{padding:"0px 4px",marginRight:"5px"}}>
-                                    Delete
+                                    Accept
+                                </button>
+								<button
+                                onClick={() => this.handleReject(info.username, info.id)}
+                                style={{padding:"0px 4px"}}>
+                                    Reject
                                 </button>
 							</div>
 						</div>
@@ -158,14 +163,29 @@ class UserListItem extends React.Component {
 		})
 	}
 
-    handleDelete(username, id) {
-        if(window.confirm("Are you sure you want to delete user " + username)) {
+    handleAccept(username, id) {
+        if(window.confirm("Are you sure you want user " + username + " to be a maestro?")) {
+            console.log("Admin Accepted " + username);
+			var payload = {
+				id: id
+			}
+			console.log("ursa");
+    		console.log(payload);
+            axios.post("http://localhost:3001/changeismaestro", payload);
+			axios.post("http://localhost:3001/changeisrequested", payload);
+			window.location.reload();
+        }
+    }
+
+    handleReject(username, id) {
+        if(window.confirm("Are you sure you want to reject user " + username)) {
+            console.log("Admin Rejected " + username);
             var payload = {
-                id: id
-            }
-            axios.post("http://localhost:3001/deleteuser", payload);
-            window.location.reload();
+				id: id
+			}
+			axios.post("http://localhost:3001/changeisrequested", payload);
+			window.location.reload();
         }
     }
 }
-export default connect(null, {setAlert})(UserList);
+export default connect(null, {setAlert})(RequestedList);

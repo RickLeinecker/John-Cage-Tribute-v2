@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import api from '../../utils/api';
 import Spinner from '../layout/Spinner';
-import UserList from './UserList';
+import RequestedList from './RequestedList';
 import Axios from "axios";
 
 class MaestroRequests extends React.Component {
@@ -48,7 +48,7 @@ class MaestroRequests extends React.Component {
                     <div className='search-inner'>
                         <div className='search-box'>
                             <div style={{padding:"10px"}}>
-								<UserList list={this.state.list} dash={false} />
+								<RequestedList list={this.state.list} dash={false} />
 							</div>
                         </div>
                     </div>

@@ -23,6 +23,8 @@ import Listen from '../compositions/Listen';
 import InfoPage from '../compositions/InfoPage';
 import UserBio from '../compositions/UserBio';
 import CheckEmail from '../auth/CheckEmail';
+import AllUsers from '../compositions/AllUsers';
+import AllRecordings from '../compositions/AllRecordings';
 
 const Routes = props => {
   return (
@@ -43,6 +45,8 @@ const Routes = props => {
         <Route exact path="/listen" component={Listen} />
         <Route exact path="/userbio" component={UserBio} />
         <Route exact path="/checkemail" component={CheckEmail} />
+        <Route exact path="/allusers" component={AllUsers} />
+        <Route exact path="/allrecordings" component={AllRecordings} />
         <PrivateRoute exact path="/landing" component={Landing} />     
         <PrivateRoute exact path="/create-profile" component={ProfileForm} />
         <PrivateRoute exact path="/edit-profile" component={ProfileForm} />
