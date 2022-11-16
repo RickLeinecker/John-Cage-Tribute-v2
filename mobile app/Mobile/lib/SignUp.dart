@@ -1,10 +1,8 @@
 // Packages
 import 'package:flutter/material.dart';
+import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-
-// Websocket to interact with server
-Socket server = io("http://192.168.12.117:8080",
-    OptionBuilder().setTransports(["websocket"]).build());
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // These two variables hold the username and password, respectively
 final _userController = TextEditingController();
@@ -23,37 +21,10 @@ void dispose() {
   _passConfController.dispose();
 }
 
-void register() {
-  final _username = _userController.text.trim();
-  final _email = _emailController.text.trim();
-  final _password = _passController.text.trim();
-  final _passwordConf = _passConfController.text.trim();
-
-  // Credentials JSON to send to the server
-  final _credentials = {
-    "username": _username,
-    "email": _email,
-    "password": _password,
-    "passwordconfirm": _passwordConf
-  };
-
-  print(_credentials);
-  server.emit("register", _credentials);
-}
-
-class SignUp extends StatefulWidget {
-  const SignUp({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
+class SignUp extends ConsumerWidget {
   @override
-  State<SignUp> createState() => _SignUpState();
-}
-
-class _SignUpState extends State<SignUp> {
-  @override
-  Widget build(BuildContext context) {
-    server.on("connect", ((data) => print("Successfully connected!")));
+  Widget build(BuildContext context, WidgetRef ref) {
+    Socket socket = ref.watch(socketProvider);
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -218,7 +189,7 @@ class _SignUpState extends State<SignUp> {
                             padding: const EdgeInsets.only(left: 7.5),
                             child: TextButton(
                                 onPressed: () {
-                                  register();
+                                  register(socket);
                                 },
                                 child: const Text('Register',
                                     style: TextStyle(
@@ -231,6 +202,32 @@ class _SignUpState extends State<SignUp> {
               ])),
         ));
   }
+
+void register(Socket socket) {
+  final _username = _userController.text.trim();
+  final _email = _emailController.text.trim();
+  final _password = _passController.text.trim();
+  final _passwordConf = _passConfController.text.trim();
+
+  // Credentials JSON to send to the server
+  final _credentials = {
+    "username": _username,
+    "email": _email,
+    "password": _password,
+    "passwordconfirm": _passwordConf
+  };
+
+  print(_credentials);
+  socket.emit("register", _credentials);
+
+  socket.on("regsuccess", (data) {
+    print(data);
+  });
+
+  socket.on("regerror", (error) {
+    print(error);
+  });
+}
 }
 
 // Authentication wrapper, handles user authentication

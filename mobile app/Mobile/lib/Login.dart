@@ -1,10 +1,13 @@
 // Packages
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutterapp/main.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Socket to communicate with server
-Socket server = io("http://192.168.12.117:8080/",
-    new OptionBuilder().setTransports(["websocket"]).build());
+import 'HomePage.dart';
+import 'CustomPackages/popups.dart';
 
 // These two variables hold the username and password, respectively
 final _emailController = TextEditingController();
@@ -17,34 +20,13 @@ void dispose() {
   _passController.dispose();
 }
 
-void signin() {
-  final _email = _emailController.text.trim();
-  final _password = _passController.text.trim();
-
-  // Credentials JSON to send to the server
-  final _credentials = {"email": _email, "password": _password};
-
-  print(_credentials);
-
-  server.emit("login", _credentials);
-}
-
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class LoginPage extends ConsumerWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-
-    server.on("connect", (_) => print("Connection successful!"));
+  Widget build(BuildContext context, WidgetRef ref) {
+    Socket socket = ref.watch(socketProvider);
+    FlutterSecureStorage storage = ref.read(storageProvider);
 
     return MaterialApp(
         title: "John Cage Tribute",
@@ -156,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.only(left: 7.5),
                             child: TextButton(
                                 onPressed: () {
-                                  signin();
+                                  signin(socket, context, ref);
                                 },
                                 child: const Text('Sign in',
                                     style: TextStyle(
@@ -169,15 +151,50 @@ class _LoginPageState extends State<LoginPage> {
               ])),
         ));
   }
+
+  void signin(Socket socket, BuildContext context, WidgetRef ref) {
+    FlutterSecureStorage myStorage = new FlutterSecureStorage();
+    final _email = _emailController.text.trim();
+    final _password = _passController.text.trim();
+
+    // Credentials JSON to send to the server
+    final _credentials = {"email": _email, "password": _password};
+
+    print(_credentials);
+
+    socket.emit("login", _credentials);
+
+    socket.on("loginsuccess", (data) async {
+      await myStorage.write(key: "jctacc", value: data['accessToken']);
+
+      var token = myStorage.read(key: "jctacc");
+
+      var decoded = JwtDecoder.decode(data['accessToken']);
+      print(decoded['username']);
+      print(decoded['userId']);
+
+      // Set username & ID here
+      ref.read(userProvider.notifier).state = decoded['username'];
+      ref.read(idProvider.notifier).state = decoded['userId'];
+      ref.read(loggedProvider.notifier).state = true;
+
+      print("User: ${ref.read(userProvider.notifier).state}");
+      print("Id: ${ref.read(idProvider.notifier).state}");
+
+      _emailController.text = '';
+      _passController.text = '';
+
+      Navigator.of(context).pop();
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ));
+    });
+
+    socket.on("loginerror", (err) {
+      displayErr(context, err['msg']);
+    });
+  }
 }
-
-// Authentication wrapper, handles user authentication
-// through Firebase's Authentication API
-// class AuthenticationWrapper extends StatelessWidget {
-//   const AuthenticationWrapper({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const LoginPage(title: 'Sign In');
-//   }
-// }

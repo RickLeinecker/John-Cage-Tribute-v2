@@ -12,3 +12,7 @@ Website/node_modules
 Website/client/node_modules
 Website/client/build
 *.txt
+*.xcconfig
+backend/.DS_Store
+*.mp3
+.DS_Store

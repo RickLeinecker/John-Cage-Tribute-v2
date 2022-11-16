@@ -1,138 +1,162 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
-// Testing
-// Socket serverSocket = io("http://192.168.12.116:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-Socket serverSocket = io("http://192.168.12.11:8080/",
-    OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket serverSocket = io("http://172.26.94.38:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-// Live
-// Socket serverSocket = io("https://johncagetribute.org/",
-//     OptionBuilder().setTransports(["websocket"]).build());
+// Local packages
+import './CustomPackages/popups.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
 
-const roomId = 33;
+const roomId = 1;
+var numUsers = 0;
 
-class CreateRoom extends StatefulWidget {
-  CreateRoom({Key? key, required this.title}) : super(key: key);
-  final String title;
+final createdProvider = StateProvider<bool>((ref) {
+  return false;
+});
 
+final startedProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+final listeningProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+class CreateRoom extends ConsumerWidget {
   @override
-  State<CreateRoom> createState() => _CreateRoomState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get refs from riverpod
+    Socket socket = ref.watch(socketProvider);
+    bool created = ref.watch(createdProvider);
+    bool started = ref.watch(startedProvider);
+    bool listening = ref.watch(listeningProvider);
 
-class _CreateRoomState extends State<CreateRoom> {
-  bool created = false, started = false;
+    // User info
+    String username = ref.watch(userProvider);
+    int userId = ref.watch(idProvider);
 
-  @override
-  Widget build(BuildContext context) {
-    serverSocket.on("connect", (socket) {
+    socket.once("connect", (socket) {
       print("Connected to server!");
     });
 
-    serverSocket.on("updaterooms", (rooms) {
-      print("Updated rooms: ${rooms}");
+    socket.on("updaterooms", (room) {
+      print("Updated rooms: $room");
     });
 
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-            image: AssetImage('images/college_bg.jpg'),
-            fit: BoxFit.cover,
-          )),
-          child: Center(
-              child: Column(
-                  children: !created
-                      ? [
-                          const Padding(padding: EdgeInsets.only(bottom: 350)),
-                          ElevatedButton(
-                            onPressed: () {
-                              schedule();
-                              created = !created;
-                            },
-                            child: const Text('Create a Room'),
-                            style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(150, 80),
-                                backgroundColor: Colors.blue),
-                          )
-                        ]
-                      : !started
+    return WillPopScope(
+        onWillPop: () async {
+          // Disconnect websocket here
+          socket.clearListeners();
+          socket.disconnect();
+          socket.close();
+
+          Navigator.pop(context);
+          return true;
+        },
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text("Testing"),
+            ),
+            body: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                image: AssetImage('images/college_bg.jpg'),
+                fit: BoxFit.cover,
+              )),
+              child: Center(
+                  child: Column(
+                      children: !created
                           ? [
-                              const Padding(
-                                  padding: EdgeInsets.only(bottom: 350)),
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        leave();
-                                        created = !created;
-                                      },
-                                      child: const Text("Leave Room"),
-                                      style: ElevatedButton.styleFrom(
-                                          fixedSize: const Size(150, 80),
-                                          backgroundColor: Colors.redAccent),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        startConcert();
-                                        started = !started;
-                                      },
-                                      child: const Text('Start Concert'),
-                                      style: ElevatedButton.styleFrom(
-                                          fixedSize: const Size(150, 80),
-                                          backgroundColor: Colors.lightGreen),
-                                    )
-                                  ]),
-                            ]
-                          : [
                               const Padding(
                                   padding: EdgeInsets.only(bottom: 350)),
                               ElevatedButton(
                                 onPressed: () {
-                                  stopConcert();
-                                  started = !started;
-                                  created = !created;
+                                  schedule(socket, ref, context, userId);
                                 },
-                                child: const Text("Stop Concert"),
+                                child: const Text('Create a Room'),
                                 style: ElevatedButton.styleFrom(
                                     fixedSize: const Size(150, 80),
-                                    backgroundColor: Colors.redAccent),
-                              ),
-                            ])),
-        ));
+                                    backgroundColor: Colors.blue),
+                              )
+                            ]
+                          : !started
+                              ? [
+                                  const Padding(
+                                      padding: EdgeInsets.only(bottom: 150)),
+                                  Text("Hello"),
+                                  const Padding(
+                                      padding: EdgeInsets.only(bottom: 150)),
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            leave(socket, ref);
+                                            created = !created;
+                                          },
+                                          child: const Text("Leave Room"),
+                                          style: ElevatedButton.styleFrom(
+                                              fixedSize: const Size(150, 80),
+                                              backgroundColor:
+                                                  Colors.redAccent),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            startConcert(socket, ref);
+                                            //started = !started;
+                                          },
+                                          child: const Text('Start Concert'),
+                                          style: ElevatedButton.styleFrom(
+                                              fixedSize: const Size(150, 80),
+                                              backgroundColor:
+                                                  Colors.lightGreen),
+                                        )
+                                      ]),
+                                ]
+                              : [
+                                  const Padding(
+                                      padding: EdgeInsets.only(bottom: 350)),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      stopConcert(socket, ref);
+                                      started = !started;
+                                      created = !created;
+                                    },
+                                    child: const Text("Stop Concert"),
+                                    style: ElevatedButton.styleFrom(
+                                        fixedSize: const Size(150, 80),
+                                        backgroundColor: Colors.redAccent),
+                                  ),
+                                  // ignore: prefer_const_constructors
+                                  IconButton(
+                                    icon: listening
+                                        ? Icon(Icons.mic_off_sharp)
+                                        : Icon(Icons.mic),
+                                    onPressed: () => {
+                                      listening ? mute(socket) : unmute(socket)
+                                    },
+                                  )
+                                ])),
+            )));
   }
 
   // Functions that interact with the server code
-  schedule() async {
-    if (!serverSocket.connected) {
+  schedule(
+      Socket socket, WidgetRef ref, BuildContext context, int userId) async {
+    if (!socket.connected) {
       print("I'm not connected...");
-
-      return const AlertDialog(
-        title: Text("HOLD UP"),
-        content: Text("Please wait while we connect to the servers..."),
-        actions: [Text("OK")],
-      );
     } else {
       // Start constructing the room
+      // CHANGE THE PIN AFTER TESTING
       var room = {
         "members": {},
         "id": roomId,
@@ -140,69 +164,77 @@ class _CreateRoomState extends State<CreateRoom> {
         "currentListeners": 0,
         "maxListeners": 1,
         "currentPerformers": 0,
-        "maxPerformers": 2,
+        "maxPerformers": 4,
         "isOpen": false,
         "sessionStarted": false,
         "sessionAudio": 0
       };
 
-      var member = {"role": 1, "userId": 3, "isHost": true};
+      var member = {"role": 1, "userId": userId, "isHost": true};
 
       var package = {"room": room, "member": member};
 
-      serverSocket.emit("createroom", package);
+      socket.emit("createroom", package);
 
-      serverSocket.on('event', (data) => print(data));
-      serverSocket.on('error', (err) => print(err));
-      serverSocket.on('timeout', (time) => print(time));
-      serverSocket.on('fromServer', (_) => print(_));
-      serverSocket.on('disconnect', (disconn) {
-        print(disconn);
-        micListener?.cancel();
+      socket.on("scheduleerror", (err) {
+        ref.read(createdProvider.notifier).state = false;
+
+        displayErr(context, err);
       });
 
-      setState(() {
-        print("State has been set!");
+      socket.once("schedulesuccess", (message) {
+        ref.read(createdProvider.notifier).state = true;
+        numUsers = 1;
+        socket.off("scheduleerror");
       });
     }
   }
 
-  void leave() async {
-    serverSocket.emit("leaveroom", roomId);
+  void leave(Socket socket, WidgetRef ref) async {
+    socket.emit("leaveroom", roomId);
 
-    setState(() {
-      print("State has been set!");
-    });
+    ref.read(createdProvider.notifier).state = false;
   }
 
-  void startConcert() async {
-    serverSocket.emit("startsession", roomId);
+  void startConcert(Socket socket, WidgetRef ref) async {
+    socket.emit("startsession", roomId);
 
-    serverSocket.on("audiostart", (message) async {
-      print(message);
+    socket.on("audiostart", (message) async {
+      ref.read(startedProvider.notifier).state = true;
+
+      //start(ref, socket);
 
       // Start listening to microphone
-      micStream = await MicStream.microphone(
-        sampleRate: 44100,
-      );
+      micStream = await MicStream.microphone(sampleRate: 44100);
+
       micListener = micStream?.listen((data) {
-        serverSocket.emit("sendaudio", data);
+        print(data);
+        socket.emit("sendaudio", data);
       });
+
+      ref.read(listeningProvider.notifier).state = true;
     });
 
-    setState(() => print("setstate"));
+    //setState(() => print("setstate"));
   }
 
-  void stopConcert() async {
-    micListener?.cancel();
+  void stopConcert(Socket socket, WidgetRef ref) async {
+    micListener?.pause();
+    micStream = null;
 
+    //stop(ref);
+
+    // Send server a package to end the concert,
+    // then remove the 'audiostart' listener
     var package = {"roomId": roomId, "composition": {}};
+    socket.emit("endsession", package);
+    socket.off("audiostart");
 
-    serverSocket.emit("endsession", package);
-
-    print("We should have stopped...");
-
-    setState(() => print("setstate"));
+    // State management
+    ref.read(createdProvider.notifier).state = false;
+    ref.read(startedProvider.notifier).state = false;
+    ref.read(listeningProvider.notifier).state = false;
+    //setState(() => print("setstate"));
   }
 
   // Mic initialization
@@ -215,42 +247,22 @@ class _CreateRoomState extends State<CreateRoom> {
     } else
       print("Permissions already granted!");
   }
-}
 
-/*
-websocket setup
-class _ListenScreenState extends State<ListenScreen> {
-  WebSocketChannel wsChannel;
-  Timer timer;
+  void mute(Socket socket) async {
+    const payload = {'roomId': roomId, 'isActive': false};
+    socket.emit("muteordeafen", payload);
 
-  void initState() {
-    wsChannel = IOWebSocketChannel.connect('ws://ade18054.ngrok.io/listen');
-    timer = new Timer.periodic(
-      Duration(milliseconds: 10), (Timer t) {
-        wsChannel.sink.add("Gimme audio!");
-      });
-
-    super.initState();
+    // await micListener?.cancel();
+    //setState(() => print("setstate"));
   }
 
-  stream
+  void unmute(Socket socket) {
+    const payload = {'roomId': roomId, 'isActive': true};
+    socket.emit("muteordeafen", payload);
 
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: wsChannel.stream,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        final audioData = snapshot.data;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Listening Screen'),
-          ),
-          body: Center(
-            child: Text('Audio data length is ${audioData.length}.'),
-          ),
- */
+    // micListener = micStream?.listen((data) {
+    //   socket.emit("sendaudio", data);
+    // });
+    //setState(() => print("setstate"));
+  }
+}
