@@ -1035,7 +1035,7 @@ io.on("connection", function (socket) {
             // end of the scheduled time slot,
             // whichever comes first
             const currDate = new Date();
-            const endMinutes = currDate.getTime() + (0.2 * 60000);
+            const endMinutes = currDate.getTime() + (5 * 60000);
             const endLimit = availableRooms[roomId]['endtime'];
 
             const timeHolder = Math.min(endMinutes, endLimit);
@@ -1046,9 +1046,9 @@ io.on("connection", function (socket) {
             console.log(`We should be ending at: ${endTime}`)
             console.log(endTime);
 
-            const timeoutID = setTimeout(function () {timeLimitStop(roomId)}, timeDiff);
+            setTimeout(function () {timeLimitStop(roomId)}, timeDiff);
 
-            availableRooms[roomId]['timeoutID'] = timeoutID;
+            availableRooms[roomId]['timeoutID'] = 0;
 
             // We now have our scheduled endtime, signal everybody to begin
             availableRooms[roomId]['sessionStarted'] = true;
@@ -1188,7 +1188,7 @@ io.on("connection", function (socket) {
         // Create an MP3 encoder with data buffer input and output
         const encoder = new Lame({
           "output": mp3OutputDir,
-          "scale": 45,
+          "scale": 60,
           "bitrate": 320,
           "quality": 9
         }).setBuffer(audioFileBuffer);
