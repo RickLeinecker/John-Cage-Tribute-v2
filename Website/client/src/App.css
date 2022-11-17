@@ -856,7 +856,7 @@ button {
 }
 
 .audio-elem {
-	position: absolute;
+  top: 30px;
 	bottom: 10px;
 	width: 95%
 }

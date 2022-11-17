@@ -1,71 +1,51 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutterapp/main.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mic_stream/mic_stream.dart';
 
-// Testing
-Socket serverSocket = io("http://192.168.12.176:8080/",
-    OptionBuilder().setTransports(["websocket"]).build());
-
-// Socket serverSocket = io("http://192.168.12.116:8080/",
-//     OptionBuilder().setTransports(["websocket"]).build());
-
-// Live
-// Socket serverSocket = io("https://johncagetribute.org/",
-//     OptionBuilder().setTransports(["websocket"]).build());
+// Local packages
+import './CustomPackages/popups.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
 
-void displayErr(BuildContext context, String message) {
-  showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            title: const Text("Error Joining Room"),
-            content: Text(message),
-            actions: <Widget>[
-              TextButton(
-                  child: Text("Close"),
-                  onPressed: () => Navigator.of(context).pop())
-            ]);
-      });
-}
+int roomId = 1;
 
-class LiveStream extends StatefulWidget {
-  const LiveStream({Key? key, required this.title}) : super(key: key);
-  final String title;
+late Socket socket;
 
+final joinedProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+final startedProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+final listeningProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+class LiveStream extends ConsumerWidget {
   @override
-  State<LiveStream> createState() => _LiveStreamState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Providers here:
+    socket = ref.watch(socketProvider);
+    bool joined = ref.watch(joinedProvider);
+    bool started = ref.watch(startedProvider);
+    bool listening = ref.watch(listeningProvider);
 
-class _LiveStreamState extends State<LiveStream> {
-  bool created = false, started = false;
-
-  @override
-  Widget build(BuildContext context) {
-    serverSocket.on("connect", (socket) {
-      print("Connected to server!");
-    });
-
-    serverSocket.on("updaterooms", (rooms) {
-      print("Updated rooms: ${rooms}");
-    });
-
-    serverSocket.on("roomerror", (err) {
-      micListener?.cancel();
-      displayErr(context, err);
-    });
+    String username = ref.watch(userProvider);
+    int userId = ref.watch(idProvider);
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text("Join an event!"),
         ),
         body: Container(
           width: double.infinity,
@@ -76,13 +56,13 @@ class _LiveStreamState extends State<LiveStream> {
           )),
           child: Center(
               child: Column(
-                  children: !created
+                  children: !joined
                       ? [
                           const Padding(padding: EdgeInsets.only(bottom: 350)),
                           ElevatedButton(
                             onPressed: () {
-                              joinStream();
-                              created = !created;
+                              joinStream(context, ref, userId);
+                              joined = !joined;
                             },
                             child: const Text('Join a Stream'),
                             style: ElevatedButton.styleFrom(
@@ -108,7 +88,7 @@ class _LiveStreamState extends State<LiveStream> {
                                 onPressed: () {
                                   leaveStream();
                                   started = !started;
-                                  created = !created;
+                                  joined = !joined;
                                 },
                                 child: const Text("Leave Concert"),
                                 style: ElevatedButton.styleFrom(
@@ -119,43 +99,48 @@ class _LiveStreamState extends State<LiveStream> {
         ));
   }
 
-  void joinStream() async {
-    var room = 33;
+  void joinStream(BuildContext context, WidgetRef ref, int userId) async {
+    print("ROOM NUMBER: ${roomId}");
 
-    print("ROOM NUMBER: ${room}");
+    //var pinPackage = {"roomId": roomId, "enteredPin": "abcdefg"};
 
-    var pinPackage = {"roomId": room, "enteredPin": "abcdefg"};
+    // socket.emit("verifypin", pinPackage);
 
-    serverSocket.emit("verifypin", pinPackage);
-
-    serverSocket.on("pinerror", (err) {
-      displayErr(context, err);
-    });
+    // socket.on("pinerror", (err) {
+    //   ref.read(joinedProvider.notifier).state = false;
+    //   displayErr(context, err);
+    // });
 
     print('We should be joining the room now...');
 
-    serverSocket.on("pinsuccess", (_) {
-      var member = {"role": 1, "userId": 4, "isHost": false};
-      var package = {"member": member, "roomId": room};
+    var member = {"role": 1, "userId": userId, "isHost": false};
+    var package = {"member": member, "roomId": roomId};
 
-      serverSocket.emit("joinroom", package);
+    socket.emit("joinroom", package);
 
-      print("Successful pin!");
+    print("Successful pin!");
 
-      serverSocket.on("joinerror", (err) => displayErr(context, err));
-      serverSocket.on("roomerror", (err) => displayErr(context, err));
-    });
+    socket.on("joinerror", (err) => displayErr(context, err));
+    socket.on("roomerror", (err) => displayErr(context, err));
 
-    serverSocket.on('event', (data) => print(data));
-    serverSocket.on('error', (err) => displayErr(context, err));
-    serverSocket.on('timeout', (time) => print(time));
-    serverSocket.on('fromServer', (_) => print(_));
-    serverSocket.on('disconnect', (disconn) {
+    // socket.on("pinsuccess", (_) {
+    //   var member = {"role": 1, "userId": 4, "isHost": false};
+    //   var package = {"member": member, "roomId": roomId};
+
+    //   socket.emit("joinroom", package);
+
+    //   print("Successful pin!");
+
+    //   socket.on("joinerror", (err) => displayErr(context, err));
+    //   socket.on("roomerror", (err) => displayErr(context, err));
+    // });
+
+    socket.on('disconnect', (disconn) {
       print(disconn);
       micListener?.cancel();
     });
 
-    serverSocket.on("audiostart", (message) async {
+    socket.on("audiostart", (message) async {
       print(message);
 
       // Start listening to microphone
@@ -163,11 +148,11 @@ class _LiveStreamState extends State<LiveStream> {
         sampleRate: 44100,
       );
       micListener = micStream?.listen((data) {
-        serverSocket.emit("sendaudio", data);
+        socket.emit("sendaudio", data);
       });
     });
 
-    serverSocket.on("audiostop", (message) async {
+    socket.on("audiostop", (message) async {
       print(message);
 
       micListener?.cancel();
@@ -175,7 +160,7 @@ class _LiveStreamState extends State<LiveStream> {
   }
 
   void leaveStream() {
-    serverSocket.emit("leaveroom", 33);
+    socket.emit("leaveroom", 33);
 
     micListener?.cancel();
   }

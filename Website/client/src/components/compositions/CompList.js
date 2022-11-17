@@ -9,21 +9,22 @@ import { IconContext } from 'react-icons';
 import * as AiIcons from 'react-icons/ai';
 import Axios from "axios";
 import { Link, Redirect } from 'react-router-dom';
+import SweetPagination from "sweetpagination";
 
 class CompList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			list: props.list,
-			userId: props.userId
+			userId: props.userId,
+			currentPageData: props.currentPageData
 		}
 
-		console.log("props complist", this.state);
+		this.setCurrentPageData = this.setCurrentPageData.bind(this);
 	}
 	
-	componentDidUpdate(prevProps) {
-		console.log(this.state);
-		if(prevProps.list !== this.props.list) {
+	componentDidUpdate(prevProps, temp) {
+		if(prevProps.list != this.props.list) {
 			this.setState({
 				list: this.props.list
 			})
@@ -35,13 +36,22 @@ class CompList extends React.Component {
 			})
 		}
 	}
+	setCurrentPageData(e)  {
+		this.setState({currentPageData: e})
+	}
+
+	setListPager(newList){
+		this.setState({currentPageData: newList})
+		this.forceUpdate();
+		return this.currentPageData;
+	}
 		
 	render() {
 		var list; 
-		if(this.state.list.length != 0) {
-			list = this.state.list.map((item, i) => {
+		if(this.state.currentPageData != null) {
+			console.log("STATE DATE",this.state.currentPageData )
+			list = this.state.currentPageData.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
-				console.log("ITEM", item, this.props.userId);
 				return (<CompListItem 
 					info={item}
 					userId = {this.state.userId}
@@ -62,6 +72,13 @@ class CompList extends React.Component {
 				<div style={{width:"100%",margin:"5px"}}>Date</div>
 			</div>
 			{list}
+			<SweetPagination
+	   		currentPageData={(e)=> this.setListPager(e)}
+			dataPerPage={4}
+			getData={this.state.list}
+			navigation={true}
+			getStyle={'style-1'}
+  			/>
 		</div>
 		);
 	}
@@ -70,7 +87,6 @@ class CompList extends React.Component {
 class CompListItem extends React.Component {
 	constructor(props) {
 		super(props);
-		console.log("PROPS", props.info)
 		this.state = {
 			info: props.info,
 			userId: props.userId,
@@ -82,8 +98,7 @@ class CompListItem extends React.Component {
 				description: props.info.description,
 				length: props.info.lengthSeconds,
 				date: props.info.recordingDate,
-				maestro: props.info.username,
-				audioFile: props.info.audioFile
+				maestro: props.info.username
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -98,8 +113,15 @@ class CompListItem extends React.Component {
 		this.setPrivate = this.setPrivate.bind(this);
 		//CHANGE TO USE USERID
 		//localStorage.setItem("target", this.userId);
-		console.log(this.info);
-		console.log(this.state.formdata.audioFile);
+	}
+
+	componentDidUpdate(prevProps) {
+        
+		if(prevProps.info !== this.props.info) {
+			this.setState({
+				info: this.props.info
+			})
+		}
 	}
 	
 	render() {
@@ -111,13 +133,8 @@ class CompListItem extends React.Component {
 		// console.log(this.state.info.maestroId);
 
 		localStorage.setItem("target", this.state.info.maestroId);
-		console.log("KOOKY: ");
-		console.log(localStorage.getItem("target"));
-		
 		var sidebar = null;
 		if(this.state.chosen) {
-			console.log("chosen")
-			console.log("comp info", info)
 			var c = "info-field-title";
 			var c1 = "info-p";
 			sidebar = (
@@ -158,8 +175,8 @@ class CompListItem extends React.Component {
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio className="audio-elem" controls src={"http://localhost:3001/audio/" + this.state.formdata.audioFile} >
-
+							<audio className="audio-elem" controls src={'../../AudioFiles/'
+								+ info.recordingId + ".mp3"} >
 							</audio>	 
 						</div>
 						
@@ -210,7 +227,6 @@ class CompListItem extends React.Component {
 	var title = formdata.title?  formdata.title : "test title ";
 	var query = JSON.stringify({id:userId, recordingid: info.recordingId , newdescription: description, newtitle: title});
 
-	console.log("query", query)
 	try {
 		 await Axios.post("https://johncagetribute.org/editrecording", {params: query}).then(r => {
 			this.setState({list: r.data})

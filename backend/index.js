@@ -942,67 +942,105 @@ io.on("connection", function (socket) {
     socket.on('joinroom', function (data) {
         console.log(`Received joinroom from socket: ${socket.id}.`);
 
-        const roomId = data.roomId;
-        const member = data.member;
+        console.log("Data:");
+        console.log(data);
 
-        const room = availableRooms[roomId];
-        if (!room) {
-            console.log(`(joinroom) Room does not exist.`);
-            socket.emit('roomerror', 'This room does not exist.');
-            return;
-        }
 
-        const roomMembers = room['members'];
-
-        if (!roomMembers) {
-            console.log("(joinroom) This room's member data seems to be missing.");
-            socket.emit(
-                'joinerror',
-                "This room's member data seems to be missing. Please exit."
-            );
-            return;
-        } else {
-            if (member['role'] == Role.LISTENER) {
-                if (
-                    availableRooms[roomId]['currentListeners'] ==
-                    availableRooms[roomId]['maxListeners']
-                ) {
-                    socket.emit(
-                        'roomerror',
-                        "This room's max listener capacity was reached. Please exit."
-                    );
+        db2.query("SELECT * FROM Schedule ORDER BY scheduleDate ASC;", (err, result) => {
+            if (err)
+            {
+                console.log(err);
+                socket.emit("roomerror", "You don't have any concerts scheduled. Why don't you schedule at our website?");
+                return;
+            } else
+            {
+                // Empty table check
+                if (result[0] == undefined)
+                {
+                    socket.emit("joinerror", "You aren't invited to any concerts. If you have an invite code, don't forget to use it in the website!");
                     return;
                 }
 
-                availableRooms[roomId]['currentListeners']++;
-            } else {
-                if (
-                    availableRooms[roomId]['currentPerformers'] ==
-                    availableRooms[roomId]['maxPerformers']
-                ) {
-                    console.log('Max performers reached...');
-                    socket.emit(
-                        'roomerror',
-                        "This room's max performer capacity was reached. Please exit."
-                    );
+                // Checking to make sure user's already registered to the event
+                const use1 = result[0].userOne;
+                const use2 = result[0].userTwo;
+                const use3 = result[0].userThree;
+
+                console.log(`One: ${use1}`);
+                console.log(`Two: ${use2}`);
+                console.log(`Three: ${use3}`);
+
+                // I want to make this prettier/better but I just want something that works first
+                if (data.member.userId != use1 && data.member.userId != use2 && data.member.userId != use3)
+                {
+                    console.log(result[0].maestroId);
+                    socket.emit("joinerror", "You aren't invited to any concerts. If you have an invite code, don't forget to use it in the website!");
                     return;
                 }
-                // If a valid performer joined the room, add them to the audio processor
-                audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
-                availableRooms[roomId]['currentPerformers']++;
+                const roomId = data.roomId;
+                const member = data.member;
+
+                const room = availableRooms[roomId];
+                if (!room) {
+                    console.log(`(joinroom) Room does not exist.`);
+                    socket.emit('roomerror', 'This room does not exist.');
+                    return;
+                }
+
+                const roomMembers = room['members'];
+
+                if (!roomMembers) {
+                    console.log("(joinroom) This room's member data seems to be missing.");
+                    socket.emit(
+                        'joinerror',
+                        "This room's member data seems to be missing. Please exit."
+                    );
+                    return;
+                } else {
+                    if (member['role'] == Role.LISTENER) {
+                        if (
+                            availableRooms[roomId]['currentListeners'] ==
+                            availableRooms[roomId]['maxListeners']
+                        ) {
+                            socket.emit(
+                                'roomerror',
+                                "This room's max listener capacity was reached. Please exit."
+                            );
+                            return;
+                        }
+
+                        availableRooms[roomId]['currentListeners']++;
+                    } else {
+                        if (
+                            availableRooms[roomId]['currentPerformers'] ==
+                            availableRooms[roomId]['maxPerformers']
+                        ) {
+                            console.log('Max performers reached...');
+                            socket.emit(
+                                'roomerror',
+                                "This room's max performer capacity was reached. Please exit."
+                            );
+                            return;
+                        }
+                        // If a valid performer joined the room, add them to the audio processor
+                        audioProcessorPool.send({ command: 'addPerformer', roomId: roomId, socketId: socket.id });
+                        availableRooms[roomId]['currentPerformers']++;
+                    }
+
+                    availableRooms[roomId]['members'][socket.id] = member;
+                    memberAttendance[socket.id] = roomId;
+
+                    socket.join(roomId);
+
+                    io.to(roomId).emit('updatemembers', {
+                        members: availableRooms[roomId]['members'],
+                        sessionStarted: availableRooms[roomId]['sessionStarted']
+                    });
+                    io.emit('updateoneroom', { roomId: roomId, room: availableRooms[roomId] });
+                }
             }
+        });
 
-            availableRooms[roomId]['members'][socket.id] = member;
-            memberAttendance[socket.id] = roomId;
-
-            socket.join(roomId);
-
-            io.to(roomId).emit('updatemembers', {
-                members: availableRooms[roomId]['members'],
-                sessionStarted: availableRooms[roomId]['sessionStarted']
-            });
-            io.emit('updateoneroom', { roomId: roomId, room: availableRooms[roomId] });
-        }
     });
 
     // NEXT
