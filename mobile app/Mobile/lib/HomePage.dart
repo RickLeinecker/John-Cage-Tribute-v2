@@ -126,8 +126,7 @@ class HomePage extends ConsumerWidget {
                             ElevatedButton(
                               onPressed: () => Navigator.push(context,
                                   MaterialPageRoute(builder: ((context) {
-                                return const LiveStream(
-                                    title: "John Cage Tribute Livestream");
+                                return LiveStream();
                               }))),
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(
