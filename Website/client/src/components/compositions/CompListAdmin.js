@@ -157,9 +157,9 @@ class CompListAdminItem extends React.Component {
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio className="audio-elem" controls src={"http://localhost:3001/audio/" + this.state.formdata.audioFile} >
-
-							</audio>	 
+							<audio className="audio-elem" controls src={'../../AudioFiles/'
+								+ info.recordingId + ".mp3"} >
+							</audio>	 	 
 						</div>
 						
 					

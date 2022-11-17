@@ -48,7 +48,8 @@ class CompList extends React.Component {
 		
 	render() {
 		var list; 
-		if(this.state.currentPageData != []) {
+		if(this.state.currentPageData != null) {
+			console.log("STATE DATE",this.state.currentPageData )
 			list = this.state.currentPageData.map((item, i) => {
 				// if the runtime is undefined, the composition failed and should not be shown
 				return (<CompListItem 
@@ -176,7 +177,6 @@ class CompListItem extends React.Component {
 							) : (null)}
 							<audio className="audio-elem" controls src={'../../AudioFiles/'
 								+ info.recordingId + ".mp3"} >
-
 							</audio>	 
 						</div>
 						
