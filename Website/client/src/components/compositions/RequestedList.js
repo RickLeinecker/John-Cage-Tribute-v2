@@ -171,8 +171,8 @@ class RequestedListItem extends React.Component {
 			}
 			console.log("ursa");
     		console.log(payload);
-            axios.post("http://localhost:3001/changeismaestro", payload);
-			axios.post("http://localhost:3001/changeisrequested", payload);
+            axios.post("https://johncagetribute.org/changeismaestro", payload);
+			axios.post("https://johncagetribute.org/changeisrequested", payload);
 			window.location.reload();
         }
     }
@@ -183,7 +183,7 @@ class RequestedListItem extends React.Component {
             var payload = {
 				id: id
 			}
-			axios.post("http://localhost:3001/changeisrequested", payload);
+			axios.post("https://johncagetribute.org/changeisrequested", payload);
 			window.location.reload();
         }
     }

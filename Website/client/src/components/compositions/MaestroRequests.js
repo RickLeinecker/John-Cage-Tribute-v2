@@ -34,7 +34,7 @@ class MaestroRequests extends React.Component {
 	}
 
     componentDidMount() {
-        Axios.get("http://localhost:3001/listrequested").then(r => {
+        Axios.get("https://johncagetribute.org/listrequested").then(r => {
             this.setState({list: r.data});
             console.log("NAIRO");
             console.log(this.state.list);

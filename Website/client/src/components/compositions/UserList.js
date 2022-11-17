@@ -163,7 +163,7 @@ class UserListItem extends React.Component {
             var payload = {
                 id: id
             }
-            axios.post("http://localhost:3001/deleteuser", payload);
+            axios.post("https://johncagetribute.org/deleteuser", payload);
             window.location.reload();
         }
     }

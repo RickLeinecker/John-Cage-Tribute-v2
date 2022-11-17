@@ -94,11 +94,13 @@ class CompListItem extends React.Component {
 			sidebarClass: "",
 			editing: false,
 			formdata: {
+				recordingId: props.info.recordingId,
 				title: props.info.title,
 				description: props.info.description,
 				length: props.info.lengthSeconds,
 				date: props.info.recordingDate,
-				maestro: props.info.username
+				maestro: props.info.username,
+				audioFile: props.info.audioFile
 				// tags: props.info.tags.join(","),
 				// description: props.info.description,
 				// private: props.info.private
@@ -171,12 +173,12 @@ class CompListItem extends React.Component {
 							<div style={{padding:"5px 0px"}}>
 								<button onClick={()=>this.setState({editing: true})}
 									style={{padding:"0px 4px",marginRight:"5px"}}>Edit</button>
-								<button onClick={this.deleteComp}
+								<button onClick={() => this.deleteComp(this.state.formdata.title, this.state.formdata.recordingId, this.state.userId)}
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio className="audio-elem" controls src={'../../AudioFiles/'
-								+ info.recordingId + ".mp3"} >
+							<audio className="audio-elem" controls src={"https://johncagetribute.org/audio/"
+								+ this.state.formdata.audioFile} >
 							</audio>	 
 						</div>
 						
@@ -298,16 +300,15 @@ class CompListItem extends React.Component {
 		})
 	}
 	
-	deleteComp() {
-		if(!window.confirm("Are you sure you want to delete this composition?"))
-			return
-			
-		api.delete("/delete"+this.state.info._id)
-		.then(res => {
-			this.props.update();
-		}, rej => {
-			console.log(rej.status)
-		})
+	deleteComp(title, id, userId) {
+		if(window.confirm("Are you sure you want to delete " + title + "?")){
+            var payload = {
+                id: id,
+				userId: userId
+            }
+            Axios.post("https://johncagetribute.org/deleterecording", {data: payload});
+            window.location.reload();
+        }
 	}
 }
 export default connect(null, {setAlert})(CompList);

@@ -15,7 +15,7 @@ class AllUsers extends React.Component {
 	}
 
     componentDidMount() {
-        Axios.get("http://localhost:3001/listusers").then(r => {
+        Axios.get("https://johncagetribute.org/listusers").then(r => {
             this.setState({list: r.data});
             console.log("NAIRO");
             console.log(this.state.list);

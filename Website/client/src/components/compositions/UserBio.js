@@ -29,7 +29,7 @@ class UserBio extends React.Component {
 	}
 
     componentDidMount() {
-        Axios.get("http://localhost:3001/userinfo", {params: {id: this.state.userId}}).then(r => {
+        Axios.get("https://johncagetribute.org/userinfo", {params: {id: this.state.userId}}).then(r => {
             this.setState({username: r.data[0].username});
             if(r.data[0].bio != null) {
                 this.setState({bio: r.data[0].bio});
@@ -43,7 +43,7 @@ class UserBio extends React.Component {
             }
         })
 
-        Axios.get("http://localhost:3001/userRec", {params: {id: this.state.userId}}).then(r => {
+        Axios.get("https://johncagetribute.org/userRec", {params: {id: this.state.userId}}).then(r => {
             this.setState({recordings: r.data});
             console.log("CONEY");
             console.log(this.state.recordings);

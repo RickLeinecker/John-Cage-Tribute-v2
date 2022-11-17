@@ -18,7 +18,6 @@ import bcrypt from "bcrypt";
 import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
-import { Blob } from "buffer";
 import Axios from "axios";
 
 import wavpkg from 'wavefile';
@@ -78,7 +77,7 @@ app.get('/confirmation/:token', async (req, res) => {
 // -----------------------------------------------------------------------------------
 // List Compositions
 app.get("/recordings", (req, res) => {
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.description, R.title, R.inContest, R.audioFile, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = U.id",
     (err, result) => {
     if (err) {
         console.log(err);
@@ -133,33 +132,37 @@ app.get("/contests", (req, res) => {
 });
 
 // Delete Recording
-app.delete("/deleterecording", (req, res) => {
-    const id = req.query.id; // need new description, userId, recordingId trying to edit
-    db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.send(result);
-      }
-    });
+app.post("/deleterecording", (req, res) => {
+    console.log("i'm done");
+    console.log(req.body);
+    console.log(req.query);
+    const id = req.body.data.id;
+    const s = req.body.data.userId;
+    // db2.query("DELETE FROM Recordings where recordingId = " + id, (err, result) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     res.send(result);
+    //   }
+    // });
 
     // CHECK if not maestro send error
-    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s +"' AND R.recordingId = '" + req.query.recordingid + "'", (err, result) => {
+    db2.query("SELECT DISTINCT R.recordingId, R.maestroId, R.title, R.description, R.lengthSeconds, R.audioFile, R.inContest, DATE_FORMAT(R.recordingDate, '%M-%d-%Y') AS date, U.username FROM Recordings R, Users U WHERE R.maestroId = '" + s +"' AND R.recordingId = '" + id + "'", (err, result) => {
         if (err) {
             console.log(err)
         } else {
             console.log("Row Count is ", result.length);
-        }
-        if (result.length == 1)
-        {
-            db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
+
+            db2.query("DELETE FROM Recordings WHERE recordingId = " + id, (err, result) => {
                 if (err) {
                     console.log(err)
                 } else {
                     console.log("Row Count is ", result.length);
                 }
             })
+
         }
+        
     })
 });
 
@@ -585,7 +588,7 @@ app.post("/deleterecordingadmin", (req, res) => {
     console.log("In admin delete thing:");
     console.log(req.body.data.id);
     const id = req.body.data.id; // need id
-    db2.query("DELETE FROM Recordings R WHERE R.recordingId = '" + id + "'", (err, result) => {
+    db2.query("DELETE FROM Recordings where recordingId = " + id, (err, result) => {
       if (err) {
         console.log(err);
       } else {
@@ -630,7 +633,9 @@ app.post("/editbio", (req, res) => {
 // edit username
 app.post("/editusername", (req, res) => {
     const s  = req.body.id; // need new description, userId, recordingId trying to edit
-    const newName = req.body.newbio.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+    const newName = req.body.newusername.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+
+    console.log("bAH humbuhg");
 
     db2.query("UPDATE Users SET username = '" + newName + "' WHERE id = '" + s + "'", (err, result) => {
         if (err) {
@@ -690,7 +695,7 @@ io.on("connection", function (socket) {
     socket.on("register", async (credentials) => {
         console.log("Registering!!!");
 
-        await Axios.post('http://localhost:3001/users', {
+        await Axios.post('https://johncagetribute.org/users', {
             username: credentials.username,
             email: credentials.email,
             password: credentials.password,
@@ -706,7 +711,7 @@ io.on("connection", function (socket) {
 
     // Log in from mobile app
     socket.on("login", async (credentials) => {
-        await Axios.post('http://localhost:3001/login/', {
+        await Axios.post('https://johncagetribute.org/login/', {
           email: credentials.email,
           password: credentials.password
          }).then((response) => {
@@ -944,7 +949,6 @@ io.on("connection", function (socket) {
 
         console.log("Data:");
         console.log(data);
-
 
         db2.query("SELECT * FROM Schedule ORDER BY scheduleDate ASC;", (err, result) => {
             if (err)
@@ -1308,7 +1312,7 @@ io.on("connection", function (socket) {
         // Clear up the room
         delete availableRooms[roomId];
 
-        await Axios.post('http://localhost:3001/createRecording/', payload)
+        await Axios.post('https://johncagetribute.org/createRecording/', payload)
         .then((response) => {
             console.log(response);
             socket.emit("loginsuccess", response.data);

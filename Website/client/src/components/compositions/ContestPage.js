@@ -71,7 +71,7 @@ class ContestPage extends React.Component {
 	}
 
     componentDidMount() {
-        Axios.get("http://localhost:3001/recordings").then(r => {
+        Axios.get("https://johncagetribute.org/recordings").then(r => {
 			this.setState({list: r.data});
 		})
     }

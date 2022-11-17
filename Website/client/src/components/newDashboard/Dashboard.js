@@ -264,7 +264,7 @@ const Dashboard = () => {
         var user3Name = "";
         //console.log(id);
 
-        // axios.get("http://localhost:3001/username", {params: {id: id}}).then(r => {
+        // axios.get("https://johncagetribute.org/username", {params: {id: id}}).then(r => {
         //     maestroName = r.data[0].username;
         //     console.log("WOAH NELLY");
         //     console.log(maestroName);
@@ -273,7 +273,7 @@ const Dashboard = () => {
         events.map((item, index) => {
             //getting maestro name
             console.log("IN THE MAP");
-            axios.get("http://localhost:3001/username", {params: {id: item.maestroId}}).then(r => {
+            axios.get("https://johncagetribute.org/username", {params: {id: item.maestroId}}).then(r => {
                 // maestroName = r.data[0].username;
                 events[index]["maestroName"] = r.data[0].username;
                 console.log("WOAH NELLY " + events[index]["maestroName"]);
@@ -281,7 +281,7 @@ const Dashboard = () => {
 
             //getting user1 name
             if(item.userOne > 0) {
-                axios.get("http://localhost:3001/username", {params: {id: item.userOne}}).then(r => {
+                axios.get("https://johncagetribute.org/username", {params: {id: item.userOne}}).then(r => {
                     //user1Name = r.data[0].username;
                     //console.log("TAKE 2 " + user1Name);
                     events[index]["userOneName"] = r.data[0].username;
@@ -292,7 +292,7 @@ const Dashboard = () => {
 
             //getting user2 name
             if(item.userTwo > 0) {
-                axios.get("http://localhost:3001/username", {params: {id: item.userTwo}}).then(r => {
+                axios.get("https://johncagetribute.org/username", {params: {id: item.userTwo}}).then(r => {
                     // user2Name = r.data[0].username;
                     // console.log("TAKE 3 " + user2Name);
                     events[index]["userTwoName"] = r.data[0].username;
@@ -303,7 +303,7 @@ const Dashboard = () => {
 
             //getting user3 name
             if(item.userThree > 0) {
-                axios.get("http://localhost:3001/username", {params: {id: item.userThree}}).then(r => {
+                axios.get("https://johncagetribute.org/username", {params: {id: item.userThree}}).then(r => {
                     // user3Name = r.data[0].username;
                     // console.log("TAKE 4 " + user3Name);
                     events[index]["userThreeName"] = r.data[0].username;
@@ -316,11 +316,11 @@ const Dashboard = () => {
         })
         console.log("afterwards:");
         console.log(events);
-        // await axios.get("http://localhost:3001/username", params:)
+        // await axios.get("https://johncagetribute.org/username", params:)
    }
 
 //    function getMaestroName(id) {
-//     axios.get("http://localhost:3001/username", {params: {id: id}}).then(r => {
+//     axios.get("https://johncagetribute.org/username", {params: {id: id}}).then(r => {
 //         console.log(r.data[0].username);
 //         return(r.data[0].username);
 //     })

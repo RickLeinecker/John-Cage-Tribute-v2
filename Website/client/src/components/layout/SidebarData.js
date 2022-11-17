@@ -36,12 +36,6 @@ export const SidebarData = {
     cName: 'nav-text'
   },
   {
-    title: 'Rooms',
-    path: '/Rooms',
-    icon: <IoIcons.IoMdCalendar/>,
-    cName: 'nav-text'
-  },
-  {
     title: 'Logout',
     path: '/login',
     icon: <IoIcons.IoMdPeople/>,
@@ -77,12 +71,6 @@ export const SidebarData = {
       title: 'Recordings',
       path: '/search',
       icon: <FaIcons.FaMicrophone />,
-      cName: 'nav-text'
-    },
-    {
-      title: 'Rooms',
-      path: '/Rooms',
-      icon: <IoIcons.IoMdCalendar/>,
       cName: 'nav-text'
     },
     {
