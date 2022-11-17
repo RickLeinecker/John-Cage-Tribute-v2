@@ -33,7 +33,7 @@ class LoginPage extends ConsumerWidget {
         home: Scaffold(
           backgroundColor: const Color.fromARGB(255, 214, 214, 214),
           appBar: AppBar(
-            title: const Text('Admin Login'),
+            title: const Text('Login'),
           ),
           body: Center(
               child: Column(

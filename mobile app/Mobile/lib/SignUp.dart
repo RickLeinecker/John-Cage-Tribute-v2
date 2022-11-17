@@ -33,7 +33,7 @@ class SignUp extends ConsumerWidget {
         home: Scaffold(
           backgroundColor: const Color.fromARGB(255, 214, 214, 214),
           appBar: AppBar(
-            title: const Text('JCT - SignUp'),
+            title: const Text('Sign Up'),
           ),
           body: Center(
               child: Column(
@@ -203,31 +203,31 @@ class SignUp extends ConsumerWidget {
         ));
   }
 
-void register(Socket socket) {
-  final _username = _userController.text.trim();
-  final _email = _emailController.text.trim();
-  final _password = _passController.text.trim();
-  final _passwordConf = _passConfController.text.trim();
+  void register(Socket socket) {
+    final _username = _userController.text.trim();
+    final _email = _emailController.text.trim();
+    final _password = _passController.text.trim();
+    final _passwordConf = _passConfController.text.trim();
 
-  // Credentials JSON to send to the server
-  final _credentials = {
-    "username": _username,
-    "email": _email,
-    "password": _password,
-    "passwordconfirm": _passwordConf
-  };
+    // Credentials JSON to send to the server
+    final _credentials = {
+      "username": _username,
+      "email": _email,
+      "password": _password,
+      "passwordconfirm": _passwordConf
+    };
 
-  print(_credentials);
-  socket.emit("register", _credentials);
+    print(_credentials);
+    socket.emit("register", _credentials);
 
-  socket.on("regsuccess", (data) {
-    print(data);
-  });
+    socket.on("regsuccess", (data) {
+      print(data);
+    });
 
-  socket.on("regerror", (error) {
-    print(error);
-  });
-}
+    socket.on("regerror", (error) {
+      print(error);
+    });
+  }
 }
 
 // Authentication wrapper, handles user authentication

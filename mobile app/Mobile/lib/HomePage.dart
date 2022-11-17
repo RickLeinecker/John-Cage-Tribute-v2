@@ -18,7 +18,7 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("John Cage Tribute"),
+        title: const Text("John Cage Tribute"),
         actions: loggedIn
             ? [
                 ElevatedButton(
@@ -57,7 +57,7 @@ class HomePage extends ConsumerWidget {
           )),
           child: Column(children: [
             const Padding(
-                padding: EdgeInsets.fromLTRB(100.0, 75.0, 100.0, 150.0),
+                padding: EdgeInsets.fromLTRB(100.0, 75.0, 100.0, 50.0),
                 child: Text('John Cage Tribute',
                     style: TextStyle(
                         color: Colors.black,
