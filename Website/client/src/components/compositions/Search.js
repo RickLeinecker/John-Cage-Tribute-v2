@@ -24,7 +24,7 @@ class Search extends React.Component {
 	}
 	
 	componentDidMount() {
-		Axios.get("https://johncagetribute.org/recordings").then(r => {
+		Axios.get("http://localhost:3001/recordings").then(r => {
 			this.setState({list: r.data});
 		})
 	}
@@ -74,7 +74,7 @@ class Search extends React.Component {
 	
 	performSearch(e) {
 		var query = this.state.searchQuery;
-		Axios.get("https://johncagetribute.org/title", {params: {query: query}}).then(r => {
+		Axios.get("http://localhost:3001/title", {params: {query: query}}).then(r => {
 			this.setState({list: r.data})
 		})
 		e.preventDefault();

@@ -22,7 +22,7 @@ function Navbar() {
 
     const refreshToken = async () => {
       try {
-        const response = await axios.get('https://johncagetribute.org/token');
+        const response = await axios.get('http://localhost:3001/token');
           setToken(response.data.accessToken);
           const decoded = jwt_decode(response.data.accessToken);
           getIsMaestro(decoded.userId);
@@ -35,7 +35,7 @@ function Navbar() {
     }
 
     const getIsMaestro = async (id)=>{
-      await axios.get("https://johncagetribute.org/userinfo", {params: {id: id}}).then(r => {
+      await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
           console.log(typeof(r.data[0].isMaestro));
           console.log(r.data[0].isMaestro);
           setIsMaestro(r.data[0].isMaestro);

@@ -37,7 +37,7 @@ final socketProvider = Provider.autoDispose<Socket>((ref) {
   // Server socket to be shared across pages
   // For local, use "http://192.168.50.80:8080"
   // In production, use "https://johncagetribute.org/"
-  Socket socket = io("http://192.168.50.80:8080/",
+  Socket socket = io("https://johncagetribute.org/",
       OptionBuilder().setTransports(["websocket"]).build());
   socket.on("connect", (_) => print("Connected!"));
 

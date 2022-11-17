@@ -88,7 +88,7 @@ function InviteCardComponent({ className = '' }) {
       console.log("query", query)
 
       try {
-           await Axios.post("https://johncagetribute.org/enterSchedule", {params: query}).then(r => {
+           await Axios.post("http://localhost:3001/enterSchedule", {params: query}).then(r => {
              // this.setState({list: r.data})
              console.log("success enter schedule rerender events")
       } )} catch (error) {

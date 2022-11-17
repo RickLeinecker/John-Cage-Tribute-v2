@@ -157,7 +157,7 @@ class CompListAdminItem extends React.Component {
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio className="audio-elem" controls src={"https://johncagetribute.org/audio/"
+							<audio className="audio-elem" controls src={"http://localhost:3001/audio/"
 								+ this.state.formdata.audioFile} >
 							</audio>	 	 
 						</div>
@@ -212,7 +212,7 @@ class CompListAdminItem extends React.Component {
 			console.log(id);
             console.log("TREVOR");
             console.log(payload);
-            Axios.post("https://johncagetribute.org/deleterecordingadmin", {data: {id: id}});
+            Axios.post("http://localhost:3001/deleterecordingadmin", {data: {id: id}});
             window.location.reload();
         }
     }
@@ -228,7 +228,7 @@ class CompListAdminItem extends React.Component {
 
 // 	console.log("query", query)
 // 	try {
-// 		 await Axios.post("https://johncagetribute.org/editrecording", {params: query}).then(r => {
+// 		 await Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
 // 			this.setState({list: r.data})
 // 			window.location.reload();
 // 	} )} catch (error) {

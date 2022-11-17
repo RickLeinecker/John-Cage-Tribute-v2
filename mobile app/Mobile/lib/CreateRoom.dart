@@ -217,6 +217,7 @@ class CreateRoom extends ConsumerWidget {
 
     socket.on("audiostop", (_) {
       print("Should be stopping now!");
+      socket.emit("endsession");
 
       // Display message letting user know their time ran out
       micListener?.cancel();

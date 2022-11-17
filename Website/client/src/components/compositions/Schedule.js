@@ -69,7 +69,7 @@ const Schedule = ({ isAuthenticated }) => {
   
     const refreshToken = async () => {
         try {
-            const response = await axios.get('https://johncagetribute.org/token');
+            const response = await axios.get('http://localhost:3001/token');
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
             console.log("decoded id", decoded.userId);
@@ -93,7 +93,7 @@ const Schedule = ({ isAuthenticated }) => {
     axiosJWT.interceptors.request.use(async (config) => {
         const currentDate = new Date();
         if (expire * 1000 < currentDate.getTime()) {
-            const response = await axios.get('https://johncagetribute.org/token');
+            const response = await axios.get('http://localhost:3001/token');
             config.headers.Authorization = `Bearer ${response.data.accessToken}`;
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
@@ -153,10 +153,10 @@ const Schedule = ({ isAuthenticated }) => {
                 console.log("query", query)
     
             
-                // await axios.post("https://johncagetribute.org/schedule", {params: {id: userId, date: date, title: title, desc: description}}).then(r => {
+                // await axios.post("http://localhost:3001/schedule", {params: {id: userId, date: date, title: title, desc: description}}).then(r => {
                 // console.log("schedule call", r);
                 // })
-                await axios.post("https://johncagetribute.org/schedule", {params: query}).then(r => {
+                await axios.post("http://localhost:3001/schedule", {params: query}).then(r => {
                 console.log("schedule call", r);	
                 })
         

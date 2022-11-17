@@ -2,7 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import Socket from "socket.io-client";
 
 // Websocket for live server
-const socket = Socket.connect("https://johncagetribute.org/");
+const socket = Socket.connect("http://localhost:3001/");
 
 socket.on('connect', () => {
   console.log("Websocket is working!!");

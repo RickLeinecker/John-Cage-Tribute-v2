@@ -44,7 +44,7 @@ audioProcessorPool = childProcess.fork("../Website/audioProcessor/audioProcessor
 // Seems like it's working but idk what it is exactly
 // Can you fetch the documentation for this call again?
 // I kinda want to try IP first based on how this test goes
-app.use(cors({ credentials:true, origin:'https://johncagetribute.org' }));
+app.use(cors({ credentials:true, origin:'http://localhost:3000' }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(router);
@@ -57,7 +57,7 @@ http.listen(socketPort, () => console.log(`Websocket server started on port ${so
 const db2 = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'JCSD!2022',
+    password: 'MySQL!1996',
     database: 'jctdatabase'
 });
 
@@ -70,7 +70,7 @@ app.get('/confirmation/:token', async (req, res) => {
         console.log("THERE HAS BEEN SUM ERROR");
         res.send('error');
     }
-    return res.redirect('https://johncagetribute.org/login');
+    return res.redirect('http://localhost:3001/login');
 });
 
 // Recording API Calls
@@ -695,7 +695,7 @@ io.on("connection", function (socket) {
     socket.on("register", async (credentials) => {
         console.log("Registering!!!");
 
-        await Axios.post('https://johncagetribute.org/users', {
+        await Axios.post('http://localhost:3001/users', {
             username: credentials.username,
             email: credentials.email,
             password: credentials.password,
@@ -711,7 +711,7 @@ io.on("connection", function (socket) {
 
     // Log in from mobile app
     socket.on("login", async (credentials) => {
-        await Axios.post('https://johncagetribute.org/login/', {
+        await Axios.post('http://localhost:3001/login/', {
           email: credentials.email,
           password: credentials.password
          }).then((response) => {
@@ -1036,6 +1036,7 @@ io.on("connection", function (socket) {
 
                     socket.join(roomId);
 
+                    socket.emit("joinsuccess", "yay");
                     io.to(roomId).emit('updatemembers', {
                         members: availableRooms[roomId]['members'],
                         sessionStarted: availableRooms[roomId]['sessionStarted']
@@ -1273,7 +1274,7 @@ io.on("connection", function (socket) {
 
         console.log('Uploading MP3 to database...');
 
-        //const response = await fetch(`https://johncagetribute.org/api/compositions/upload`, { method: 'POST', body: formData });
+        //const response = await fetch(`http://localhost:3001/api/compositions/upload`, { method: 'POST', body: formData });
         // console.log(response);
 
         // Here, we create a payload that
@@ -1312,7 +1313,7 @@ io.on("connection", function (socket) {
         // Clear up the room
         delete availableRooms[roomId];
 
-        await Axios.post('https://johncagetribute.org/createRecording/', payload)
+        await Axios.post('http://localhost:3001/createRecording/', payload)
         .then((response) => {
             console.log(response);
             socket.emit("loginsuccess", response.data);

@@ -34,7 +34,7 @@ class Profile extends React.Component {
 	}
 
     componentDidMount() {
-        Axios.get("https://johncagetribute.org/userinfo", {params: {id: this.state.userId}}).then(r => {
+        Axios.get("http://localhost:3001/userinfo", {params: {id: this.state.userId}}).then(r => {
             //console.log(r);
             this.setState({username: r.data[0].username});
             // this.setState({userId: r.data[0].id});
@@ -68,7 +68,7 @@ class Profile extends React.Component {
 
     submitEdit(e) {
         e.preventDefault();
-        // Axios.post("https://johncagetribute.org/editbio", {}, {params: {id: this.state.userId}}, {
+        // Axios.post("http://localhost:3001/editbio", {}, {params: {id: this.state.userId}}, {
         //     bio: this.state.editBio
         // })
         console.log("new name: " + this.state.editName);
@@ -80,7 +80,7 @@ class Profile extends React.Component {
             newbio: this.state.editBio,
         };
 
-        Axios.post("https://johncagetribute.org/editbio", payload);
+        Axios.post("http://localhost:3001/editbio", payload);
 
         var payloadtwo = {
             id: this.state.userId,
@@ -89,7 +89,7 @@ class Profile extends React.Component {
 
         console.log(payloadtwo);
 
-        Axios.post("https://johncagetribute.org/editusername", payloadtwo);
+        Axios.post("http://localhost:3001/editusername", payloadtwo);
         
         this.setState({editing: false});
 

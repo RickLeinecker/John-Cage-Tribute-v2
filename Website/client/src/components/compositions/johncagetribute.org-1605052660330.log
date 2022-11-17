@@ -1,6 +1,6 @@
 CompList.js:29 Promise
 CompList.js:29 Array(1)
-VM26 dashboard:1 Error while trying to use the following icon from the Manifest: https://johncagetribute.org/logo192.png (Download error or resource isn't a valid image)
+VM26 dashboard:1 Error while trying to use the following icon from the Manifest: http://localhost:3001/logo192.png (Download error or resource isn't a valid image)
 content.js:45 Uncaught TypeError: Cannot read property 'currentSrc' of undefined
     at Object.find (content.js:45)
     at m_over (content.js:116)

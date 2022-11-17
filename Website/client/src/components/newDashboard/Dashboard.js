@@ -90,7 +90,7 @@ const Dashboard = () => {
     ];
 
     
-    // axios.get("https://johncagetribute.org/userinfo", {params: {id: userId}}).then(r => {
+    // axios.get("http://localhost:3001/userinfo", {params: {id: userId}}).then(r => {
     //     // isMaestro = r.data[0].isMaestro;
     //     console.log("LOOKY "+r.data[0].isMaestro);
     // })
@@ -164,7 +164,7 @@ const Dashboard = () => {
   
     const refreshToken = async () => {
         try {
-            const response = await axios.get('https://johncagetribute.org/token');
+            const response = await axios.get('http://localhost:3001/token');
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
             console.log("decoded id", typeof(decoded.userId));
@@ -200,7 +200,7 @@ const Dashboard = () => {
     axiosJWT.interceptors.request.use(async (config) => {
         const currentDate = new Date();
         if (expire * 1000 < currentDate.getTime()) {
-            const response = await axios.get('https://johncagetribute.org/token');
+            const response = await axios.get('http://localhost:3001/token');
             config.headers.Authorization = `Bearer ${response.data.accessToken}`;
             setToken(response.data.accessToken);
             const decoded = jwt_decode(response.data.accessToken);
@@ -220,7 +220,7 @@ const Dashboard = () => {
     const getRecordings = async (id)=>{
     // return testData;
     console.log("id is", id);
-    await axios.get("https://johncagetribute.org/userRec", {params: {id: id}}).then(r => {
+    await axios.get("http://localhost:3001/userRec", {params: {id: id}}).then(r => {
         setRecordings(r.data);
         console.log("BEFORE" + userId);
         setId(id);
@@ -230,7 +230,7 @@ const Dashboard = () => {
    }
 
     const getIsMaestro = async (id)=>{
-        await axios.get("https://johncagetribute.org/userinfo", {params: {id: id}}).then(r => {
+        await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
             console.log(typeof(r.data[0].isMaestro));
             console.log(r.data[0].isMaestro);
             setIsMaestro(r.data[0].isMaestro);
@@ -239,7 +239,7 @@ const Dashboard = () => {
    }
 
     const getIsRequested = async (id)=>{
-        await axios.get("https://johncagetribute.org/userinfo", {params: {id: id}}).then(r => {
+        await axios.get("http://localhost:3001/userinfo", {params: {id: id}}).then(r => {
             setIsRequested(r.data[0].isRequested);
         })
     }
@@ -247,7 +247,7 @@ const Dashboard = () => {
    const getEvents = async (id)=>{
     // return testData;
         console.log("id is", id);
-        await axios.get("https://johncagetribute.org/userScheduled", {params: {id: id}}).then(r => {
+        await axios.get("http://localhost:3001/userScheduled", {params: {id: id}}).then(r => {
         setEvents(r.data);
         console.log("events call", r);
         getUsernames(id, r.data);
@@ -264,7 +264,7 @@ const Dashboard = () => {
         var user3Name = "";
         //console.log(id);
 
-        // axios.get("https://johncagetribute.org/username", {params: {id: id}}).then(r => {
+        // axios.get("http://localhost:3001/username", {params: {id: id}}).then(r => {
         //     maestroName = r.data[0].username;
         //     console.log("WOAH NELLY");
         //     console.log(maestroName);
@@ -273,7 +273,7 @@ const Dashboard = () => {
         events.map((item, index) => {
             //getting maestro name
             console.log("IN THE MAP");
-            axios.get("https://johncagetribute.org/username", {params: {id: item.maestroId}}).then(r => {
+            axios.get("http://localhost:3001/username", {params: {id: item.maestroId}}).then(r => {
                 // maestroName = r.data[0].username;
                 events[index]["maestroName"] = r.data[0].username;
                 console.log("WOAH NELLY " + events[index]["maestroName"]);
@@ -281,7 +281,7 @@ const Dashboard = () => {
 
             //getting user1 name
             if(item.userOne > 0) {
-                axios.get("https://johncagetribute.org/username", {params: {id: item.userOne}}).then(r => {
+                axios.get("http://localhost:3001/username", {params: {id: item.userOne}}).then(r => {
                     //user1Name = r.data[0].username;
                     //console.log("TAKE 2 " + user1Name);
                     events[index]["userOneName"] = r.data[0].username;
@@ -292,7 +292,7 @@ const Dashboard = () => {
 
             //getting user2 name
             if(item.userTwo > 0) {
-                axios.get("https://johncagetribute.org/username", {params: {id: item.userTwo}}).then(r => {
+                axios.get("http://localhost:3001/username", {params: {id: item.userTwo}}).then(r => {
                     // user2Name = r.data[0].username;
                     // console.log("TAKE 3 " + user2Name);
                     events[index]["userTwoName"] = r.data[0].username;
@@ -303,7 +303,7 @@ const Dashboard = () => {
 
             //getting user3 name
             if(item.userThree > 0) {
-                axios.get("https://johncagetribute.org/username", {params: {id: item.userThree}}).then(r => {
+                axios.get("http://localhost:3001/username", {params: {id: item.userThree}}).then(r => {
                     // user3Name = r.data[0].username;
                     // console.log("TAKE 4 " + user3Name);
                     events[index]["userThreeName"] = r.data[0].username;
@@ -316,11 +316,11 @@ const Dashboard = () => {
         })
         console.log("afterwards:");
         console.log(events);
-        // await axios.get("https://johncagetribute.org/username", params:)
+        // await axios.get("http://localhost:3001/username", params:)
    }
 
 //    function getMaestroName(id) {
-//     axios.get("https://johncagetribute.org/username", {params: {id: id}}).then(r => {
+//     axios.get("http://localhost:3001/username", {params: {id: id}}).then(r => {
 //         console.log(r.data[0].username);
 //         return(r.data[0].username);
 //     })
@@ -331,7 +331,7 @@ const Dashboard = () => {
     var payload = {
         id: userId,
     }
-    axios.post("https://johncagetribute.org/changerequested", payload);
+    axios.post("http://localhost:3001/changerequested", payload);
    }
 
    var evd;

@@ -46,7 +46,7 @@ export const Register = async(req, res) => {
               expiresIn: '1d',
             },
             (err, emailToken) => {
-              const url = `https://johncagetribute.org/confirmation/${emailToken}`;
+              const url = `http://localhost:3001/confirmation/${emailToken}`;
               transporter.sendMail({
                 from: 'JohnCageTributeOrg@gmail.com',
                 to: email,

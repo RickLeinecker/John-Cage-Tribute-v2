@@ -15,7 +15,7 @@ class AllRecordings extends React.Component {
 	}
 
     componentDidMount() {
-        Axios.get("https://johncagetribute.org/recordings").then(r => {
+        Axios.get("http://localhost:3001/recordings").then(r => {
             this.setState({list: r.data});
             console.log("NAIRO");
             console.log(this.state.list);

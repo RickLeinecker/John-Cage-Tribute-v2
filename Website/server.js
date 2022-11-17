@@ -18,7 +18,7 @@ const wavefile = require('wavefile').WaveFile;
 const Lame = require("node-lame").Lame;
 const cp = require('child_process');
 
-const baseUrl = 'https://johncagetribute.org';
+const baseUrl = 'http://localhost:3001';
 // const baseUrl = `http://localhost:${PORT}`;
 
 // Connect Database

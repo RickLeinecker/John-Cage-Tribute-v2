@@ -177,7 +177,7 @@ class CompListItem extends React.Component {
 									style={{padding:"0px 4px"}}>Delete</button>
 							</div>
 							) : (null)}
-							<audio className="audio-elem" controls src={"https://johncagetribute.org/audio/"
+							<audio className="audio-elem" controls src={"http://localhost:3001/audio/"
 								+ this.state.formdata.audioFile} >
 							</audio>	 
 						</div>
@@ -230,7 +230,7 @@ class CompListItem extends React.Component {
 	var query = JSON.stringify({id:userId, recordingid: info.recordingId , newdescription: description, newtitle: title});
 
 	try {
-		 await Axios.post("https://johncagetribute.org/editrecording", {params: query}).then(r => {
+		 await Axios.post("http://localhost:3001/editrecording", {params: query}).then(r => {
 			this.setState({list: r.data})
 			window.location.reload();
 	} )} catch (error) {
@@ -306,7 +306,7 @@ class CompListItem extends React.Component {
                 id: id,
 				userId: userId
             }
-            Axios.post("https://johncagetribute.org/deleterecording", {data: payload});
+            Axios.post("http://localhost:3001/deleterecording", {data: payload});
             window.location.reload();
         }
 	}

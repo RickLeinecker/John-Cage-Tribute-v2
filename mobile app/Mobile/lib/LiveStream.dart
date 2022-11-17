@@ -11,6 +11,7 @@ import 'package:mic_stream/mic_stream.dart';
 
 // Local packages
 import './CustomPackages/popups.dart';
+import './HomePage.dart';
 
 Stream<Uint8List>? micStream;
 StreamSubscription<Uint8List>? micListener;
@@ -86,7 +87,7 @@ class LiveStream extends ConsumerWidget {
                                   padding: EdgeInsets.only(bottom: 350)),
                               ElevatedButton(
                                 onPressed: () {
-                                  leaveStream();
+                                  leaveStream(ref);
                                   started = !started;
                                   joined = !joined;
                                 },
@@ -100,17 +101,6 @@ class LiveStream extends ConsumerWidget {
   }
 
   void joinStream(BuildContext context, WidgetRef ref, int userId) async {
-    print("ROOM NUMBER: ${roomId}");
-
-    //var pinPackage = {"roomId": roomId, "enteredPin": "abcdefg"};
-
-    // socket.emit("verifypin", pinPackage);
-
-    // socket.on("pinerror", (err) {
-    //   ref.read(joinedProvider.notifier).state = false;
-    //   displayErr(context, err);
-    // });
-
     print('We should be joining the room now...');
 
     var member = {"role": 1, "userId": userId, "isHost": false};
@@ -118,49 +108,68 @@ class LiveStream extends ConsumerWidget {
 
     socket.emit("joinroom", package);
 
-    print("Successful pin!");
-
     socket.on("joinerror", (err) => displayErr(context, err));
     socket.on("roomerror", (err) => displayErr(context, err));
 
-    // socket.on("pinsuccess", (_) {
-    //   var member = {"role": 1, "userId": 4, "isHost": false};
-    //   var package = {"member": member, "roomId": roomId};
+    socket.on("joinsuccess", (data) {
+      socket.off("joinerror");
+      socket.off("roomerror");
 
-    //   socket.emit("joinroom", package);
-
-    //   print("Successful pin!");
-
-    //   socket.on("joinerror", (err) => displayErr(context, err));
-    //   socket.on("roomerror", (err) => displayErr(context, err));
-    // });
+      ref.read(joinedProvider.notifier).state = true;
+    });
 
     socket.on('disconnect', (disconn) {
       print(disconn);
       micListener?.cancel();
+
+      ref.read(joinedProvider.notifier).state = false;
+      ref.read(startedProvider.notifier).state = false;
+      ref.read(listeningProvider.notifier).state = false;
     });
 
     socket.on("audiostart", (message) async {
       print(message);
 
+      ref.read(startedProvider.notifier).state = true;
+      ref.read(listeningProvider.notifier).state = true;
+
       // Start listening to microphone
       micStream = await MicStream.microphone(
         sampleRate: 44100,
       );
+
       micListener = micStream?.listen((data) {
         socket.emit("sendaudio", data);
       });
     });
 
     socket.on("audiostop", (message) async {
-      print(message);
+      ref.read(joinedProvider.notifier).state = false;
+      ref.read(startedProvider.notifier).state = false;
 
+      print("Should be stopping now!");
+
+      // Display message letting user know their time ran out
       micListener?.cancel();
+      micStream = null;
+
+      socket.close();
+
+      // Pop back to the homepage
+      Navigator.of(context).pop();
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ));
     });
   }
 
-  void leaveStream() {
-    socket.emit("leaveroom", 33);
+  void leaveStream(WidgetRef ref) {
+    socket.emit("leaveroom", roomId);
+
+    ref.read(joinedProvider.notifier).state = false;
+    ref.read(startedProvider.notifier).state = false;
 
     micListener?.cancel();
   }
@@ -175,41 +184,3 @@ void initMic() async {
   } else
     print("Permissions already granted!");
 }
-
-/*
-websocket setup
-class _ListenScreenState extends State<ListenScreen> {
-  WebSocketChannel wsChannel;
-  Timer timer;
-
-  void initState() {
-	wsChannel = IOWebSocketChannel.connect('ws://ade18054.ngrok.io/listen');
-	timer = new Timer.periodic(
-	  Duration(milliseconds: 10), (Timer t) {
-		wsChannel.sink.add("Gimme audio!");
-	  });
-
-	super.initState();
-  }
-
-  stream
-
-  Widget build(BuildContext context) {
-	return StreamBuilder(
-	  stream: wsChannel.stream,
-	  builder: (BuildContext context, AsyncSnapshot snapshot) {
-		if (!snapshot.hasData) {
-		  return Center(
-			child: CircularProgressIndicator(),
-		  );
-		}
-
-		final audioData = snapshot.data;
-		return Scaffold(
-		  appBar: AppBar(
-			title: Text('Listening Screen'),
-		  ),
-		  body: Center(
-			child: Text('Audio data length is ${audioData.length}.'),
-		  ),
- */
